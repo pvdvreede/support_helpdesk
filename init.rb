@@ -1,4 +1,6 @@
 require_dependency "pop3"
+require_dependency "email"
+require_dependency "issue_patch"
 
 Redmine::Plugin.register :support_helpdesk do
   name 'Support Helpdesk plugin'

@@ -1,0 +1,57 @@
+module Support
+  class Email
+    attr_accessor :headers, :original
+
+    def initialize(message)
+      @original = message
+      @headers = []
+      parse_headers message
+    end
+
+    def to
+      @headers.select {|i| i[:key] =~ /^[Tt]o$/}[0][:value]
+    end
+
+    def from
+      @headers.select {|i| i[:key] =~ /^[Ff]rom$/}[0][:value]
+    end
+
+    def subject
+      @headers.select {|i| i[:key] =~ /^[Ss]ubject$/}[0][:value]
+    end
+
+    private
+    def parse_headers(message)
+      # split message at new lines
+      lines = message.split(/\n/)
+
+      # loop over lines and break to key value at ':'
+      lines.each do |l|
+        # loop until the end of the headers
+        # TODO fix this to include multi lineheaders
+        break l if l == ""
+        unless /^.*:.*$/.match(l) == nil
+          header = l.split(/:/)
+          @headers << {:key => header[0].strip, :value => header[1].strip}      
+        end
+      end
+    end
+
+    def parse_body(message)
+      content_type = @headers.select \
+                     {|i| i[:key] =~ /^[Cc]ontent-*[Tt]ype$/}[0][:value]
+
+
+      if content_type =~ /text\/plain/
+        # plain text email only
+
+      elsif content_type =~ /text\/html/
+        # html email only
+
+      elsif content_type =~ /multipart\/alternative/
+        # has both text and html email
+
+      end
+    end
+  end
+end
