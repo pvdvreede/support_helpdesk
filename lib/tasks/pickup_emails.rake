@@ -1,5 +1,3 @@
-
-
 namespace :support do
 	desc <<-END_DESC
 Pick up emails from POP3 server and process them into support tickets.

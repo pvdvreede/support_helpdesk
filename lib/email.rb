@@ -12,6 +12,10 @@ module Support
       @headers.select {|i| i[:key] =~ /^[Tt]o$/}[0][:value]
     end
 
+    def to_email
+      @headers.select {|i| i[:key] =~ /^X-Original-To$/}[0][:value]
+    end
+
     def from
       @headers.select {|i| i[:key] =~ /^[Ff]rom$/}[0][:value]
     end
@@ -21,6 +25,10 @@ module Support
     end
 
     private
+    def strip_out_email(full_email)
+      /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\Z/i.match full_email
+    end
+
     def parse_headers(message)
       # split message at new lines
       lines = message.split(/\n/)

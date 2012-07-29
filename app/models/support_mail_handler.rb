@@ -7,21 +7,48 @@ class SupportMailHandler < ActionMailer::Base
     # create the issue from the message
     email = Support::Email.new message
 
-    tracker = Tracker.where(:name => "Ticket")[0]
-    issue = Issue.new :subject => email.subject, :tracker => tracker, \
-                      :project_id => 1, :description => "Ticket generated from attached email.", \
-                      :author_id => 1, :status_id => 1, :assigned_to_id => 1
-    replyfield = IssueCustomField.where(:name => "Reply Address")[0]
-    replyaddressfield = CustomValue.new :customized_id => issue, \
-                                        :custom_field_id => replyfield, \
-                                        :value => email.from
+    SupportMailHandler.route_email email
+	end
 
+  def route_email(email)
+    supports = SupportHelpdeskSetting.where("to_email_address LIKE ?", "%#{email.to_email}%")
+    # if none than ignore the email
+    unless supports.count > 0
+      ::Rails.logger.debug "No support setups match the email address: #{email.to}."
+      return
+    end
+
+    supports.each do |support|
+      SupportMailHandler.create_issue(support, email)
+    end
+  end
+
+  def create_issue(support, email)
+    ::Rails.logger.debug "Creating issue for message..."
+    issue = Issue.new(:subject => email.subject, 
+                      :tracker_id => support.tracker_id, 
+                      :project_id => support.project_id, 
+                      :description => "Ticket generated from attached email.", 
+                      :author_id => support.author_id, 
+                      :status_id => support.new_status_id, 
+                      :assigned_to_id => SupportMailHandler.get_assignee(support.assignee_group_id))
+    issue.save
+    replyaddressfield = CustomValue.new(:customized_id => issue.id,
+                                        :custom_field_id => support.reply_email_custom_field_id,
+                                        :value => email.from)
+    typefield = CustomValue.new(:customized_id => issue.id,
+                                :custom_field_id => support.type_custom_field_id,
+                                :value => support.name)   
     # send attachment to redmine
-    self.attach_email(issue, email, "#{email.from}_#{email.to}.msg")
+    SupportMailHandler.attach_email(issue, email, "#{email.from}_#{email.to_email}.msg")
 
     # send email back to ticket creator
-    SupportMailHandler.ticket_created(issue, email.from).deliver
-	end
+    SupportMailHandler.ticket_created(issue, email.from).deliver if support.send_created_email_to_user
+  end
+
+  def get_assignee(group_id)
+    return 1
+  end
 
   def ticket_created(issue, to)
     @issue = issue
