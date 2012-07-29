@@ -31,28 +31,29 @@ class SupportMailHandler < ActionMailer::Base
     last_assignee = support.last_assigned_user_id || 0
     this_assignee = get_assignee(support.assignee_group_id, last_assignee)
     ::Rails.logger.debug "The assigned is id #{this_assignee}."
-    issue = Issue.new(:subject => email.subject, 
+    issue = Issue.new({:subject => email.subject, 
                       :tracker_id => support.tracker_id, 
                       :project_id => support.project_id, 
                       :description => "Ticket generated from attached email.", 
                       :author_id => support.author_id, 
                       :status_id => support.new_status_id, 
-                      :assigned_to_id => this_assignee)
-    issue.save
+                      :assigned_to_id => this_assignee})
     support.last_assigned_user_id = this_assignee
     support.save
-    replyaddressfield = CustomValue.new(:customized_id => issue.id,
-                                        :custom_field_id => support.reply_email_custom_field_id,
-                                        :value => email.from)
-    typefield = CustomValue.new(:customized_id => issue.id,
-                                :custom_field_id => support.type_custom_field_id,
-                                :value => support.name) 
+    replyaddressfield = CustomValue.new({:custom_field_id => support.reply_email_custom_field_id,
+                                        :value => email.from})
+    typefield = CustomValue.new({:custom_field_id => support.type_custom_field_id,
+                                :value => support.name}) 
+
+    issue.custom_field_values << replyaddressfield
+    issue.custom_field_values << typefield
+    
 
     # send attachment to redmine
     attach_email(issue, email, "#{email.from}_#{email.to_email}.msg")
 
     # send email back to ticket creator
-    ticket_created(issue, email.from).deliver if support.send_created_email_to_user
+    SupportMailHandler.ticket_created(issue, email.from).deliver if support.send_created_email_to_user
   end
 
   # use round robin
@@ -101,7 +102,7 @@ class SupportMailHandler < ActionMailer::Base
   end
 
   private
-  def self.attach_email(issue, email, filename)
+  def attach_email(issue, email, filename)
     attachment = Attachment.new(:file => email.original)
     attachment.author = User.where(:id => 1)[0]
     attachment.content_type = "ms/outlook"
