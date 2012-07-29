@@ -24,35 +24,63 @@ class SupportMailHandler < ActionMailer::Base
   end
 
   def create_issue(support, email)
+    # TODO put issue creation inside transaction for atomicity
+
     ::Rails.logger.debug "Creating issue for message..."
+    # get the assignee and update the round robin item
+    last_assignee = support.last_assigned_user_id || 0
+    this_assignee = get_assignee(support.assignee_group_id, last_assignee)
+    ::Rails.logger.debug "The assigned is id #{this_assignee}."
     issue = Issue.new(:subject => email.subject, 
                       :tracker_id => support.tracker_id, 
                       :project_id => support.project_id, 
                       :description => "Ticket generated from attached email.", 
                       :author_id => support.author_id, 
                       :status_id => support.new_status_id, 
-                      :assigned_to_id => SupportMailHandler.get_assignee(support.assignee_group_id))
+                      :assigned_to_id => this_assignee)
     issue.save
+    support.last_assigned_user_id = this_assignee
+    support.save
     replyaddressfield = CustomValue.new(:customized_id => issue.id,
                                         :custom_field_id => support.reply_email_custom_field_id,
                                         :value => email.from)
     typefield = CustomValue.new(:customized_id => issue.id,
                                 :custom_field_id => support.type_custom_field_id,
-                                :value => support.name)   
+                                :value => support.name) 
+
     # send attachment to redmine
-    SupportMailHandler.attach_email(issue, email, "#{email.from}_#{email.to_email}.msg")
+    attach_email(issue, email, "#{email.from}_#{email.to_email}.msg")
 
     # send email back to ticket creator
-    SupportMailHandler.ticket_created(issue, email.from).deliver if support.send_created_email_to_user
+    ticket_created(issue, email.from).deliver if support.send_created_email_to_user
   end
 
-  def get_assignee(group_id)
-    return 1
+  # use round robin
+  def get_assignee(group_id, last_id)
+    users = Group.find(group_id).users.order("id")
+    ::Rails.logger.debug "There are #{users.count} users in the group."
+    user_count = users.count
+    next_id = 0 if user_count == 0
+    next_id = users[0].id if user_count == 1
+    next_id = users[0].id if last_id == 0
+    if user_count > 1
+      users.each_with_index do |u, i|
+        if u.id == last_id
+          if i+1 == user_count
+            next_id = users[0].id
+          else
+            next_id = users[i+1].id
+          end
+        end
+      end
+    end
+    ::Rails.logger.debug "Returning user #{next_id} as the next assignee."
+    next_id
   end
 
   def ticket_created(issue, to)
     @issue = issue
-    ::Rails.logger.debug "Sending return support email..."
+    ::Rails.logger.debug "Sending ticket creation support email..."
     mail(:to => to, 
          :subject => "Support ticket", 
          :template_name => "ticket_created", 
