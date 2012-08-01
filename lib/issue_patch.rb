@@ -24,8 +24,16 @@ module Support
           ::Rails.logger.debug "Issue #{self.id} status is closed."
           reply_field = CustomValue.where(:customized_id => self, :custom_field_id => IssueCustomField.where(:name => "Reply Address"))[0]
           SupportMailHandler.ticket_closed(self, reply_field.value).deliver \
-           unless reply_field == nil or reply_field.value == nil
+                unless reply_field == nil or reply_field.value == nil
         end
+      end
+
+      def set_custom_support_value(id, value)
+        value = CustomFieldValue.new
+        value.customized = self
+        value.custom_field = CustomField.find(id)
+        value.value = value.to_s
+        self.custom_field_values << value
       end
     end
   end
