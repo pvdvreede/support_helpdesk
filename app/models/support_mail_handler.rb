@@ -2,11 +2,16 @@
 class SupportMailHandler
   
 	def receive(message, options={})
-    # create the issue from the message
-    email = Support::Email.new message
+    begin
+      # create the issue from the message
+      email = Support::Email.new message
 
-    # TODO add return value of outcome so emailer knows whether to delete the email or not
-    self.route_email email    
+      
+      self.route_email email    
+    rescue Exception => e
+      Support.log_error "There was an error #{e} processing message:\n#{message}"
+      return false
+    end
 	end
 
   def route_email(email)
@@ -24,9 +29,7 @@ class SupportMailHandler
       return true
     end
 
-    supports.each do |support|
-      self.create_issue(support, email)
-    end
+    return self.create_issue(support, email)
   end
 
   def check_issue_exists(email)
@@ -78,6 +81,7 @@ class SupportMailHandler
 
     # send email back to ticket creator
     SupportHelpdeskMailer.ticket_created(issue, email.from).deliver if support.send_created_email_to_user
+    return true
   end
 
   def update_issue(issue_id, email)
@@ -139,5 +143,5 @@ class SupportMailHandler
     attachment.description = description if description
     attachment.save
   end
-  
+
 end
