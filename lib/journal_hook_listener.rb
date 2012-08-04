@@ -1,10 +1,8 @@
 class JournalHookListener < Redmine::Hook::ViewListener
-  #render_on :view_issues_edit_notes_bottom, :partial => "issues/email_to_user_option"
 
   def view_issues_edit_notes_bottom(context={})
-    tracker_id = context[:issue].tracker_id
-    support_setting = SupportHelpdeskSetting.where(:tracker_id => tracker_id)
-    if is_support_issue? context[:issue]
+    # only show email user if available on the issue
+    if context[:issue].reply_email != nil
       context[:controller].send(:render_to_string, {
         :partial => "issues/email_to_user_option",
         :locals => context
@@ -12,15 +10,29 @@ class JournalHookListener < Redmine::Hook::ViewListener
     end
   end
 
-  private
-  def is_support_issue?(issue)
-    # get all custom field ids for replies from all support types
-    field_ids = SupportHelpdeskSetting.select(:reply_email_custom_field_id)
-    # check if the issue has a reply email address custom field
-    reply_address = CustomValue.where(:customized_id => issue.id, :custom_field_id => field_ids)
-    if reply_address.count > 0
-      return true
+  def controller_issues_edit_before_save(context={})
+    if context[:params][:email_to_user]
+      # double check that we can email the user
+      issue = context[:issue]
+      reply_email = issue.reply_email
+      return if reply_email == nil or reply_email == ""
+
+      notes = context[:journal].notes
+
+      ::Rails.logger.info "Emailing note for #{issue.id} to #{reply_email}."
+      mail = SupportHelpdeskMailer.user_question(issue, notes, reply_email)
+      mail.deliver
+
+      # add info to the note so we know it was emailed.
+      context[:journal].notes = <<-NOTE
+Emailed to #{reply_email} at #{Time.now.to_s}: 
+
+#{notes}
+NOTE
+
+      # TODO save the email sent for our records
     end
-  end 
+  end
+
 end
     

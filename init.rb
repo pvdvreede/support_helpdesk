@@ -2,7 +2,6 @@ require_dependency "pop3"
 require_dependency "email"
 require_dependency "issue_patch"
 require_dependency "journal_hook_listener"
-require_dependency "journal_edit_hook_listener"
 
 Redmine::Plugin.register :support_helpdesk do
   name 'Support Helpdesk plugin'

@@ -47,7 +47,7 @@ class SupportMailHandler
     end
 
     # send attachment to redmine
-    attach_email(issue, email, "#{email.from}_#{email.to_email}.msg")
+    SupportMailHandler.attach_email(issue, email, "#{email.from}_#{email.to_email}.msg")
 
     # send email back to ticket creator
     SupportHelpdeskMailer.ticket_created(issue, email.from).deliver if support.send_created_email_to_user
@@ -76,13 +76,13 @@ class SupportMailHandler
     next_id
   end
 
-  private
-  def attach_email(issue, email, filename)
+  def self.attach_email(issue, email, filename, description=nil)
     attachment = Attachment.new(:file => email.original)
     attachment.author = User.where(:id => 1)[0]
-    attachment.content_type = "ms/outlook"
+    attachment.content_type = "application/msoutlook"
     attachment.filename = filename
     attachment.container = issue
+    attachment.description = description if description
     attachment.save
   end
 
