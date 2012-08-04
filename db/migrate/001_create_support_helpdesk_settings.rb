@@ -3,6 +3,7 @@ class CreateSupportHelpdeskSettings < ActiveRecord::Migration
     create_table :support_helpdesk_settings do |t|
       t.string  :name, :null => false
       t.integer :project_id, :null => false
+      t.integer :email_domain_custom_field_id
       t.integer :author_id, :null => false
       t.integer :assignee_group_id, :null => false
       t.integer :new_status_id, :null => false

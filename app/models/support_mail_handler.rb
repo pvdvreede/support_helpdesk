@@ -43,9 +43,20 @@ class SupportMailHandler
     last_assignee = support.last_assigned_user_id || 0
     this_assignee = get_assignee(support.assignee_group_id, last_assignee)
     ::Rails.logger.debug "The assigned is id #{this_assignee}."
+
+    # if project_id is nil then get id from domain
+    if support.email_domain_custom_field_id != nil
+      project_id = get_project_from_email_domain(email.from_domain,
+                                                 support.email_domain_custom_field_id,
+                                                 support.project_id
+                                                 )
+    else
+      project_id = support.project_id
+    end
+
     issue = Issue.new({:subject => email.subject, 
-                      :tracker_id => support.tracker_id, 
-                      :project_id => support.project_id, 
+                      :tracker_id => support.tracker_id,
+                      :project_id => project_id,
                       :description => "Ticket generated from attached email.", 
                       :author_id => support.author_id, 
                       :status_id => support.new_status_id, 
@@ -110,6 +121,15 @@ class SupportMailHandler
         end
       end
     end
+  end
+
+  def get_project_from_email_domain(domain, field_id, default_project_id)
+    # search for the project
+    projects = Project.joins(:custom_values).
+                       where("#{CustomValue.table_name}.custom_field_id = ?", field_id).
+                       where("#{CustomValue.table_name}.value = ?", domain)
+    return default_project_id if projects.empty?
+    return projects[0].id
   end
 
   def self.attach_email(issue, email, filename, description=nil)

@@ -26,6 +26,10 @@ module Support
       (f =~ /<(.*)>/ ? $1 : f)
     end
 
+    def from_domain
+      return self.from_email.split("@")[1]
+    end
+
     def subject
       @headers.detect {|i| i[:key] =~ /^[Ss]ubject$/}[:value]
     end
