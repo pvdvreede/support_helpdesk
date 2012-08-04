@@ -10,10 +10,10 @@ module Support
         port = pop_options[:port] || '110'
         apop = (pop_options[:apop].to_s == '1')
         pop = Net::POP3.APOP(apop).new(host, port)
-        logger.debug "Connecting to #{host}:#{port}..." if logger && logger.debug?
+        logger.info "Connecting to #{host}:#{port}..." if logger && logger.debug?
         pop.start(pop_options[:username], pop_options[:password]) do |pop_session|
           if pop_session.mails.empty?
-            logger.debug "No emails to fetch." if logger && logger.debug?
+            logger.info "No emails to fetch." if logger && logger.debug?
           else
             pop_session.each_mail do |mail|
               message = mail.pop

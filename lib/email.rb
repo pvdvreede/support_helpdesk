@@ -20,6 +20,12 @@ module Support
       @headers.detect {|i| i[:key] =~ /^[Ff]rom$/}[:value]
     end
 
+    def from_email
+      f = self.from
+      # check if there is a name with the email address and strip it
+      (f =~ /<(.*)>/ ? $1 : f)
+    end
+
     def subject
       @headers.detect {|i| i[:key] =~ /^[Ss]ubject$/}[:value]
     end

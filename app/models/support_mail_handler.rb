@@ -6,6 +6,8 @@ class SupportMailHandler
     email = Support::Email.new message
 
     self.route_email email
+
+    # TODO add return value of outcome so emailer knows whether to delete the email or not
 	end
 
   def route_email(email)
@@ -20,6 +22,10 @@ class SupportMailHandler
       self.create_issue(support, email)
     end
   end
+
+  def check_issue_exist(email)
+    # see if this is an update to an existing ticket
+
 
   def create_issue(support, email)
     # TODO put issue creation inside transaction for atomicity
@@ -47,7 +53,11 @@ class SupportMailHandler
     end
 
     # send attachment to redmine
-    SupportMailHandler.attach_email(issue, email, "#{email.from}_#{email.to_email}.msg")
+    SupportMailHandler.attach_email(issue, 
+                                    email, 
+                                    "#{email.from_email}_#{email.to_email}.msg",
+                                    "Email issue was created from."
+                                    )
 
     # send email back to ticket creator
     SupportHelpdeskMailer.ticket_created(issue, email.from).deliver if support.send_created_email_to_user
