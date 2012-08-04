@@ -9,19 +9,19 @@ module Support
     end
 
     def to
-      @headers.select {|i| i[:key] =~ /^[Tt]o$/}[0][:value]
+      @headers.detect {|i| i[:key] =~ /^[Tt]o$/}[:value]
     end
 
     def to_email
-      @headers.select {|i| i[:key] =~ /^X-Original-To$/}[0][:value]
+      @headers.detect {|i| i[:key] =~ /^X-Original-To$/}[:value]
     end
 
     def from
-      @headers.select {|i| i[:key] =~ /^[Ff]rom$/}[0][:value]
+      @headers.detect {|i| i[:key] =~ /^[Ff]rom$/}[:value]
     end
 
     def subject
-      @headers.select {|i| i[:key] =~ /^[Ss]ubject$/}[0][:value]
+      @headers.detect {|i| i[:key] =~ /^[Ss]ubject$/}[:value]
     end
 
     private
