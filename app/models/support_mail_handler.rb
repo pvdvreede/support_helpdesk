@@ -22,14 +22,17 @@ class SupportMailHandler
     end
 
     # otherwise create a new ticket if there is a support setting for it
-    supports = SupportHelpdeskSetting.where("to_email_address LIKE ?", "%#{email.to_email}%")
+    supports = SupportHelpdeskSetting.where("to_email_address LIKE ?", "%#{email.to_email}%") \
+                                     .where(:active => true)
+
     # if none than ignore the email
     unless supports.count > 0
-      Support.log_info "No support setups match the email address: #{email.to}."
-      return true
+      Support.log_info "No active support setups match the email address: #{email.to}."
+      # tell POP3 to not delete the email,cause it might not be for us
+      return false
     end
 
-    return self.create_issue(support, email)
+    return self.create_issue(supports[0], email)
   end
 
   def check_issue_exists(email)

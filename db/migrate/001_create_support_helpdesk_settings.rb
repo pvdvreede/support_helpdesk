@@ -15,9 +15,10 @@ class CreateSupportHelpdeskSettings < ActiveRecord::Migration
       t.string  :created_template_name, :null => false
       t.string  :closed_template_name, :null => false
       t.string  :question_template_name, :null => false
-      t.integer :send_created_email_to_user, :null => false
-      t.integer :send_closed_email_to_user, :null => false
+      t.boolean :send_created_email_to_user, :null => false
+      t.boolean :send_closed_email_to_user, :null => false
       t.integer :last_assigned_user_id
+      t.boolean :active,:null => false, :default => true
 
       t.timestamps
     end
