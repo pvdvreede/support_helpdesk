@@ -98,22 +98,18 @@ class SupportMailHandler
     users = Group.find(group_id).users.order("id")
     ::Rails.logger.debug "There are #{users.count} users in the group."
     user_count = users.count
-    next_id = 0 if user_count == 0
-    next_id = users[0].id if user_count == 1
-    next_id = users[0].id if last_id == 0
-    if user_count > 1
-      users.each_with_index do |u, i|
-        if u.id == last_id
-          if i+1 == user_count
-            next_id = users[0].id
-          else
-            next_id = users[i+1].id
-          end
+    return if user_count == 0
+    return users[0].id if user_count == 1
+    return users[0].id if last_id == 0 
+    users.each_with_index do |u, i|
+      if u.id == last_id
+        if i+1 == user_count
+          return users[0].id
+        else
+          return users[i+1].id
         end
       end
     end
-    ::Rails.logger.debug "Returning user #{next_id} as the next assignee."
-    next_id
   end
 
   def self.attach_email(issue, email, filename, description=nil)
