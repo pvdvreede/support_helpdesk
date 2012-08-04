@@ -1,8 +1,8 @@
 class SupportHelpdeskMailer < ActionMailer::Base
   default :parts_order => ["text/html", "text/plain"]
 
-  # TODO make this less dependent on plugin folder name
-  append_view_path("#{Rails.root}/plugins/support_helpdesk/app/views")
+  # add current plugins views folder as a place to look for views
+  append_view_path("#{File.expand_path(File.dirname(__FILE__))}/../views")
 
   def ticket_created(issue, to)
     @issue = issue
