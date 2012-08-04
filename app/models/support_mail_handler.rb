@@ -5,17 +5,23 @@ class SupportMailHandler
     # create the issue from the message
     email = Support::Email.new message
 
-    self.route_email email
-
     # TODO add return value of outcome so emailer knows whether to delete the email or not
+    self.route_email email    
 	end
 
   def route_email(email)
+    # check if it is for a current issue first
+    id = check_issue_exists(email)
+    if (id != false)
+      return update_issue id, email
+    end
+
+    # otherwise create a new ticket if there is a support setting for it
     supports = SupportHelpdeskSetting.where("to_email_address LIKE ?", "%#{email.to_email}%")
     # if none than ignore the email
     unless supports.count > 0
       ::Rails.logger.debug "No support setups match the email address: #{email.to}."
-      return
+      return true
     end
 
     supports.each do |support|
@@ -23,9 +29,11 @@ class SupportMailHandler
     end
   end
 
-  def check_issue_exist(email)
-    # see if this is an update to an existing ticket
-
+  def check_issue_exists(email)
+    # see if this is an update to an existing ticket based on subject
+    subject = email.subject
+    id = (subject =~ /Ticket #([0-9]*)/ ? $1 : false)
+  end
 
   def create_issue(support, email)
     # TODO put issue creation inside transaction for atomicity
@@ -61,6 +69,28 @@ class SupportMailHandler
 
     # send email back to ticket creator
     SupportHelpdeskMailer.ticket_created(issue, email.from).deliver if support.send_created_email_to_user
+  end
+
+  def update_issue(issue_id, email)
+    issue = Issue.find issue_id
+
+    # attach the email to the issue
+    SupportMailHandler.attach_email(issue, 
+                                    email, 
+                                    "#{email.from_email}_#{email.to_email}.msg",
+                                    "Email from #{email.from}."
+                                    )
+
+    # add a note to the issue with email body
+    journal = Journal.new
+    journal.notes = "Email received from #{email.from} at #{Time.now.to_s} and is attached."
+    journal.user_id = issue.support_helpdesk_setting.author_id
+    issue.journals << journal
+    if not issue.save
+      ::Rails.logger.error "Could not save issue #{issue.errors.full_messages.join("\n")}"
+      return false
+    end
+    return true
   end
 
   # use round robin

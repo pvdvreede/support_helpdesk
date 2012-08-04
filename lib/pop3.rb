@@ -20,7 +20,7 @@ module Support
               message_id = (message =~ /^Message-I[dD]: (.*)/ ? $1 : '').strip
               logger.debug "Processing message with message id #{message_id}: #{message}" if logger && logger.debug?
               if handler.receive(message)
-                true#mail.delete
+                mail.delete
               end
             end
           end

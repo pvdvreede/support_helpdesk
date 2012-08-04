@@ -46,7 +46,10 @@ module Support
         break l if l == ""
         unless /^.*:.*$/.match(l) == nil
           header = l.split(/:/)
-          @headers << {:key => header[0].strip, :value => header[1].strip}      
+          # fix for subject where ':' could be in the subject line
+          key = header[0]
+          value = header[1..header.length].join ":"
+          @headers << {:key => key.strip, :value => value.strip}      
         end
       end
     end
