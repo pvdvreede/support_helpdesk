@@ -10,7 +10,7 @@ module Support
         after_update :check_and_send_ticket_close
 
         # add link to support item for each issue
-        has_one :issues_support_setting
+        has_one :issues_support_setting, :dependent => :destroy
         has_one :support_helpdesk_setting, :through => :issues_support_setting
       end
     end
