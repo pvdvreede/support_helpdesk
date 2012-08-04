@@ -7,7 +7,7 @@ module Support
         unloadable
 
         # add filter checking the status on issue save
-        after_save :check_and_send_ticket_close
+        after_update :check_and_send_ticket_close
 
         # add link to support item for each issue
         has_one :issues_support_setting
@@ -20,16 +20,19 @@ module Support
 
     module InstanceMethods
       def check_and_send_ticket_close
-        ::Rails.logger.debug "Checking issue for Support emails..."
-        return unless self.tracker.name == "Ticket"
-        ::Rails.logger.debug "Issue #{self.id} change and tracker is Ticket."  
-        if self.status.is_closed?
-          # TODO fix this as it doesnt check whether the status just change or not!
-          ::Rails.logger.debug "Issue #{self.id} status is closed."
-          reply_field = CustomValue.where(:customized_id => self, :custom_field_id => IssueCustomField.where(:name => "Reply Address"))[0]
-          SupportMailHandler.ticket_closed(self, reply_field.value).deliver \
-                unless reply_field == nil or reply_field.value == nil
-        end
+        # only worry about issues that have a support setting
+        return if (self.reply_email == nil or self.reply_email == "")
+        # only worry if the status is closed and wasnt before
+        return unless self.status_id_changed?
+        # ignore if the support setting is not asking for closed emails
+        return unless self.support_helpdesk_setting.send_closed_email_to_user
+
+        old_status = IssueStatus.find self.status_id_was
+        new_status = IssueStatus.find self.status_id
+        return unless new_status.is_closed? and not old_status.is_closed?
+
+        ::Rails.logger.info "Issue #{self.id} status changed from #{old_status.name} to #{new_status.name} so sending email."
+        SupportHelpdeskMailer.ticket_closed(self, self.reply_email).deliver
       end
 
       def reply_email
