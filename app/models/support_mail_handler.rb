@@ -1,13 +1,11 @@
 
-class SupportMailHandler < ActionMailer::Base
-  default :from => "support@yourdomain.com"
-  append_view_path("#{Rails.root}/plugins/support_helpdesk/app/views")
-
-	def self.receive(message, options={})
+class SupportMailHandler
+  
+	def receive(message, options={})
     # create the issue from the message
     email = Support::Email.new message
 
-    SupportMailHandler.route_email email
+    self.route_email email
 	end
 
   def route_email(email)
@@ -19,7 +17,7 @@ class SupportMailHandler < ActionMailer::Base
     end
 
     supports.each do |support|
-      SupportMailHandler.create_issue(support, email)
+      self.create_issue(support, email)
     end
   end
 
@@ -43,7 +41,7 @@ class SupportMailHandler < ActionMailer::Base
     issue.support_helpdesk_setting = support
     issue.reply_email = email.from
     issue.support_type = support.name
-    
+
     if not issue.save
       ::Rails.logger.error "Error saving issue because #{issue.errors.full_messages.join("\n")}"
     end
@@ -52,7 +50,7 @@ class SupportMailHandler < ActionMailer::Base
     attach_email(issue, email, "#{email.from}_#{email.to_email}.msg")
 
     # send email back to ticket creator
-    SupportMailHandler.ticket_created(issue, email.from).deliver if support.send_created_email_to_user
+    SupportHelpdeskMailer.ticket_created(issue, email.from).deliver if support.send_created_email_to_user
   end
 
   # use round robin
@@ -76,28 +74,6 @@ class SupportMailHandler < ActionMailer::Base
     end
     ::Rails.logger.debug "Returning user #{next_id} as the next assignee."
     next_id
-  end
-
-  def ticket_created(issue, to)
-    @issue = issue
-    ::Rails.logger.debug "Sending ticket creation support email..."
-    mail(:to => to, 
-         :subject => "Support ticket", 
-         :template_name => "ticket_created", 
-         :template_path => 'support_mail_handler') do |format|
-      format.html
-    end
-  end
-
-  def ticket_closed(issue, to)
-    @issue = issue
-    ::Rails.logger.debug "Sending closing support email..."
-    mail(:to => to, 
-         :subject => "Support ticket closed", 
-         :template_name => "ticket_closed", 
-         :template_path => 'support_mail_handler') do |format|
-      format.html
-    end
   end
 
   private

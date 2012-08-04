@@ -5,7 +5,7 @@ require 'net/pop'
 module Support
 	module POP3
     class << self
-  		def check(pop_options={})
+  		def check(handler, pop_options={})
   			host = pop_options[:host] || '127.0.0.1'
         port = pop_options[:port] || '110'
         apop = (pop_options[:apop].to_s == '1')
@@ -19,7 +19,7 @@ module Support
               message = mail.pop
               message_id = (message =~ /^Message-I[dD]: (.*)/ ? $1 : '').strip
               logger.debug "Processing message with message id #{message_id}: #{message}" if logger && logger.debug?
-              if SupportMailHandler.receive(message)
+              if handler.receive(message)
                 true#mail.delete
               end
             end
