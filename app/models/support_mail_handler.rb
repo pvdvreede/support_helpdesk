@@ -20,7 +20,7 @@ class SupportMailHandler
     supports = SupportHelpdeskSetting.where("to_email_address LIKE ?", "%#{email.to_email}%")
     # if none than ignore the email
     unless supports.count > 0
-      ::Rails.logger.debug "No support setups match the email address: #{email.to}."
+      Support.log_info "No support setups match the email address: #{email.to}."
       return true
     end
 
@@ -38,11 +38,9 @@ class SupportMailHandler
   def create_issue(support, email)
     # TODO put issue creation inside transaction for atomicity
 
-    ::Rails.logger.debug "Creating issue for message..."
     # get the assignee and update the round robin item
     last_assignee = support.last_assigned_user_id || 0
     this_assignee = get_assignee(support.assignee_group_id, last_assignee)
-    ::Rails.logger.debug "The assigned is id #{this_assignee}."
 
     # if project_id is nil then get id from domain
     if support.email_domain_custom_field_id != nil
@@ -68,7 +66,7 @@ class SupportMailHandler
     issue.support_type = support.name
 
     if not issue.save
-      ::Rails.logger.error "Error saving issue because #{issue.errors.full_messages.join("\n")}"
+      Support.log_error "Error saving issue because #{issue.errors.full_messages.join("\n")}"
     end
 
     # send attachment to redmine
@@ -98,7 +96,7 @@ class SupportMailHandler
     journal.user_id = issue.support_helpdesk_setting.author_id
     issue.journals << journal
     if not issue.save
-      ::Rails.logger.error "Could not save issue #{issue.errors.full_messages.join("\n")}"
+      Support.log_error "Could not save issue #{issue.errors.full_messages.join("\n")}"
       return false
     end
     return true
@@ -141,8 +139,5 @@ class SupportMailHandler
     attachment.description = description if description
     attachment.save
   end
-
-  def self.logger
-    ::Rails.logger
-  end
+  
 end

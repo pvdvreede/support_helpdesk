@@ -11,3 +11,14 @@ Redmine::Plugin.register :support_helpdesk do
   url 'http://github.com/pvdvreede/support_helpdesk'
   author_url 'http://github.com/pvdvreede'
 end
+
+# create a generic logger
+module Support
+  def self.log_info(msg)
+    Rails.logger.info "support_helpdesk - #{msg}"
+  end
+
+  def self.log_error(msg)
+    Rails.logger.error "support_helpdesk - #{msg}"
+  end
+end

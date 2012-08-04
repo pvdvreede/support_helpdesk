@@ -1,13 +1,13 @@
 class SupportHelpdeskMailer < ActionMailer::Base
-  default :from => "support@yourdomain.com", \
-          :parts_order => ["text/html", "text/plain"]
+  default :parts_order => ["text/html", "text/plain"]
 
+  # TODO make this less dependent on plugin folder name
   append_view_path("#{Rails.root}/plugins/support_helpdesk/app/views")
 
   def ticket_created(issue, to)
     @issue = issue
     @support = issue.support_helpdesk_setting
-    ::Rails.logger.debug "Sending ticket creation support email..."
+    Support.log_info "Sending ticket creation support email..."
     mail(:to => to, 
          :from => @support.from_email_address,
          :subject => "#{@support.name} Ticket ##{@issue.id} created: #{issue.subject}", 
@@ -18,7 +18,7 @@ class SupportHelpdeskMailer < ActionMailer::Base
   def ticket_closed(issue, to)
     @issue = issue
     @support = issue.support_helpdesk_setting
-    ::Rails.logger.debug "Sending closing support email..."
+    Support.log_info "Sending closing support email..."
     mail(:to => to,
          :from => @support.from_email_address,
          :subject => "#{@support.name} Ticket ##{@issue.id} closed: #{issue.subject}", 

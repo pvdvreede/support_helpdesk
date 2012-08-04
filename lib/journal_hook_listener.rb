@@ -19,7 +19,7 @@ class JournalHookListener < Redmine::Hook::ViewListener
 
       notes = context[:journal].notes
 
-      ::Rails.logger.info "Emailing note for #{issue.id} to #{reply_email}."
+      Support.log_info "Emailing note for #{issue.id} to #{reply_email}."
       mail = SupportHelpdeskMailer.user_question(issue, notes, reply_email)
       mail.deliver
 

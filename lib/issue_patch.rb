@@ -31,7 +31,7 @@ module Support
         new_status = IssueStatus.find self.status_id
         return unless new_status.is_closed? and not old_status.is_closed?
 
-        ::Rails.logger.info "Issue #{self.id} status changed from #{old_status.name} to #{new_status.name} so sending email."
+        Support.log_info "Issue #{self.id} status changed from #{old_status.name} to #{new_status.name} so sending email."
         SupportHelpdeskMailer.ticket_closed(self, self.reply_email).deliver
       end
 
