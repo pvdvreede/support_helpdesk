@@ -32,12 +32,55 @@ module Support
         end
       end
 
+      def reply_email
+        setting = self.support_helpdesk_setting
+        return nil if setting == nil
+        email = get_custom_support_value setting.reply_email_custom_field_id
+        email.value
+      end
+
+      def reply_email=(value)
+        setting = self.support_helpdesk_setting
+        return if setting == nil
+        if self.reply_email == nil
+          set_custom_support_value(setting.reply_email_custom_field_id, value)
+        else
+          email = self.custom_field_values.detect {|x| x.custom_field_id == setting.reply_email_custom_field_id }
+          email.value = value.to_s
+        end
+      end
+
+      def support_type
+        setting = self.support_helpdesk_setting
+        return nil if setting == nil
+        type = get_custom_support_value setting.type_custom_field_id
+        type.value
+      end
+
+      def support_type=(value)
+        setting = self.support_helpdesk_setting
+        return if setting == nil
+        if self.reply_email == nil
+          set_custom_support_value(setting.type_custom_field_id, value)
+        else
+          type = self.custom_field_values.detect {|x| x.custom_field_id == setting.type_custom_field_id }
+          type.value = value.to_s
+        end
+      end
+
+      def get_custom_support_value(id)
+        setting = self.support_helpdesk_setting
+        return nil if setting == nil
+        custom_value = self.custom_field_values.detect {|x| x.custom_field_id == id }
+      end
+
       def set_custom_support_value(id, value)
         value = CustomFieldValue.new
         value.customized = self
         value.custom_field = CustomField.find(id)
         value.value = value.to_s
         self.custom_field_values << value
+        value
       end
     end
   end

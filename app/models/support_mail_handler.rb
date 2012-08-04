@@ -40,16 +40,13 @@ class SupportMailHandler < ActionMailer::Base
                       :assigned_to_id => this_assignee})
     support.last_assigned_user_id = this_assignee
     support.save
-
-    issue.set_custom_support_value support.reply_email_custom_field_id, email.from
-    issue.set_custom_support_value support.type_custom_field_id, support.name
-
-    #issue.support_helpdesk_setting = support
+    issue.support_helpdesk_setting = support
+    issue.reply_email = email.from
+    issue.support_type = support.name
+    
     if not issue.save
       ::Rails.logger.error "Error saving issue because #{issue.errors.full_messages.join("\n")}"
     end
-
-    issue.support_helpdesk_setting = support
 
     # send attachment to redmine
     attach_email(issue, email, "#{email.from}_#{email.to_email}.msg")
