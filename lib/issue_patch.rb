@@ -8,6 +8,10 @@ module Support
 
         # add filter checking the status on issue save
         after_save :check_and_send_ticket_close
+
+        # add link to support item for each issue
+        has_one :issues_support_setting
+        has_one :support_helpdesk_setting, :through => :issues_support_setting
       end
     end
 
