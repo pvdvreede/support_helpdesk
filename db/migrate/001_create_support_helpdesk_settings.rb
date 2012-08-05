@@ -20,6 +20,7 @@ class CreateSupportHelpdeskSettings < ActiveRecord::Migration
       t.integer   :last_assigned_user_id
       t.boolean   :active,:null => false, :default => true
       t.datetime  :last_run
+      t.datetime  :last_processed
 
       t.timestamps
     end

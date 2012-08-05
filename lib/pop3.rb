@@ -25,6 +25,12 @@ module Support
               end
             end
           end
+
+          # add time of last run to all active support settings
+          SupportHelpdeskSetting.update_all(
+            {:last_run => Time.now.utc},
+            {:active => true}
+            )
         end
       end
 

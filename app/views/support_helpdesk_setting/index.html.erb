@@ -13,6 +13,7 @@
 			<th>Pick email address</th>
 			<th>Sender email address</th>
 			<th>Last email process time</th>
+			<th>Last email check time</th>
 			<th></th>
 		</tr>
 	</thead>
@@ -25,6 +26,7 @@
 		<td><%= s.tracker.name %></td>
 		<td><%= s.to_email_address %></td>
 		<td><%= s.from_email_address %></td>
+		<td><%= format_time(s.last_processed) %></td>
 		<td><%= format_time(s.last_run) %></td>
 		<td class="buttons"><%= link_to "Delete", s, :confirm => "Are you sure?", :method => :delete, :class => "icon icon-del" %></td>
 	</tr>

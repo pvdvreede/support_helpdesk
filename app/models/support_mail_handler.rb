@@ -33,7 +33,7 @@ class SupportMailHandler
     end
 
     # update the last run for the support
-    supports[0].last_run = Time.now
+    supports[0].last_processed = Time.now.utc
 
     return self.create_issue(supports[0], email)
   end
