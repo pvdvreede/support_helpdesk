@@ -4,6 +4,9 @@ class SupportHelpdeskMailer < ActionMailer::Base
   # add current plugins views folder as a place to look for views
   append_view_path("#{File.expand_path(File.dirname(__FILE__))}/../views")
 
+  # make sure we throw errors regardless of the users setting so we can catch them
+  self.raise_delivery_errors = true
+
   def ticket_created(issue, to)
     @issue = issue
     @support = issue.support_helpdesk_setting

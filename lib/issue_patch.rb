@@ -32,15 +32,29 @@ module Support
         return unless new_status.is_closed? and not old_status.is_closed?
 
         Support.log_info "Issue #{self.id} status changed from #{old_status.name} to #{new_status.name} so sending email."
-        mail = SupportHelpdeskMailer.ticket_closed(self, self.reply_email).deliver
 
-        # save the email sent for our records
-        SupportMailHandler.attach_email(
-            self,
-            mail.encoded,
-            "#{mail.from}_#{mail.to}.msg",
-            "Closing email sent to user."
-          )
+        begin
+          mail = SupportHelpdeskMailer.ticket_closed(self, self.reply_email).deliver
+        rescue Exception => e
+          Support.log_error "Error in sending email for #{self.id}: #{e}\n#{e.backtrace.join("\n")}"
+          email_status = "Error sending closing email, email was *NOT* sent."
+        else
+          email_status = "Closing email to #{reply_email} at #{Time.now.to_s}."
+
+          # save the email sent for our records
+          SupportMailHandler.attach_email(
+              self,
+              mail.encoded,
+              "#{mail.from}_#{mail.to}.msg",
+              "Closing email sent to user."
+            )
+        end
+
+        # add a note to the issue so we know the closing email was sent
+        journal = Journal.new
+        journal.notes = email_status
+        journal.user_id = self.support_helpdesk_setting.author_id
+        self.journals << journal
       end
 
       def reply_email

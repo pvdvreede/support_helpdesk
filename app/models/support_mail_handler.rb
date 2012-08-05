@@ -82,8 +82,31 @@ class SupportMailHandler
                                     "Email issue was created from."
                                     )
 
-    # send email back to ticket creator
-    SupportHelpdeskMailer.ticket_created(issue, email.from).deliver if support.send_created_email_to_user
+    # send email back to ticket creator if it has been request
+    if support.send_created_email_to_user
+      begin
+        mail = SupportHelpdeskMailer.ticket_created(issue, email.from).deliver
+      rescue Exception => e
+        Support.log_error "Error in sending email for #{issue.id}: #{e}\n#{e.backtrace.join("\n")}"
+        email_status = "Error sending ticket creation email, email was *NOT* sent."
+      else
+        email_status = "Emailed ticket creation to #{email.from} at #{Time.now.to_s}."
+
+        # save the email sent for our records
+        SupportMailHandler.attach_email(
+            issue,
+            mail.encoded,
+            "#{mail.from}_#{mail.to}.msg",
+            "Ticket created email sent to user."
+          )
+      end
+
+      # add a note to the issue so we know the closing email was sent
+      journal = Journal.new
+      journal.notes = email_status
+      journal.user_id = support.author_id
+      issue.journals << journal
+    end
     return true
   end
 
