@@ -1,8 +1,20 @@
-<%= form_for(@setting, :url => {:action => 'create'}) do |f| %>
+<%= form_for(@setting) do |f| %>
 <div class="box tabular">
   <p>
     <%= f.label :name %>
-    <%= f.text_field :name %>
+    <%= f.text_field :name, :required => true %>
+  </p>
+  <p>
+    <%= f.label "Email address to route" %>
+    <%= f.text_field :from_email_address, :required => true %>
+  </p>
+  <p>
+    <%= f.label "Email to send as" %>
+    <%= f.text_field :to_email_address, :required => true %>
+  </p>
+  <p>
+    <%= f.label "Status to set" %>
+    <%= f.collection_select(:new_status_id, @statuses, :id, :name) %>
   </p>
   <p>
     <%= f.label :project_id %>
@@ -10,11 +22,19 @@
   </p>
   <p>
     <%= f.label "Email domain custom field" %>
-    <%= f.collection_select(:email_domain_custom_field_id, @project_custom_fields, :id, :name) %>
+    <%= f.collection_select(:email_domain_custom_field_id, @project_custom_fields, :id, :name, {:include_blank => true}) %>
   </p>
   <p>
     <%= f.label :tracker_id %>
     <%= f.collection_select(:tracker_id, @trackers, :id, :name) %>
+  </p>
+  <p>
+    <%= f.label "Assignee group" %>
+    <%= f.collection_select(:assignee_group_id, @groups, :id, :name) %>
+  </p>
+  <p>
+    <%= f.label "Issue author" %>
+    <%= f.collection_select(:author_id, @users, :id, :name) %>
   </p>
   <p>
     <%= f.label "Reply email field" %>
@@ -45,10 +65,11 @@
     <%= f.select(:question_template_name, @template_files) %>
   </p>
   <p>
-    <%= f.label "Support type field" %>
-    <%= f.collection_select(:type_custom_field_id, @issue_custom_fields, :id, :name) %>
+    <%= f.label "Active" %>
+    <%= f.check_box(:active) %>
   </p>
 
-  <%= f.submit %>
+  <%= f.submit "Save" %>
+  <%= link_to "back", support_helpdesk_settings_path %>
 </div>
 <% end %>

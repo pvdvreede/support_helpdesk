@@ -3,12 +3,13 @@
 </div>
 
 <h2>Support Helpdesk Settings</h2>
-<table>
+<table class="list">
 	<thead>
 		<tr>
 			<th>Active</th>
 			<th>Name</th>
 			<th>Project</th>
+			<th>Tracker</th>
 			<th>Pick email address</th>
 			<th>Sender email address</th>
 			<th></th>
@@ -17,12 +18,13 @@
 	<tbody>
 	<%- @settings.each do |s| %>
 	<tr>
-		<td><%= s.active %></td>
-		<td><%= s.name %></td>
-		<td><%= s.project_id %></td>
+		<td><%= s.active.to_s %> (<%= link_to (s.active == true ? "Deactivate" : "Activate"), activate_support_helpdesk_setting_path(s), :confirm => "Are you sure?", :method => :activate %>)</td>
+		<td><%= link_to s.name, edit_support_helpdesk_setting_path(s) %></td>
+		<td><%= s.project.name %></td>
+		<td><%= s.tracker.name %></td>
 		<td><%= s.to_email_address %></td>
 		<td><%= s.from_email_address %></td>
-		<td></td>
+		<td class="buttons"><%= link_to "Delete", s, :confirm => "Are you sure?", :method => :delete, :class => "icon icon-del" %></td>
 	</tr>
 	<%- end %>
 	</tbody>
