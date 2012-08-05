@@ -10,6 +10,12 @@ Redmine::Plugin.register :support_helpdesk do
   version '0.5.0'
   url 'http://github.com/pvdvreede/support_helpdesk'
   author_url 'http://github.com/pvdvreede'
+
+  # add menu item for settings in Admin menu
+  menu :admin_menu, \
+  	   :support_settings, \
+  	   {:controller => :support_helpdesk_setting, :action => :index}, \
+  	   :caption => "Support Helpdesk"
 end
 
 # create a generic logger

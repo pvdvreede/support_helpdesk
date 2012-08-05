@@ -1,0 +1,54 @@
+<%= form_for(@setting, :url => {:action => 'create'}) do |f| %>
+<div class="box tabular">
+  <p>
+    <%= f.label :name %>
+    <%= f.text_field :name %>
+  </p>
+  <p>
+    <%= f.label :project_id %>
+    <%= f.collection_select(:project_id, @projects, :id, :name) %>
+  </p>
+  <p>
+    <%= f.label "Email domain custom field" %>
+    <%= f.collection_select(:email_domain_custom_field_id, @project_custom_fields, :id, :name) %>
+  </p>
+  <p>
+    <%= f.label :tracker_id %>
+    <%= f.collection_select(:tracker_id, @trackers, :id, :name) %>
+  </p>
+  <p>
+    <%= f.label "Reply email field" %>
+    <%= f.collection_select(:reply_email_custom_field_id, @issue_custom_fields, :id, :name) %>
+  </p>
+  <p>
+    <%= f.label "Support type field" %>
+    <%= f.collection_select(:type_custom_field_id, @issue_custom_fields, :id, :name) %>
+  </p>
+  <p>
+    <%= f.label "Ticket created template" %>
+    <%= f.select(:created_template_name, @template_files) %>
+  </p>
+  <p>
+    <%= f.label "Send created email" %>
+    <%= f.check_box(:send_created_email_to_user) %>
+  </p>
+  <p>
+    <%= f.label "Ticket closed template" %>
+    <%= f.select(:closed_template_name, @template_files) %>
+  </p>
+  <p>
+    <%= f.label "Send closed email" %>
+    <%= f.check_box(:send_closed_email_to_user) %>
+  </p>
+  <p>
+    <%= f.label "Email user template" %>
+    <%= f.select(:question_template_name, @template_files) %>
+  </p>
+  <p>
+    <%= f.label "Support type field" %>
+    <%= f.collection_select(:type_custom_field_id, @issue_custom_fields, :id, :name) %>
+  </p>
+
+  <%= f.submit %>
+</div>
+<% end %>

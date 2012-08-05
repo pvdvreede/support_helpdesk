@@ -1,0 +1,29 @@
+<div class="contextual">
+	<%= link_to "New support setting", new_support_helpdesk_setting_path, :class => "icon icon-add" %>
+</div>
+
+<h2>Support Helpdesk Settings</h2>
+<table>
+	<thead>
+		<tr>
+			<th>Active</th>
+			<th>Name</th>
+			<th>Project</th>
+			<th>Pick email address</th>
+			<th>Sender email address</th>
+			<th></th>
+		</tr>
+	</thead>
+	<tbody>
+	<%- @settings.each do |s| %>
+	<tr>
+		<td><%= s.active %></td>
+		<td><%= s.name %></td>
+		<td><%= s.project_id %></td>
+		<td><%= s.to_email_address %></td>
+		<td><%= s.from_email_address %></td>
+		<td></td>
+	</tr>
+	<%- end %>
+	</tbody>
+</table>
