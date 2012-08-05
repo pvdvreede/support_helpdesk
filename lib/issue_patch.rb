@@ -32,7 +32,15 @@ module Support
         return unless new_status.is_closed? and not old_status.is_closed?
 
         Support.log_info "Issue #{self.id} status changed from #{old_status.name} to #{new_status.name} so sending email."
-        SupportHelpdeskMailer.ticket_closed(self, self.reply_email).deliver
+        mail = SupportHelpdeskMailer.ticket_closed(self, self.reply_email).deliver
+
+        # save the email sent for our records
+        SupportMailHandler.attach_email(
+            self,
+            mail.encoded,
+            "#{mail.from}_#{mail.to}.msg",
+            "Closing email sent to user."
+          )
       end
 
       def reply_email

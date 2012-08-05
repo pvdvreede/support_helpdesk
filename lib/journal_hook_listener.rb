@@ -18,6 +18,7 @@ class JournalHookListener < Redmine::Hook::ViewListener
       return if reply_email == nil or reply_email == ""
 
       notes = context[:journal].notes
+      return if notes == ""
 
       Support.log_info "Emailing note for #{issue.id} to #{reply_email}."
       mail = SupportHelpdeskMailer.user_question(issue, notes, reply_email)
@@ -30,7 +31,13 @@ Emailed to #{reply_email} at #{Time.now.to_s}:
 #{notes}
 NOTE
 
-      # TODO save the email sent for our records
+      # save the email sent for our records
+      SupportMailHandler.attach_email(
+          issue,
+          mail.encoded,
+          "#{mail.from}_#{mail.to}.msg",
+          "Email sent to user from note."
+        )
     end
   end
 

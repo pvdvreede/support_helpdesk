@@ -77,7 +77,7 @@ class SupportMailHandler
 
     # send attachment to redmine
     SupportMailHandler.attach_email(issue, 
-                                    email, 
+                                    email.original, 
                                     "#{email.from_email}_#{email.to_email}.msg",
                                     "Email issue was created from."
                                     )
@@ -137,8 +137,8 @@ class SupportMailHandler
     return projects[0].id
   end
 
-  def self.attach_email(issue, email, filename, description=nil)
-    attachment = Attachment.new(:file => email.original)
+  def self.attach_email(issue, email_string, filename, description=nil)
+    attachment = Attachment.new(:file => email_string)
     attachment.author = User.where(:id => 1)[0]
     attachment.content_type = "application/msoutlook"
     attachment.filename = filename
