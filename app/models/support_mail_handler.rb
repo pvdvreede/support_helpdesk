@@ -18,7 +18,7 @@ class SupportMailHandler
     end
 
     # otherwise create a new ticket if there is a support setting for it
-    supports = SupportHelpdeskSetting.where("to_email_address LIKE ?", "%#{email.to[0]}%") \
+    supports = SupportHelpdeskSetting.where("LOWER(to_email_address) LIKE ?", "%#{email.to[0].downcase}%") \
                                      .where(:active => true)
 
     # if none than ignore the email
