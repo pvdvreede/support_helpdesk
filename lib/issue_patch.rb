@@ -100,12 +100,12 @@ module Support
       end
 
       def set_custom_support_value(id, value)
-        value = CustomFieldValue.new
-        value.customized = self
-        value.custom_field = CustomField.find(id)
-        value.value = value.to_s
-        self.custom_field_values << value
-        value
+        value_field = CustomFieldValue.new
+        value_field.customized = self
+        value_field.custom_field = CustomField.find(id)
+        value_field.value = value.to_s
+        self.custom_field_values << value_field
+        value_field
       end
     end
   end
