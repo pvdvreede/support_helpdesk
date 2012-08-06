@@ -86,7 +86,7 @@ class SupportMailHandler
     SupportMailHandler.attach_email(
       issue, 
       email.encoded, 
-      "#{email.from[0]}_#{email.to[0]}.msg",
+      "#{email.from[0]}_#{email.to[0]}.eml",
       "Email issue was created from."
      )
 
@@ -104,7 +104,7 @@ class SupportMailHandler
         SupportMailHandler.attach_email(
             issue,
             mail.encoded,
-            "#{mail.from}_#{mail.to}.msg",
+            "#{mail.from}_#{mail.to}.eml",
             "Ticket created email sent to user."
           )
       end
@@ -125,7 +125,7 @@ class SupportMailHandler
     SupportMailHandler.attach_email(
       issue, 
       email.encoded, 
-      "#{email.from[0]}_#{email.to[0]}.msg",
+      "#{email.from[0]}_#{email.to[0]}.eml",
       "Email from #{email.from[0]}."
     )
 
@@ -172,7 +172,7 @@ class SupportMailHandler
   def self.attach_email(issue, email_string, filename, description=nil)
     attachment = Attachment.new(:file => email_string)
     attachment.author = User.where(:id => 1)[0]
-    attachment.content_type = "application/msoutlook"
+    attachment.content_type = "message/rfc822"
     attachment.filename = filename
     attachment.container = issue
     attachment.description = description if description
