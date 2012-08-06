@@ -34,7 +34,7 @@ class JournalHookListener < Redmine::Hook::ViewListener
         SupportMailHandler.attach_email(
             issue,
             mail.encoded,
-            "#{mail.from}_#{mail.to}.msg",
+            "#{mail.from}_#{mail.to}.eml",
             "Email sent to user from note."
           )
       end
@@ -63,7 +63,7 @@ NOTE
         SupportMailHandler.attach_email(
             issue,
             mail.encoded,
-            "#{mail.from}_#{mail.to}.msg",
+            "#{mail.from}_#{mail.to}.eml",
             "Ticket created email resent to user."
           )
       end
@@ -90,7 +90,7 @@ NOTE
         SupportMailHandler.attach_email(
             issue,
             mail.encoded,
-            "#{mail.from}_#{mail.to}.msg",
+            "#{mail.from}_#{mail.to}.eml",
             "Closing email resent to user."
           )
       end
