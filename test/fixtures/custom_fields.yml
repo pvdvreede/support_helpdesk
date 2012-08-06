@@ -1,0 +1,40 @@
+custom_fields_003: 
+  name: Reply Email
+  min_length: 0
+  regexp: ""
+  is_for_all: true
+  is_filter: true
+  type: IssueCustomField
+  max_length: 0
+  possible_values: ""
+  id: 7
+  is_required: false
+  field_format: string
+  default_value: ""
+  editable: true
+custom_fields_004: 
+  name: Type
+  min_length: 0
+  regexp: ""
+  is_for_all: true
+  type: IssueCustomField
+  max_length: 0
+  possible_values: ""
+  id: 8
+  is_required: false
+  field_format: string
+  default_value: ""
+  editable: true
+custom_fields_004: 
+  name: Domain
+  min_length: 0
+  regexp: ""
+  is_for_all: true
+  type: ProjectCustomField
+  max_length: 0
+  possible_values: ""
+  id: 9
+  is_required: false
+  field_format: string
+  default_value: ""
+  editable: true
