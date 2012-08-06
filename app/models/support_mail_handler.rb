@@ -2,12 +2,8 @@
 class SupportMailHandler
   
 	def receive(message, options={})
-    begin
-      # create the issue from the message
-      email = Support::Email.new message
-
-      
-      self.route_email email    
+    begin     
+      self.route_email message    
     rescue Exception => e
       Support.log_error "There was an error #{e} processing message:\n#{message}"
       return false
@@ -22,12 +18,12 @@ class SupportMailHandler
     end
 
     # otherwise create a new ticket if there is a support setting for it
-    supports = SupportHelpdeskSetting.where("to_email_address LIKE ?", "%#{email.to_email}%") \
+    supports = SupportHelpdeskSetting.where("to_email_address LIKE ?", "%#{email.to[0]}%") \
                                      .where(:active => true)
 
     # if none than ignore the email
     unless supports.count > 0
-      Support.log_info "No active support setups match the email address: #{email.to}."
+      Support.log_info "No active support setups match the email address: #{email.to[0]}."
       # tell POP3 to not delete the email,cause it might not be for us
       return false
     end
@@ -53,25 +49,33 @@ class SupportMailHandler
 
     # if project_id is nil then get id from domain
     if support.email_domain_custom_field_id != nil
-      project_id = get_project_from_email_domain(email.from_domain,
-                                                 support.email_domain_custom_field_id,
-                                                 support.project_id
-                                                 )
+      project_id = get_project_from_email_domain(
+        email.from[0].split("@")[1],
+        support.email_domain_custom_field_id,
+        support.project_id
+      )
     else
       project_id = support.project_id
+    end
+
+    begin
+      body = email.text_part.body.raw_source
+    rescue => ex
+      Support.log_error "Exception trying to load email body so using static text: #{ex}"
+      body = "Ticket generated from attached email."
     end
 
     issue = Issue.new({:subject => email.subject, 
                       :tracker_id => support.tracker_id,
                       :project_id => project_id,
-                      :description => "Ticket generated from attached email.", 
+                      :description => body, 
                       :author_id => support.author_id, 
                       :status_id => support.new_status_id, 
                       :assigned_to_id => this_assignee})
     support.last_assigned_user_id = this_assignee
     support.save
     issue.support_helpdesk_setting = support
-    issue.reply_email = email.from
+    issue.reply_email = email.from[0]
     issue.support_type = support.name
 
     if not issue.save
@@ -79,21 +83,22 @@ class SupportMailHandler
     end
 
     # send attachment to redmine
-    SupportMailHandler.attach_email(issue, 
-                                    email.original, 
-                                    "#{email.from_email}_#{email.to_email}.msg",
-                                    "Email issue was created from."
-                                    )
+    SupportMailHandler.attach_email(
+      issue, 
+      email.encoded, 
+      "#{email.from[0]}_#{email.to[0]}.msg",
+      "Email issue was created from."
+     )
 
     # send email back to ticket creator if it has been request
     if support.send_created_email_to_user
       begin
-        mail = SupportHelpdeskMailer.ticket_created(issue, email.from).deliver
+        mail = SupportHelpdeskMailer.ticket_created(issue, email.from[0]).deliver
       rescue Exception => e
         Support.log_error "Error in sending email for #{issue.id}: #{e}\n#{e.backtrace.join("\n")}"
         email_status = "Error sending ticket creation email, email was *NOT* sent."
       else
-        email_status = "Emailed ticket creation to #{email.from} at #{Time.now.to_s}."
+        email_status = "Emailed ticket creation to #{email.from[0]} at #{Time.now.to_s}."
 
         # save the email sent for our records
         SupportMailHandler.attach_email(
@@ -117,15 +122,16 @@ class SupportMailHandler
     issue = Issue.find issue_id
 
     # attach the email to the issue
-    SupportMailHandler.attach_email(issue, 
-                                    email, 
-                                    "#{email.from_email}_#{email.to_email}.msg",
-                                    "Email from #{email.from}."
-                                    )
+    SupportMailHandler.attach_email(
+      issue, 
+      email.encoded, 
+      "#{email.from[0]}_#{email.to[0]}.msg",
+      "Email from #{email.from[0]}."
+    )
 
     # add a note to the issue with email body
     journal = Journal.new
-    journal.notes = "Email received from #{email.from} at #{Time.now.to_s} and is attached."
+    journal.notes = "Email received from #{email.from[0]} at #{Time.now.to_s} and is attached."
     journal.user_id = issue.support_helpdesk_setting.author_id
     issue.journals << journal
     if not issue.save

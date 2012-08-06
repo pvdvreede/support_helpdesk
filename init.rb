@@ -1,5 +1,4 @@
 require_dependency "pop3"
-require_dependency "email"
 require_dependency "issue_patch"
 require_dependency "journal_hook_listener"
 

@@ -19,7 +19,9 @@ module Support
               message = mail.pop
               message_id = (message =~ /^Message-I[dD]: (.*)/ ? $1 : '').strip
               Support.log_info "Processing message with message id #{message_id}..."
-              if handler.receive(message)
+              # convert message into rails mail object
+              mail_obj = Mail.new message
+              if handler.receive(mail_obj)
                 mail.delete
                 Support.log_info "Message #{message_id} processed and deleted from the mailbox."
               end
