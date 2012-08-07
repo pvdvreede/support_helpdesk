@@ -21,10 +21,14 @@ end
 # create a generic logger
 module Support
   def self.log_info(msg)
-    Rails.logger.info "support_helpdesk - #{msg}"
+    Rails.logger.info "support_helpdesk INFO - #{msg}"
   end
 
   def self.log_error(msg)
-    Rails.logger.error "support_helpdesk - #{msg}"
+    Rails.logger.error "support_helpdesk ERROR - #{msg}"
+  end
+
+  def self.log_debug(msg)
+    Rails.logger.debug "support_helpdesk DEBUG - #{msg}"
   end
 end

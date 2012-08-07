@@ -96,8 +96,6 @@ module Support
       end
 
       def get_custom_support_value(id)
-        setting = self.support_helpdesk_setting
-        return nil if setting == nil
         custom_value = self.custom_field_values.detect {|x| x.custom_field_id == id }
       end
 

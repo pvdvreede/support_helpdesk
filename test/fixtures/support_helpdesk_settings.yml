@@ -36,3 +36,22 @@ support_002:
   send_created_email_to_user: 0
   send_closed_email_to_user: 0
   active: 1
+support_003:
+  id: 3
+  name: supp03
+  project_id: 1
+  email_domain_custom_field_id: 9
+  author_id: 3
+  assignee_group_id: 10
+  new_status_id: 1
+  to_email_address: test3@support.com
+  from_email_address: reply3@support.com
+  tracker_id: 3
+  reply_email_custom_field_id: 7
+  type_custom_field_id: 8
+  created_template_name: ticket_creation
+  closed_template_name: ticket_closed
+  question_template_name: user_question
+  send_created_email_to_user: 0
+  send_closed_email_to_user: 0
+  active: 0
