@@ -123,7 +123,7 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
     assert_not_nil issue, "Issue not created"
 
     # make sure there is a notes entry with an updated comment
-    notes = Journal.where(:journalized_id => issue.id).where(:journalized_type => "Issue").where("notes LIKE ?", "%Email received from%")[0]
+    note = Journal.where(:journalized_id => issue.id).where(:journalized_type => "Issue").where("notes LIKE ?", "%Email received from%")[0]
 
     assert_not_nil note, "Update did not create Journal entry for issue"
   end
