@@ -83,7 +83,7 @@ class SupportHelpdeskSettingController < ApplicationController
 
   private
   def get_for_new_edit
-    @projects = Project.all
+    @projects = Project.order("name")
     @trackers = Tracker.all
     @issue_custom_fields = CustomField.where(:type => "IssueCustomField")
     @project_custom_fields = CustomField.where(:type => "ProjectCustomField")
