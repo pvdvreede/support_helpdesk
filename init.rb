@@ -14,7 +14,8 @@ Redmine::Plugin.register :support_helpdesk do
   menu :admin_menu, \
   	   :support_settings, \
   	   {:controller => :support_helpdesk_setting, :action => :index}, \
-  	   :caption => "Support Helpdesk"
+  	   :caption => "Support Helpdesk", \
+       :html => { :class => "groups" }
 end
 
 # create a generic logger

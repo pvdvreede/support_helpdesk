@@ -1,5 +1,6 @@
 class SupportHelpdeskSettingController < ApplicationController
   unloadable
+  layout 'admin'
 
   #before_filter :authorize
 
