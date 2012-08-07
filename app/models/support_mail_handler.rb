@@ -28,9 +28,6 @@ class SupportMailHandler
       return false
     end
 
-    # update the last run for the support
-    supports[0].last_processed = Time.now.utc
-
     return self.create_issue(supports[0], email)
   end
 
@@ -115,6 +112,9 @@ class SupportMailHandler
       journal.user_id = support.author_id
       issue.journals << journal
     end
+
+    # update the last run for the support
+    support.last_processed = Time.now.utc
     return true
   end
 
@@ -138,6 +138,10 @@ class SupportMailHandler
       Support.log_error "Could not save issue #{issue.errors.full_messages.join("\n")}"
       return false
     end
+
+    # update processed time
+    issue.support_helpdesk_setting.last_processed = Time.now.utc
+
     return true
   end
 
