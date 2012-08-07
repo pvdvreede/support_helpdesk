@@ -1,75 +1,112 @@
 <%= form_for(@setting) do |f| %>
-<div class="box tabular">
-  <p>
-    <%= f.label :name %>
-    <%= f.text_field :name, :required => true %>
-  </p>
-  <p>
-    <%= f.label "Email address to route" %>
-    <%= f.text_field :from_email_address, :required => true %>
-  </p>
-  <p>
-    <%= f.label "Email to send as" %>
-    <%= f.text_field :to_email_address, :required => true %>
-  </p>
-  <p>
-    <%= f.label "Status to set" %>
-    <%= f.collection_select(:new_status_id, @statuses, :id, :name) %>
-  </p>
-  <p>
-    <%= f.label :project_id %>
-    <%= f.collection_select(:project_id, @projects, :id, :name) %>
-  </p>
-  <p>
-    <%= f.label "Email domain custom field" %>
-    <%= f.collection_select(:email_domain_custom_field_id, @project_custom_fields, :id, :name, {:include_blank => true}) %>
-  </p>
-  <p>
-    <%= f.label :tracker_id %>
-    <%= f.collection_select(:tracker_id, @trackers, :id, :name) %>
-  </p>
-  <p>
-    <%= f.label "Assignee group" %>
-    <%= f.collection_select(:assignee_group_id, @groups, :id, :name) %>
-  </p>
-  <p>
-    <%= f.label "Issue author" %>
-    <%= f.collection_select(:author_id, @users, :id, :name) %>
-  </p>
-  <p>
-    <%= f.label "Reply email field" %>
-    <%= f.collection_select(:reply_email_custom_field_id, @issue_custom_fields, :id, :name) %>
-  </p>
-  <p>
-    <%= f.label "Support type field" %>
-    <%= f.collection_select(:type_custom_field_id, @issue_custom_fields, :id, :name) %>
-  </p>
-  <p>
-    <%= f.label "Ticket created template" %>
-    <%= f.select(:created_template_name, @template_files) %>
-  </p>
-  <p>
-    <%= f.label "Send created email" %>
-    <%= f.check_box(:send_created_email_to_user) %>
-  </p>
-  <p>
-    <%= f.label "Ticket closed template" %>
-    <%= f.select(:closed_template_name, @template_files) %>
-  </p>
-  <p>
-    <%= f.label "Send closed email" %>
-    <%= f.check_box(:send_closed_email_to_user) %>
-  </p>
-  <p>
-    <%= f.label "Email user template" %>
-    <%= f.select(:question_template_name, @template_files) %>
-  </p>
-  <p>
-    <%= f.label "Active" %>
-    <%= f.check_box(:active) %>
-  </p>
-
-  <%= f.submit "Save" %>
-  <%= link_to "back", support_helpdesk_settings_path %>
-</div>
+<div id="support_setting_form">
+  <div class="splitcontentleft">
+    <fieldset class="box tabular">
+      <legend>Information</legend>
+        <p>
+          <%= f.label :name %>
+          <span class="required"> *</span>
+          <%= f.text_field :name, :required => true %>
+        </p>
+        <p>
+          <%= f.label "Email address to route" %>
+          <span class="required"> *</span>
+          <%= f.text_field :from_email_address, :required => true %>
+        </p>
+        <p>
+          <%= f.label "Email to send as" %>
+          <span class="required"> *</span>
+          <%= f.text_field :to_email_address, :required => true %>
+        </p>
+        <p>
+          <%= f.label "Status to set" %>
+          <span class="required"> *</span>
+          <%= f.collection_select(:new_status_id, @statuses, :id, :name) %>
+        </p>
+        <p>
+          <%= f.label :project_id %>
+          <span class="required"> *</span>
+          <%= f.collection_select(:project_id, @projects, :id, :name) %>
+          <em class="info">
+            If an email domain custom field is specified, this project will be used as the default project if the sender email address cannot be matched to any other project.
+          </em>
+        </p>
+        <p>
+          <%= f.label "Email domain custom field  " %>
+          <%= f.collection_select(:email_domain_custom_field_id, @project_custom_fields, :id, :name, {:include_blank => true}) %>
+          <em class="info">
+            This is the custom project field where the domain name of the email will be matched from. This field should contain the domain name only, rather than a full email address, eg:<br />
+            redmine.org
+          </em>
+        </p>
+        <p>
+          <%= f.label :tracker_id %>
+          <span class="required"> *</span>
+          <%= f.collection_select(:tracker_id, @trackers, :id, :name) %>
+        </p>
+        <p>
+          <%= f.label "Assignee group" %>
+          <span class="required"> *</span>
+          <%= f.collection_select(:assignee_group_id, @groups, :id, :name) %>
+        </p>
+        <p>
+          <%= f.label "Issue author" %>
+          <span class="required"> *</span>
+          <%= f.collection_select(:author_id, @users, :id, :name) %>
+        </p>
+        <p>
+          <%= f.label "Reply email field" %>
+          <span class="required"> *</span>
+          <%= f.collection_select(:reply_email_custom_field_id, @issue_custom_fields, :id, :name) %>
+          <em class="info">
+            This is a custom issue field where the sender's email address will be stored for information and to send creation, closed and user question emails back to the support user.
+          </em>
+        </p>
+        <p>
+          <%= f.label "Support type field" %>
+          <span class="required"> *</span>
+          <%= f.collection_select(:type_custom_field_id, @issue_custom_fields, :id, :name) %>
+          <em class="info">
+            This is a custom issue field the support setting name is populated so you know which support setting created it, and which type of support the issue belongs to.
+          </em>
+        </p>
+        <p>
+          <%= f.label "Active" %>
+          <%= f.check_box(:active) %>
+        </p>
+      </fieldset>
+    </div>
+    <div class="splitcontentright">
+      <fieldset class="box tabular">
+        <legend>Emails</legend>
+          <p>
+            <%= f.label "Ticket created template" %>
+            <span class="required"> *</span>
+            <%= f.select(:created_template_name, @template_files) %>
+          </p>
+          <p>
+            <%= f.label "Send created email" %>
+            <%= f.check_box(:send_created_email_to_user) %>
+          </p>
+          <p>
+            <%= f.label "Ticket closed template" %>
+            <span class="required"> *</span>
+            <%= f.select(:closed_template_name, @template_files) %>
+          </p>
+          <p>
+            <%= f.label "Send closed email" %>
+            <%= f.check_box(:send_closed_email_to_user) %>
+          </p>
+          <p>
+            <%= f.label "Email user template" %>
+            <span class="required"> *</span>
+            <%= f.select(:question_template_name, @template_files) %>
+          </p>
+        </fieldset>
+      </div>
+    </div>
+    <div style="clear:left;"></div>
+      <p>
+        <%= f.submit "Save" %>
+      </p>
 <% end %>
