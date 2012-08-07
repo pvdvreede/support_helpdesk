@@ -5,7 +5,7 @@ class SupportMailHandler
     begin     
       self.route_email message    
     rescue Exception => e
-      Support.log_error "There was an error #{e} processing message:\n#{message}"
+      Support.log_error "There was an error #{e} processing message:\n#{e.backtrace}\n\n#{message}"
       return false
     end
 	end
