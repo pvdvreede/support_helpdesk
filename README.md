@@ -24,7 +24,11 @@ The plugin is a standard Redmine 2.x plugin and so will work with Redmine 2.0.0 
 
 to populate the database tables into the Redmine database.
 
-There will now be a rake task as `rake support:fetch_pop_emails host=<mail host address> port=<mail host port number> username=<pop3 login> password=<pop3 password>`. Use this command to set a cron job for how often you would like the mailbox polled.
+There will now be a rake task as 
+
+    rake support:fetch_pop_emails host=<host> port=<port> username=<login> password=<pop3 password>
+   
+Use this command to set a cron job for how often you would like the mailbox polled. Note you may also need to specify the RAILS_ENV to tell rails what environment to run the task in.
 
 Once setup, navigate to <redmine url>/support/settings to add support settings so the plugin will start to pickup emails and add them as issues.
 
