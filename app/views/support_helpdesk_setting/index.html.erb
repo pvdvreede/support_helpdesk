@@ -3,6 +3,7 @@
 </div>
 
 <h2>Support Helpdesk settings</h2>
+<% if @settings.count > 0 %>
 <table class="list">
 	<thead>
 		<tr>
@@ -36,3 +37,7 @@
 	<%- end %>
 	</tbody>
 </table>
+<% else %>
+<p class="nodata">No data to display</p>
+<div style="clear:both;"></div>
+<% end %>
