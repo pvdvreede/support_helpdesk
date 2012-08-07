@@ -1,4 +1,14 @@
 <%= form_for(@setting) do |f| %>
+<% if @setting.errors.any? %>
+  <div id="errorExplanation">    
+    <ul>
+    <% @setting.errors.full_messages.each do |msg| %>
+      <li><%= msg %></li>
+    <% end %>
+    </ul>
+  </div>
+<% end %>
+
 <div id="support_setting_form">
   <div class="splitcontentleft">
     <fieldset class="box tabular">

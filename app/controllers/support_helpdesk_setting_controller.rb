@@ -45,7 +45,8 @@ class SupportHelpdeskSettingController < ApplicationController
     respond_to do |format|
       if @setting.save
         format.html { redirect_to(support_helpdesk_settings_url, :notice => "Support setting successfully created.")}
-      else
+      else 
+        get_for_new_edit
         format.html {render :action => "new"}
       end
     end

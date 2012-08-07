@@ -21,6 +21,25 @@ class SupportHelpdeskSetting < ActiveRecord::Base
 
   belongs_to :project
   belongs_to :tracker
+  belongs_to :issue_status
   has_many :issues_support_settings, :dependent => :destroy
   has_many :issues, :through => :issues_support_settings
+
+  validates :new_status_id, :presence => true
+  validates :project_id, :presence => true
+  validates :author_id, :presence => true
+  validates :to_email_address, :presence => true
+  validates :from_email_address, :presence => true
+  validates :tracker_id, :presence => true
+  validates :reply_email_custom_field_id, :presence => true
+  validates :type_custom_field_id, :presence => true
+  validates :created_template_name, :presence => true
+  validates :closed_template_name, :presence => true
+  validates :question_template_name, :presence => true
+  validates :name, :presence => true
+  validates :assignee_group_id, :presence => true
+
+  validates_associated :project
+  validates_associated :tracker
+  validates_associated :issue_status
 end
