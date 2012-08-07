@@ -35,7 +35,7 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
     assert result, "Should have created issue and returned true"
 
     # check the issue is there with the correct settings
-    check_issue_created email, 3, "supp01", 1
+    issue = check_issue_created email, 3, "supp01", 1
 
     # check to see if the email was sent including email to assignee
     assert_equal 1, ActionMailer::Base.deliveries.count, "Creation email not sent"
@@ -45,6 +45,8 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
 
     assert_equal "thetester@somewhere.com", email.to[0], "Email to sent out isnt correct"
     assert_equal "reply@support.com", email.from[0], "Email from sent out isnt correct"
+
+    issue
   end
 
   def test_creation_issue_02
@@ -63,6 +65,25 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
     assert_equal 0, ActionMailer::Base.deliveries.count, "Creation email was sent when it shouldnt have"
   end
   
+  def test_update_issue_01
+    # run a create
+    issue = test_creation_issue_01
+
+    assert_not_nil issue, "Creation for update didnt work"
+
+    # then get the email and grab the subject to resend
+    email = ActionMailer::Base.deliveries[0]
+    update_email = load_email "multipart_email.eml"
+    update_email.subject = "Re: #{email.subject}"
+
+    # pass to handler
+    handler = SupportMailHandler.new
+    result = handler.receive email
+    assert result, "Should have updated issue and returned true"
+
+    check_issue_updated issue, 3
+  end
+
   private
   def load_email(file)
     # load email into string
@@ -94,5 +115,16 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
 
     assert_equal email.from[0], issue.reply_email, "Not getting reply address from issue patch correctly"
     assert_equal support_name, issue.support_type,  "Not getting support type from issue patch correctly"
+
+    issue
+  end
+
+  def check_issue_updated(issue, tracker_id)
+    assert_not_nil issue, "Issue not created"
+
+    # make sure there is a notes entry with an updated comment
+    notes = Journal.where(:journalized_id => issue.id).where(:journalized_type => "Issue").where("notes LIKE ?", "%Email received from%")[0]
+
+    assert_not_nil note, "Update did not create Journal entry for issue"
   end
 end
