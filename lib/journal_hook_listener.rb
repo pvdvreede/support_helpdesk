@@ -23,7 +23,7 @@ class JournalHookListener < Redmine::Hook::ViewListener
 
       Support.log_info "Emailing note for #{issue.id} to #{issue.reply_email}."
       begin
-        mail = SupportHelpdeskMailer.user_question(issue, notes, issue.reply_email).deliver
+        mail = SupportHelpdeskMailer.user_question(issue, textilizable(notes), issue.reply_email).deliver
       rescue Exception => e
         Support.log_error "Error in sending email for #{issue.id}: #{e}\n#{e.backtrace.join("\n")}"
         email_status = "Error sending email, email was *NOT* sent:"
