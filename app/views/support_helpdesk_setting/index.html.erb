@@ -2,11 +2,10 @@
 	<%= link_to "New support setting", new_support_helpdesk_setting_path, :class => "icon icon-add" %>
 </div>
 
-<h2>Support Helpdesk Settings</h2>
+<h2>Support Helpdesk settings</h2>
 <table class="list">
 	<thead>
 		<tr>
-			<th>Active</th>
 			<th>Name</th>
 			<th>Project</th>
 			<th>Tracker</th>
@@ -20,7 +19,6 @@
 	<tbody>
 	<%- @settings.each do |s| %>
 	<tr>
-		<td><%= s.active.to_s %> (<%= link_to (s.active == true ? "Deactivate" : "Activate"), activate_support_helpdesk_setting_path(s), :confirm => "Are you sure?", :method => :activate %>)</td>
 		<td><%= link_to s.name, edit_support_helpdesk_setting_path(s) %></td>
 		<td><%= s.project.name %></td>
 		<td><%= s.tracker.name %></td>
@@ -28,7 +26,12 @@
 		<td><%= s.to_email_address %></td>
 		<td><%= format_time(s.last_processed) %></td>
 		<td><%= format_time(s.last_run) %></td>
-		<td class="buttons"><%= link_to "Delete", s, :confirm => "Are you sure?", :method => :delete, :class => "icon icon-del" %></td>
+		<td class="buttons">
+			<%= image_tag((s.active ? 'true.png' : 'exclamation.png'),
+                                    :style => "vertical-align:bottom;") %>
+			<%= link_to (s.active ? "Deactivate" : "Activate"), activate_support_helpdesk_setting_path(s), :confirm => "Are you sure?", :method => :activate %>
+			<%= link_to "Delete", s, :confirm => "Are you sure?", :method => :delete, :class => "icon icon-del" %>
+		</td>
 	</tr>
 	<%- end %>
 	</tbody>
