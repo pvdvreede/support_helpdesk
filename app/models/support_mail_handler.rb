@@ -56,110 +56,113 @@ class SupportMailHandler
   end
 
   def create_issue(support, email)
-    # TODO put issue creation inside transaction for atomicity
 
-    # get the assignee and update the round robin item
-    last_assignee = support.last_assigned_user_id || 0
-    this_assignee = get_assignee(support.assignee_group_id, last_assignee)
+    ActiveRecord::Base.transaction do
+      # get the assignee and update the round robin item
+      last_assignee = support.last_assigned_user_id || 0
+      this_assignee = get_assignee(support.assignee_group_id, last_assignee)
 
-    # if project_id is nil then get id from domain
-    if support.email_domain_custom_field_id != nil
-      project_id = get_project_from_email_domain(
-        email.from[0].split("@")[1],
-        support.email_domain_custom_field_id,
-        support.project_id
-      )
-    else
-      project_id = support.project_id
-    end
-
-    begin
-      body = email.text_part.body.raw_source
-    rescue => ex
-      Support.log_error "Exception trying to load email body so using static text: #{ex}"
-      body = "Ticket generated from attached email."
-    end
-
-    issue = Issue.new({:subject => email.subject, 
-                      :tracker_id => support.tracker_id,
-                      :project_id => project_id,
-                      :description => body, 
-                      :author_id => support.author_id, 
-                      :status_id => support.new_status_id, 
-                      :assigned_to_id => this_assignee})
-    support.last_assigned_user_id = this_assignee
-    support.save
-    issue.support_helpdesk_setting = support
-    issue.reply_email = email.from[0]
-    issue.support_type = support.name
-
-    if not issue.save
-      Support.log_error "Error saving issue because #{issue.errors.full_messages.join("\n")}"
-    end
-
-    # send attachment to redmine
-    SupportMailHandler.attach_email(
-      issue, 
-      email.encoded, 
-      "#{email.from[0]}_#{email.to[0]}.eml",
-      "Email issue was created from."
-     )
-
-    # send email back to ticket creator if it has been request
-    if support.send_created_email_to_user
-      begin
-        mail = SupportHelpdeskMailer.ticket_created(issue, email.from[0]).deliver
-      rescue Exception => e
-        Support.log_error "Error in sending email for #{issue.id}: #{e}\n#{e.backtrace.join("\n")}"
-        email_status = "Error sending ticket creation email, email was *NOT* sent."
+      # if project_id is nil then get id from domain
+      if support.email_domain_custom_field_id != nil
+        project_id = get_project_from_email_domain(
+          email.from[0].split("@")[1],
+          support.email_domain_custom_field_id,
+          support.project_id
+        )
       else
-        email_status = "Emailed ticket creation to #{email.from[0]} at #{Time.now.to_s}."
-
-        # save the email sent for our records
-        SupportMailHandler.attach_email(
-            issue,
-            mail.encoded,
-            "#{mail.from}_#{mail.to}.eml",
-            "Ticket created email sent to user."
-          )
+        project_id = support.project_id
       end
 
-      # add a note to the issue so we know the closing email was sent
-      journal = Journal.new
-      journal.notes = email_status
-      journal.user_id = support.author_id
-      issue.journals << journal
-    end
+      begin
+        body = email.text_part.body.raw_source
+      rescue => ex
+        Support.log_error "Exception trying to load email body so using static text: #{ex}"
+        body = "Ticket generated from attached email."
+      end
 
-    # update the last run for the support
-    support.last_processed = Time.now.utc
+      issue = Issue.new({:subject => email.subject, 
+                        :tracker_id => support.tracker_id,
+                        :project_id => project_id,
+                        :description => body, 
+                        :author_id => support.author_id, 
+                        :status_id => support.new_status_id, 
+                        :assigned_to_id => this_assignee})
+      support.last_assigned_user_id = this_assignee
+      support.save
+      issue.support_helpdesk_setting = support
+      issue.reply_email = email.from[0]
+      issue.support_type = support.name
+
+      if not issue.save
+        Support.log_error "Error saving issue because #{issue.errors.full_messages.join("\n")}"
+        raise ActiveRecord::Rollback
+      end
+
+      # send attachment to redmine
+      SupportMailHandler.attach_email(
+        issue, 
+        email.encoded, 
+        "#{email.from[0]}_#{email.to[0]}.eml",
+        "Email issue was created from."
+       )
+
+      # send email back to ticket creator if it has been request
+      if support.send_created_email_to_user
+        begin
+          mail = SupportHelpdeskMailer.ticket_created(issue, email.from[0]).deliver
+        rescue Exception => e
+          Support.log_error "Error in sending email for #{issue.id}: #{e}\n#{e.backtrace.join("\n")}"
+          email_status = "Error sending ticket creation email, email was *NOT* sent."
+        else
+          email_status = "Emailed ticket creation to #{email.from[0]} at #{Time.now.to_s}."
+
+          # save the email sent for our records
+          SupportMailHandler.attach_email(
+              issue,
+              mail.encoded,
+              "#{mail.from}_#{mail.to}.eml",
+              "Ticket created email sent to user."
+            )
+        end
+
+        # add a note to the issue so we know the closing email was sent
+        journal = Journal.new
+        journal.notes = email_status
+        journal.user_id = support.author_id
+        issue.journals << journal
+      end
+
+      # update the last run for the support
+      support.last_processed = Time.now.utc
+    end
     return true
   end
 
   def update_issue(issue_id, email)
     issue = Issue.find issue_id
 
-    # attach the email to the issue
-    SupportMailHandler.attach_email(
-      issue, 
-      email.encoded, 
-      "#{email.from[0]}_#{email.to[0]}.eml",
-      "Email from #{email.from[0]}."
-    )
+    ActiveRecord::Base.transaction do
+      # add a note to the issue with email body
+      journal = Journal.new
+      journal.notes = "Email received from #{email.from[0]} at #{Time.now.to_s} and is attached."
+      journal.user_id = issue.support_helpdesk_setting.author_id
+      issue.journals << journal
+      if not issue.save
+        Support.log_error "Could not save issue #{issue.errors.full_messages.join("\n")}"
+        raise ActiveRecord::Rollback
+      end
 
-    # add a note to the issue with email body
-    journal = Journal.new
-    journal.notes = "Email received from #{email.from[0]} at #{Time.now.to_s} and is attached."
-    journal.user_id = issue.support_helpdesk_setting.author_id
-    issue.journals << journal
-    if not issue.save
-      Support.log_error "Could not save issue #{issue.errors.full_messages.join("\n")}"
-      return false
+      # update processed time
+      issue.support_helpdesk_setting.last_processed = Time.now.utc
+
+      # attach the email to the issue
+      SupportMailHandler.attach_email(
+        issue, 
+        email.encoded, 
+        "#{email.from[0]}_#{email.to[0]}.eml",
+        "Email from #{email.from[0]}."
+      )
     end
-
-    # update processed time
-    issue.support_helpdesk_setting.last_processed = Time.now.utc
-
     return true
   end
 
