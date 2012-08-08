@@ -64,6 +64,8 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
     assert_equal "thetester@somewhere.com", email.to[0], "Email to sent out isnt correct"
     assert_equal "reply@support.com", email.from[0], "Email from sent out isnt correct"
 
+    # make sure the mail is being sent with the name
+    assert_not_nil email.encoded =~ /From: Name <reply@support.com>/, "The email is not being sent with a name in the from."
     issue
   end
 
