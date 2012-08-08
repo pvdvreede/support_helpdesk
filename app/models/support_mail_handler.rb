@@ -103,7 +103,7 @@ class SupportMailHandler
         issue, 
         email.encoded, 
         "#{email.from[0]}_#{email.to[0]}.eml",
-        "Email issue was created from."
+        "Original Email Sent from Customer."
        )
 
       # send email back to ticket creator if it has been request
@@ -121,7 +121,7 @@ class SupportMailHandler
               issue,
               mail.encoded,
               "#{mail.from}_#{mail.to}.eml",
-              "Ticket created email sent to user."
+              "Ticket created email sent to Customer."
             )
         end
 

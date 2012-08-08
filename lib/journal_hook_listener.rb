@@ -53,7 +53,7 @@ class JournalHookListener < Redmine::Hook::ViewListener
             issue,
             mail.encoded,
             "#{mail.from}_#{mail.to}.eml",
-            "Email sent to user from note."
+            "Email sent to Customer from note."
           )
       end
 
