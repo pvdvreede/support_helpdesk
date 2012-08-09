@@ -80,13 +80,16 @@ class SupportMailHandler
         body = "Ticket generated from attached email."
       end
 
-      issue = Issue.new({:subject => email.subject, 
-                        :tracker_id => support.tracker_id,
-                        :project_id => project_id,
-                        :description => body, 
-                        :author_id => support.author_id, 
-                        :status_id => support.new_status_id, 
-                        :assigned_to_id => this_assignee})
+      issue = Issue.new(
+        :subject => email.subject, 
+        :tracker_id => support.tracker_id,
+        :project_id => project_id,
+        :description => body, 
+        :author_id => support.author_id, 
+        :status_id => support.new_status_id, 
+        :assigned_to_id => this_assignee,
+        :start_date => Time.now.utc
+      )
       support.last_assigned_user_id = this_assignee
       support.save
       issue.support_helpdesk_setting = support

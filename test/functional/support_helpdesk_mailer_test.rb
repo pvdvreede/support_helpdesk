@@ -117,6 +117,7 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
     issue = Issue.where(:subject => email.subject).where(:tracker_id => tracker_id)[0]
 
     assert_not_nil issue, "Issue not created"
+    assert_not_nil issue.start_date, "Start date not added in"
 
     # check the custom values were inserted
     vs = CustomValue.where(:customized_id => issue.id, :customized_type => "Issue")
