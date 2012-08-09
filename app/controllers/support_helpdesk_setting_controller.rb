@@ -68,6 +68,7 @@ class SupportHelpdeskSettingController < ApplicationController
       if @setting.update_attributes(params[:support_helpdesk_setting])
         format.html { redirect_to(support_helpdesk_settings_url, :notice => "Support setting successfully updated.")}
       else
+        get_for_new_edit
         format.html {render :action => "edit"}
       end
     end
