@@ -28,33 +28,37 @@ class SupportHelpdeskMailer < ActionMailer::Base
   def ticket_created(issue, to)
     @issue = issue
     @support = issue.support_helpdesk_setting
-    Support.log_info "Sending ticket creation support email..."
-    mail(:to => to, 
-         :from => @support.from_email_address,
-         :subject => "#{@support.name} Ticket ##{@issue.id} created: #{issue.subject}", 
-         :template_name => @support.created_template_name
-         )
+    Support.log_info "Sending ticket creation support email from #{@support.from_email_address}..."
+    mail(
+      :to => to, 
+      :from => @support.from_email_address,
+      :subject => "#{@support.name} Ticket ##{@issue.id} created: #{issue.subject}", 
+      :template_name => @support.created_template_name
+    )
   end
 
   def ticket_closed(issue, to)
     @issue = issue
     @support = issue.support_helpdesk_setting
-    Support.log_info "Sending closing support email..."
-    mail(:to => to,
-         :from => @support.from_email_address,
-         :subject => "#{@support.name} Ticket ##{@issue.id} closed: #{issue.subject}", 
-         :template_name => @support.closed_template_name
-         )
+    Support.log_info "Sending closing support email from #{@support.from_email_address}..."
+    mail(
+      :to => to,
+      :from => @support.from_email_address,
+      :subject => "#{@support.name} Ticket ##{@issue.id} closed: #{issue.subject}", 
+      :template_name => @support.closed_template_name
+    )
   end
 
   def user_question(issue, question, to)
     @issue = issue
     @support = issue.support_helpdesk_setting
     @question = question
-    mail(:to => to, 
-         :from => @support.from_email_address,
-         :subject => "#{@support.name} Ticket ##{@issue.id} update: #{issue.subject}", 
-         :template_name => @support.question_template_name
-         )
+    Support.log_info "Sending user question email from #{@support.from_email_address}..."
+    mail(
+      :to => to, 
+      :from => @support.from_email_address,
+      :subject => "#{@support.name} Ticket ##{@issue.id} update: #{issue.subject}", 
+      :template_name => @support.question_template_name
+    )
   end
 end
