@@ -23,8 +23,8 @@
 		<td><%= link_to s.name, edit_support_helpdesk_setting_path(s) %></td>
 		<td><%= s.project.name %></td>
 		<td><%= s.tracker.name %></td>
-		<td><%= s.from_email_address %></td>
 		<td><%= s.to_email_address %></td>
+		<td><%= s.from_email_address %></td>
 		<td><%= format_time(s.last_processed) %></td>
 		<td><%= format_time(s.last_run) %></td>
 		<td class="buttons">
