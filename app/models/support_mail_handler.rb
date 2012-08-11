@@ -58,10 +58,6 @@ class SupportMailHandler
   def create_issue(support, email)
 
     ActiveRecord::Base.transaction do
-      # get the assignee and update the round robin item
-      last_assignee = support.last_assigned_user_id || 0
-      this_assignee = get_assignee(support.assignee_group_id, last_assignee)
-
       # if project_id is nil then get id from domain
       if support.email_domain_custom_field_id != nil
         project_id = get_project_from_email_domain(
@@ -87,11 +83,9 @@ class SupportMailHandler
         :description => body, 
         :author_id => support.author_id, 
         :status_id => support.new_status_id, 
-        :assigned_to_id => this_assignee,
+        :assigned_to_id => support.assignee_group_id,
         :start_date => Time.now.utc
       )
-      support.last_assigned_user_id = this_assignee
-      support.save
       issue.support_helpdesk_setting = support
       issue.reply_email = email.from[0]
       issue.support_type = support.name

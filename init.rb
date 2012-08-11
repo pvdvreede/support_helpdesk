@@ -17,7 +17,7 @@
 # along with Support Helpdesk.  If not, see <http://www.gnu.org/licenses/>.
 
 require_dependency "pop3"
-require_dependency "issue_patch"
+require_dependency "support_issue_patch"
 require_dependency "journal_hook_listener"
 
 Redmine::Plugin.register :support_helpdesk do

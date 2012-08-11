@@ -16,10 +16,10 @@
 # You should have received a copy of the GNU General Public License
 # along with Support Helpdesk.  If not, see <http://www.gnu.org/licenses/>.
 
-require File.dirname(__FILE__) + '/../test_helper'
+require File.dirname(File.expand_path(__FILE__)) + '/../test_helper'
 
 class SupportHelpdeskMailerTest < ActionMailer::TestCase
-  self.fixture_path = File.dirname(__FILE__) + "/../fixtures/"
+  self.fixture_path = File.dirname(File.expand_path(__FILE__)) + "/../fixtures/"
   fixtures :all
 
   def test_false_when_no_supports
@@ -53,7 +53,7 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
     assert result, "Should have created issue and returned true"
 
     # check the issue is there with the correct settings
-    issue = check_issue_created email, 3, "supp01", 1
+    issue = check_issue_created email, 3, "supp01", 1, 1
 
     # check to see if the email was sent including email to assignee
     assert_equal 1, ActionMailer::Base.deliveries.count, "Creation email not sent"
@@ -79,7 +79,7 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
     assert result, "Should have created issue"
 
     # check the issue is there with the correct settings
-    check_issue_created email, 3, "supp02", 2
+    check_issue_created email, 3, "supp02", 2, 2
 
     # check to see if the email was sent, shouldnt have cause set to false
     assert_equal 0, ActionMailer::Base.deliveries.count, "Creation email was sent when it shouldnt have"
@@ -112,12 +112,15 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
     email = Mail.new email_string
   end
 
-  def check_issue_created(email, tracker_id, support_name, support_id)
+  def check_issue_created(email, tracker_id, support_name, support_id, assignee)
     # check the issue is there with the correct settings
     issue = Issue.where(:subject => email.subject).where(:tracker_id => tracker_id)[0]
 
     assert_not_nil issue, "Issue not created"
     assert_not_nil issue.start_date, "Start date not added in"
+
+    # make sure the assignee is correct
+    assert_equal assignee, issue.assigned_to_id, "Issue not assigned correctly"
 
     # check the custom values were inserted
     vs = CustomValue.where(:customized_id => issue.id, :customized_type => "Issue")
