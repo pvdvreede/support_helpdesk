@@ -20,7 +20,7 @@ class SupportHelpdeskSettingController < ApplicationController
   unloadable
   layout 'admin'
 
-  #before_filter :authorize
+  before_filter :require_admin
 
   def index
   	@settings = SupportHelpdeskSetting.includes(:project, :tracker)
