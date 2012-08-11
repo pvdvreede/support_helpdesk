@@ -19,6 +19,9 @@
 class JournalHookListener < Redmine::Hook::ViewListener
 
   def view_issues_edit_notes_bottom(context={})
+    # only show email to user if there is a support setup
+    return if context[:issue].support_helpdesk_setting == nil
+
     # only show email user if available on the issue
     if context[:issue].reply_email != nil
       context[:controller].send(:render_to_string, {
@@ -33,7 +36,7 @@ class JournalHookListener < Redmine::Hook::ViewListener
 
     # code for sending email to user
     if context[:params][:email_to_user]
-      # double check that we can email the user      
+      # double check that we can email the user
       return unless can_send_item? issue
 
       notes = context[:journal].notes
