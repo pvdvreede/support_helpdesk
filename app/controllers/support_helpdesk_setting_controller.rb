@@ -110,6 +110,7 @@ class SupportHelpdeskSettingController < ApplicationController
     @project_custom_fields = CustomField.where(:type => "ProjectCustomField")
     @groups = Group.all
     @users = User.where("type != ?", "AnonymousUser")
+    @groups_users = @users + @groups
     @statuses = IssueStatus.all
 
     # get list of templates to select for emails

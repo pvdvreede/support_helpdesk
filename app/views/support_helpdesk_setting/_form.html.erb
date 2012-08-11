@@ -55,9 +55,9 @@
           <%= f.collection_select(:tracker_id, @trackers, :id, :name) %>
         </p>
         <p>
-          <%= f.label "Assignee group" %>
+          <%= f.label "User or group to assign to" %>
           <span class="required"> *</span>
-          <%= f.collection_select(:assignee_group_id, @groups, :id, :name) %>
+          <%= f.collection_select(:assignee_group_id, @groups_users, :id, :name) %>
         </p>
         <p>
           <%= f.label "Issue author" %>
