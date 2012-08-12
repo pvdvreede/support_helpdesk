@@ -42,7 +42,7 @@ class SupportMailHandler
     # if none than ignore the email
     unless supports.count > 0
       Support.log_info "No active support setups match the email address: #{email.to[0]}."
-      # tell POP3 to not delete the email,cause it might not be for us
+      # tell POP3 to not delete the email, cause it might not be for us
       return false
     end
 
@@ -131,6 +131,7 @@ class SupportMailHandler
 
       # update the last run for the support
       support.last_processed = Time.now.utc
+      support.save
     end
     return true
   end

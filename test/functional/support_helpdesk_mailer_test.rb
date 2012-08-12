@@ -44,14 +44,20 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
   end
 
   def test_creation_issue_01 
+
     email = load_email "multipart_email.eml"
     email.from = "test@david.com"
     email.to = "test@support.com"
 
     # pass to handler
+    start_time = Time.now
     handler = SupportMailHandler.new
     result = handler.receive email
     assert result, "Should have created issue and returned true"
+    end_time = Time.now
+
+    # make sure the processed and run time where updated
+    check_support_times_updated 1, start_time, end_time
 
     # check the issue is there with the correct settings
     issue = check_issue_created email, 3, "supp01", 1, 1, 2
@@ -76,9 +82,14 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
     email.to = "test2@support.com"
 
     # pass to handler
+    start_time = Time.now
     handler = SupportMailHandler.new
     result = handler.receive email
     assert result, "Should have created issue"
+    end_time = Time.now
+
+    # make sure the processed and run time where updated
+    check_support_times_updated 2, start_time, end_time
 
     # check the issue is there with the correct settings
     check_issue_created email, 3, "supp02", 2, 2, 1
@@ -129,6 +140,13 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
     email_file = File.open File.dirname(__FILE__) + "/../emails/#{file}"
     email_string = email_file.read
     email = Mail.new email_string
+  end
+
+  def check_support_times_updated(id, start_time, end_time)
+    support = SupportHelpdeskSetting.find id
+    assert_not_nil support.last_processed, "Last processed not populated"    
+    assert (start_time < support.last_processed), "Last processed not updated"
+    assert (end_time > support.last_processed), "Last process not updated"
   end
 
   def check_issue_created(email, tracker_id, support_name, support_id, assignee, project_id)
