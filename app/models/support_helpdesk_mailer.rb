@@ -49,10 +49,14 @@ class SupportHelpdeskMailer < ActionMailer::Base
     )
   end
 
-  def user_question(issue, question, to)
+  def user_question(issue, question, to, added_attachments=[])
     @issue = issue
     @support = issue.support_helpdesk_setting
     @question = question
+    added_attachments.each do |a|
+      attachments[a[:original_filename]] = a[:file]
+    end
+    Support.log_debug "Attachments being sent:\n#{added_attachments.inspect}"
     Support.log_info "Sending user question email from #{@support.from_email_address}..."
     mail(
       :to => to, 
