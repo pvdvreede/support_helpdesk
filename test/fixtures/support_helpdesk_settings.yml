@@ -55,3 +55,21 @@ support_003:
   send_created_email_to_user: 0
   send_closed_email_to_user: 0
   active: false
+support_004:
+  id: 4
+  name: supp04
+  project_id: 3
+  author_id: 3
+  assignee_group_id: 2
+  new_status_id: 1
+  to_email_address: test4@support.com
+  from_email_address: reply4@support.com
+  tracker_id: 3
+  reply_email_custom_field_id: 7
+  type_custom_field_id: 8
+  created_template_name: ticket_creation
+  closed_template_name: ticket_closed
+  question_template_name: user_question
+  send_created_email_to_user: 1
+  send_closed_email_to_user: 0
+  active: true

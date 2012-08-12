@@ -1,0 +1,12 @@
+custom_values_001: 
+  customized_type: Project
+  custom_field_id: 9
+  customized_id: 2
+  id: 1
+  value: "paul.net;david.com"
+custom_values_001: 
+  customized_type: Project
+  custom_field_id: 9
+  customized_id: 1
+  id: 1
+  value: "james.org"

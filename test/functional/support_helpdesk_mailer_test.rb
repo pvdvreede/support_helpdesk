@@ -45,6 +45,7 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
 
   def test_creation_issue_01 
     email = load_email "multipart_email.eml"
+    email.from = "test@david.com"
     email.to = "test@support.com"
 
     # pass to handler
@@ -53,7 +54,7 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
     assert result, "Should have created issue and returned true"
 
     # check the issue is there with the correct settings
-    issue = check_issue_created email, 3, "supp01", 1, 1
+    issue = check_issue_created email, 3, "supp01", 1, 1, 2
 
     # check to see if the email was sent including email to assignee
     assert_equal 1, ActionMailer::Base.deliveries.count, "Creation email not sent"
@@ -61,7 +62,7 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
     # check email is correct
     email = ActionMailer::Base.deliveries[0]
 
-    assert_equal "thetester@somewhere.com", email.to[0], "Email to sent out isnt correct"
+    assert_equal "test@david.com", email.to[0], "Email to sent out isnt correct"
     assert_equal "reply@support.com", email.from[0], "Email from sent out isnt correct"
 
     # make sure the mail is being sent with the name
@@ -71,6 +72,7 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
 
   def test_creation_issue_02
     email = load_email "multipart_email.eml"
+    email.from = "test@james.org"
     email.to = "test2@support.com"
 
     # pass to handler
@@ -79,12 +81,29 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
     assert result, "Should have created issue"
 
     # check the issue is there with the correct settings
-    check_issue_created email, 3, "supp02", 2, 2
+    check_issue_created email, 3, "supp02", 2, 2, 1
 
     # check to see if the email was sent, shouldnt have cause set to false
     assert_equal 0, ActionMailer::Base.deliveries.count, "Creation email was sent when it shouldnt have"
   end
   
+  def test_creation_issue_04
+    email = load_email "multipart_email.eml"
+    email.from = "test@none.org"
+    email.to = "test4@support.com"
+
+    # pass to handler
+    handler = SupportMailHandler.new
+    result = handler.receive email
+    assert result, "Should have created issue"
+
+    # check the issue is there with the correct settings
+    check_issue_created email, 3, "supp04", 4, 2, 3
+
+    # check to see if the email was sent, shouldnt have cause set to false
+    assert_equal 1, ActionMailer::Base.deliveries.count, "Creation email wasnt sent"    
+  end
+
   def test_update_issue_01
     # run a create
     issue = test_creation_issue_01
@@ -112,7 +131,7 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
     email = Mail.new email_string
   end
 
-  def check_issue_created(email, tracker_id, support_name, support_id, assignee)
+  def check_issue_created(email, tracker_id, support_name, support_id, assignee, project_id)
     # check the issue is there with the correct settings
     issue = Issue.where(:subject => email.subject).where(:tracker_id => tracker_id)[0]
 
@@ -139,6 +158,9 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
 
     assert_equal email.from[0], issue.reply_email, "Not getting reply address from issue patch correctly"
     assert_equal support_name, issue.support_type,  "Not getting support type from issue patch correctly"
+
+    # check correct project is selected
+    assert_equal project_id, issue.project_id, "Project was not assigned properly"
 
     issue
   end
