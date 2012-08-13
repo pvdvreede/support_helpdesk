@@ -185,9 +185,9 @@ class SupportMailHandler
 
   def get_project_from_email_domain(domain, field_id, default_project_id)
     # search for the project
-    projects = Project.joins(:custom_values).
-                       where("#{CustomValue.table_name}.custom_field_id = ?", field_id).
-                       where("#{CustomValue.table_name}.value = ?", domain)
+    projects = Project.joins(:custom_values). \
+                       where("#{CustomValue.table_name}.custom_field_id = ?", field_id). \
+                       where("LOWER(#{CustomValue.table_name}.value) like ?", "%#{domain.downcase}%")
     return default_project_id if projects.empty?
     return projects[0].id
   end
