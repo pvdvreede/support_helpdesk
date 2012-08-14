@@ -72,7 +72,7 @@ class JournalHookListener < Redmine::Hook::ViewListener
         Support.log_error "Error in sending email for #{issue.id}: #{e}\n#{e.backtrace.join("\n")}"
         email_status = "Error sending email, email was *NOT* sent because #{e}"
       else
-        email_status = "Emailed to #{issue.reply_email} at #{Time.now.to_s}:"
+        email_status = "Emailed to #{issue.reply_email} at #{Time.now.strftime("%d %b %Y %I:%M:%S %p")}:"
 
         # save the email sent for our records
         SupportMailHandler.attach_email(
