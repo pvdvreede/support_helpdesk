@@ -47,21 +47,21 @@ class JournalHookListener < Redmine::Hook::ViewListener
 
       notes = context[:journal].notes
       return if notes == ""
-
-      # if there are attachments, gather for adding to email
-      added_attachments = []
-      context[:params][:attachments].each do |a|
-        Support::log_debug "Attachments:\n#{a.inspect}"
-        if a[1][:file] != nil
-          added_attachments.push({ 
-            :original_filename => a[1][:file].original_filename,
-            :file => File.read(a[1][:file].tempfile)
-          })
-        end
-      end
-
-      Support.log_info "Emailing note for #{issue.id} to #{issue.reply_email}."
       begin
+        # if there are attachments, gather for adding to email
+        added_attachments = []
+        context[:params][:attachments].each do |a|
+          Support::log_debug "Attachments:\n#{a.inspect}"
+          if a[1][:file] != nil
+            added_attachments.push({ 
+              :original_filename => a[1][:file].original_filename,
+              :file => read_uploaded_file(a[1][:file].tempfile)
+            })
+          end
+        end
+
+        Support.log_info "Emailing note for #{issue.id} to #{issue.reply_email}."
+      
         mail = SupportHelpdeskMailer.user_question(
           issue, 
           textilizable(notes), 
@@ -70,7 +70,7 @@ class JournalHookListener < Redmine::Hook::ViewListener
         ).deliver
       rescue Exception => e
         Support.log_error "Error in sending email for #{issue.id}: #{e}\n#{e.backtrace.join("\n")}"
-        email_status = "Error sending email, email was *NOT* sent:"
+        email_status = "Error sending email, email was *NOT* sent because #{e}"
       else
         email_status = "Emailed to #{issue.reply_email} at #{Time.now.to_s}:"
 
@@ -99,7 +99,7 @@ NOTE
         mail = SupportHelpdeskMailer.ticket_created(issue, issue.reply_email).deliver
       rescue Exception => e
         Support.log_error "Error in sending email for #{issue.id}: #{e}\n#{e.backtrace.join("\n")}"
-        email_status = "Error sending ticket creation email, email was *NOT* sent."
+        email_status = "Error sending email, email was *NOT* sent because #{e}"
       else
         email_status = "Emailed ticket creation to #{mail.to} at #{Time.now.to_s}."
 
@@ -126,7 +126,7 @@ NOTE
         mail = SupportHelpdeskMailer.ticket_closed(issue, issue.reply_email).deliver
       rescue Exception => e
         Support.log_error "Error in sending email for #{issue.id}: #{e}\n#{e.backtrace.join("\n")}"
-        email_status = "Error sending closing email, email was *NOT* sent."
+        email_status = "Error sending email, email was *NOT* sent because #{e}."
       else
         email_status = "Closing email to #{mail.to} at #{Time.now.to_s}."
 
@@ -152,6 +152,19 @@ NOTE
     reply_email = issue.reply_email
     return false if reply_email == nil or reply_email == ""
     return true
+  end
+
+  def read_uploaded_file(file)
+    if file.respond_to?(:path)
+      file_contents = File.read(file.path, "rb")
+    elsif file.respond_to?(:read)
+      file_contents = file.read    
+    else
+      Support.log_error "Bad file data: #{file.class.name}: #{file.inspect}"
+      raise "Bad file attachment to be emailed."
+    end
+    Support.log_debug "File has been assigned: #{file_contents.inspect}"
+    file_contents
   end
 
 end
