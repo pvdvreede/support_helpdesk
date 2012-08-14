@@ -145,8 +145,8 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
   def check_support_times_updated(id, start_time, end_time)
     support = SupportHelpdeskSetting.find id
     assert_not_nil support.last_processed, "Last processed not populated"    
-    assert (start_time < support.last_processed), "Last processed not updated"
-    assert (end_time > support.last_processed), "Last process not updated"
+    assert (start_time <= support.last_processed), "Last processed not updated"
+    assert (end_time >= support.last_processed), "Last process not updated"
   end
 
   def check_issue_created(email, tracker_id, support_name, support_id, assignee, project_id)

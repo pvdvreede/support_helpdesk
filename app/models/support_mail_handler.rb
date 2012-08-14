@@ -169,7 +169,7 @@ class SupportMailHandler
     projects = Project.joins(:custom_values). \
                        where("#{CustomValue.table_name}.custom_field_id = ?", field_id). \
                        where("LOWER(#{CustomValue.table_name}.value) like ?", "%#{domain.downcase}%")
-    return default_project_id if projects.empty?
+    return default_project_id if projects.empty? or projects.count > 1
     return projects[0].id
   end
 

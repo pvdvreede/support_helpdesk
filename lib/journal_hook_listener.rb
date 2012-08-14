@@ -24,7 +24,7 @@ class JournalHookListener < Redmine::Hook::ViewListener
       support = context[:issue].support_helpdesk_setting
       return if support == nil
     rescue NoMethodError => e
-      Support::log_error "Support method not present on issue!"
+      Support.log_error "Support method not present on issue!"
       return
     end
 
