@@ -164,25 +164,6 @@ class SupportMailHandler
     return true
   end
 
-  # use round robin
-  def get_assignee(group_id, last_id)
-    users = Group.find(group_id).users.order("id")
-    ::Rails.logger.debug "There are #{users.count} users in the group."
-    user_count = users.count
-    return if user_count == 0
-    return users[0].id if user_count == 1
-    return users[0].id if last_id == 0 
-    users.each_with_index do |u, i|
-      if u.id == last_id
-        if i+1 == user_count
-          return users[0].id
-        else
-          return users[i+1].id
-        end
-      end
-    end
-  end
-
   def get_project_from_email_domain(domain, field_id, default_project_id)
     # search for the project
     projects = Project.joins(:custom_values). \
