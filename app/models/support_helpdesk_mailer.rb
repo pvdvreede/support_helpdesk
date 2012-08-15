@@ -17,6 +17,9 @@
 # along with Support Helpdesk.  If not, see <http://www.gnu.org/licenses/>.
 
 class SupportHelpdeskMailer < ActionMailer::Base
+  # include time format helper
+  add_template_helper(Redmine::I18n)
+
   default :parts_order => ["text/html", "text/plain"]
 
   # add current plugins views folder as a place to look for views
