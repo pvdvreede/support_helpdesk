@@ -112,6 +112,13 @@
             <span class="required"> *</span>
             <%= f.select(:question_template_name, @template_files) %>
           </p>
+          <p>
+            <%= f.label "Bcc all emails to" %>
+            <%= f.text_field :bcc_email %>
+            <em class="info">
+              You can have all emails that are sent out by Support Helpdesk be blind carbon copied to this email address. Leave blank if you dont want this feature.
+            </em>
+          </p>
         </fieldset>
       </div>
     </div>

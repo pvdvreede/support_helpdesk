@@ -35,6 +35,7 @@ class SupportHelpdeskMailer < ActionMailer::Base
     mail(
       :to => to, 
       :from => @support.from_email_address,
+      :bcc => @support.bcc_email || nil,
       :subject => "#{@support.name} Ticket ##{@issue.id} created: #{issue.subject}", 
       :template_name => @support.created_template_name
     )
@@ -47,6 +48,7 @@ class SupportHelpdeskMailer < ActionMailer::Base
     mail(
       :to => to,
       :from => @support.from_email_address,
+      :bcc => @support.bcc_email || nil,
       :subject => "#{@support.name} Ticket ##{@issue.id} closed: #{issue.subject}", 
       :template_name => @support.closed_template_name
     )
@@ -64,6 +66,7 @@ class SupportHelpdeskMailer < ActionMailer::Base
     mail(
       :to => to, 
       :from => @support.from_email_address,
+      :bcc => @support.bcc_email || nil,
       :subject => "#{@support.name} Ticket ##{@issue.id} update: #{issue.subject}", 
       :template_name => @support.question_template_name
     )
