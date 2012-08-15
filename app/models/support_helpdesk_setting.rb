@@ -42,4 +42,6 @@ class SupportHelpdeskSetting < ActiveRecord::Base
   validates_associated :project
   validates_associated :tracker
   validates_associated :issue_status
+
+  scope :active, where(:active => true)
 end

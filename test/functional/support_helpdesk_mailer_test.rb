@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Support Helpdesk.  If not, see <http://www.gnu.org/licenses/>.
 
+# TODO refactor test suite to use DRY properly
 require File.dirname(File.expand_path(__FILE__)) + '/../test_helper'
 
 class SupportHelpdeskMailerTest < ActionMailer::TestCase
@@ -116,6 +117,74 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
 
     # check to see if the email was sent, shouldnt have cause set to false
     assert_equal 1, ActionMailer::Base.deliveries.count, "Creation email wasnt sent"    
+  end
+
+  def test_creation_in_to_with_multiple_emails
+    email = load_email "multipart_email.eml"
+    email.from = "test@david.com"
+    email.to = ["test@support.com", "another@random.com"]
+    email.cc = "cced@another.com"
+
+    # pass to handler
+    start_time = Time.now
+    handler = SupportMailHandler.new
+    result = handler.receive email
+    assert result, "Should have created issue and returned true"
+    end_time = Time.now
+
+    # check the issue is there with the correct settings
+    issue = check_issue_created email, 3, "supp01", 1, 1, 2
+
+    # check to see if the email was sent including email to assignee
+    assert_equal 1, ActionMailer::Base.deliveries.count, "Creation email not sent"
+
+    # check email is correct
+    email = ActionMailer::Base.deliveries[0]
+
+    assert_equal "test@david.com", email.to[0], "Email to sent out isnt correct"
+    assert_equal "reply@support.com", email.from[0], "Email from sent out isnt correct"
+
+    # make sure the mail is being sent with the name
+    assert_not_nil email.encoded =~ /From: Name <reply@support.com>/, "The email is not being sent with a name in the from."
+
+    # make sure the processed and run time where updated
+    check_support_times_updated 1, start_time, end_time
+
+    issue
+  end
+
+  def test_creation_in_cc_with_multiple_emails
+    email = load_email "multipart_email.eml"
+    email.from = "test@david.com"
+    email.to = ["to2@random.com", "another@random.com"]
+    email.cc = ["tEst@suPpOrt.com", "cced@another.com"]
+
+    # pass to handler
+    start_time = Time.now
+    handler = SupportMailHandler.new
+    result = handler.receive email
+    assert result, "Should have created issue and returned true"
+    end_time = Time.now
+
+    # check the issue is there with the correct settings
+    issue = check_issue_created email, 3, "supp01", 1, 1, 2
+
+    # check to see if the email was sent including email to assignee
+    assert_equal 1, ActionMailer::Base.deliveries.count, "Creation email not sent"
+
+    # check email is correct
+    email = ActionMailer::Base.deliveries[0]
+
+    assert_equal "test@david.com", email.to[0], "Email to sent out isnt correct"
+    assert_equal "reply@support.com", email.from[0], "Email from sent out isnt correct"
+
+    # make sure the mail is being sent with the name
+    assert_not_nil email.encoded =~ /From: Name <reply@support.com>/, "The email is not being sent with a name in the from."
+
+    # make sure the processed and run time where updated
+    check_support_times_updated 1, start_time, end_time
+
+    issue
   end
 
   def test_update_issue_01

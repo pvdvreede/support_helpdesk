@@ -32,8 +32,7 @@ class SupportMailHandler
     status = false
 
     # otherwise create a new ticket if there is a support setting for it
-    supports = SupportHelpdeskSetting.where("LOWER(to_email_address) LIKE ?", "%#{email.to[0].downcase}%") \
-                                     .where(:active => true)
+    supports = find_support_from_email email
 
     # check if it is for a current issue first
     id = check_issue_exists(email)
@@ -58,6 +57,24 @@ class SupportMailHandler
       end
     end
     return status
+  end
+
+  def find_support_from_email(email)
+    # join all possible emails address into one array for looping
+    emails = email.to.to_a + email.cc.to_a + email.bcc.to_a
+    where_string = ""
+    where_array = []
+    emails.each do |e|
+      where_string += "LOWER(to_email_address) LIKE ?"
+      where_string += " OR " unless emails.last == e
+      where_array.push "%#{e.downcase}%"
+    end
+
+    # pop in the where clause over the top of the values for an escapable where array
+    where_array.unshift where_string
+
+    # loop over each to create the query
+    SupportHelpdeskSetting.active.where(where_array)
   end
 
   def check_issue_exists(email)
