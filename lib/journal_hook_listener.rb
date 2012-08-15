@@ -79,7 +79,8 @@ class JournalHookListener < Redmine::Hook::ViewListener
             issue,
             mail.encoded,
             "#{mail.from}_#{mail.to}.eml",
-            "Email sent to Customer from note."
+            "Email sent to Customer from note.",
+            issue.support_helpdesk_setting.author_id
           )
       end
 
@@ -108,7 +109,8 @@ NOTE
             issue,
             mail.encoded,
             "#{mail.from}_#{mail.to}.eml",
-            "Ticket created email resent to user."
+            "Ticket created email resent to user.",
+            issue.support_helpdesk_setting.author_id
           )
       end
 
@@ -135,7 +137,8 @@ NOTE
             issue,
             mail.encoded,
             "#{mail.from}_#{mail.to}.eml",
-            "Closing email resent to user."
+            "Closing email resent to user.",
+            issue.support_helpdesk_setting.author_id
           )
       end
 

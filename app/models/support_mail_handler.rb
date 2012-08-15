@@ -109,7 +109,8 @@ class SupportMailHandler
       issue, 
       email.encoded, 
       "#{email.from[0]}_#{email.to[0]}.eml",
-      "Original Email Sent from Customer."
+      "Original Email Sent from Customer.",
+      support.author_id
      )
 
     # send email back to ticket creator if it has been request
@@ -127,7 +128,8 @@ class SupportMailHandler
             issue,
             mail.encoded,
             "#{mail.from}_#{mail.to}.eml",
-            "Ticket created email sent to Customer."
+            "Ticket created email sent to Customer.",
+            support.author_id
           )
       end
 
@@ -159,7 +161,8 @@ class SupportMailHandler
       issue, 
       email.encoded, 
       "#{email.from[0]}_#{email.to[0]}.eml",
-      "Email from #{email.from[0]}."
+      "Email from #{email.from[0]}.",
+      issue.support_helpdesk_setting.author_id
     )
 
     return true
@@ -174,9 +177,9 @@ class SupportMailHandler
     return projects[0].id
   end
 
-  def self.attach_email(issue, email_string, filename, description=nil)
+  def self.attach_email(issue, email_string, filename, description, author_id)
     attachment = Attachment.new(:file => email_string)
-    attachment.author = User.where(:id => 1)[0]
+    attachment.author = User.find author_id
     attachment.content_type = "message/rfc822"
     attachment.filename = filename
     attachment.container = issue

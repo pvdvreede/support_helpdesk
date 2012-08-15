@@ -64,7 +64,8 @@ module Support
               self,
               mail.encoded,
               "#{mail.from}_#{mail.to}.eml",
-              "Closing email sent to user."
+              "Closing email sent to user.",
+              self.support_helpdesk_setting.author_id
             )
         end
 
