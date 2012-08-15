@@ -56,9 +56,6 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
     assert result, "Should have created issue and returned true"
     end_time = Time.now
 
-    # make sure the processed and run time where updated
-    check_support_times_updated 1, start_time, end_time
-
     # check the issue is there with the correct settings
     issue = check_issue_created email, 3, "supp01", 1, 1, 2
 
@@ -73,6 +70,10 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
 
     # make sure the mail is being sent with the name
     assert_not_nil email.encoded =~ /From: Name <reply@support.com>/, "The email is not being sent with a name in the from."
+
+    # make sure the processed and run time where updated
+    check_support_times_updated 1, start_time, end_time
+
     issue
   end
 
@@ -88,14 +89,16 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
     assert result, "Should have created issue"
     end_time = Time.now
 
-    # make sure the processed and run time where updated
-    check_support_times_updated 2, start_time, end_time
-
     # check the issue is there with the correct settings
-    check_issue_created email, 3, "supp02", 2, 2, 1
+    issue = check_issue_created email, 3, "supp02", 2, 2, 1
 
     # check to see if the email was sent, shouldnt have cause set to false
     assert_equal 0, ActionMailer::Base.deliveries.count, "Creation email was sent when it shouldnt have"
+
+    # make sure the processed and run time where updated
+    check_support_times_updated 2, start_time, end_time
+
+    issue
   end
   
   def test_creation_issue_04
@@ -143,6 +146,8 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
   end
 
   def check_support_times_updated(id, start_time, end_time)
+    start_time = start_time.advance :seconds => -1
+    end_time = end_time.advance :seconds => 1
     support = SupportHelpdeskSetting.find id
     assert_not_nil support.last_processed, "Last processed not populated"    
     assert (start_time <= support.last_processed), "Last processed not updated"
