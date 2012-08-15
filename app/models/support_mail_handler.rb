@@ -83,6 +83,16 @@ class SupportMailHandler
     id = (subject =~ /Ticket #([0-9]*)/ ? $1 : false)
   end
 
+  def self.get_email_body_text(email)
+    begin
+      body = email.text_part.body.raw_source
+    rescue => ex
+      Support.log_error "Exception trying to load email body so using static text: #{ex}"
+      body = "Ticket generated from attached email."
+    end
+    body
+  end
+
   def create_issue(support, email)   
     # if project_id is nil then get id from domain
     if support.email_domain_custom_field_id != nil
@@ -95,18 +105,11 @@ class SupportMailHandler
       project_id = support.project_id
     end
 
-    begin
-      body = email.text_part.body.raw_source
-    rescue => ex
-      Support.log_error "Exception trying to load email body so using static text: #{ex}"
-      body = "Ticket generated from attached email."
-    end
-
     issue = Issue.new(
       :subject => email.subject, 
       :tracker_id => support.tracker_id,
       :project_id => project_id,
-      :description => body, 
+      :description => SupportMailHandler.get_email_body_text(email), 
       :author_id => support.author_id, 
       :status_id => support.new_status_id, 
       :assigned_to_id => support.assignee_group_id,
@@ -165,7 +168,7 @@ class SupportMailHandler
 
     # add a note to the issue with email body
     journal = Journal.new
-    journal.notes = "Email received from #{email.from[0]} at #{Time.now.strftime("%d %b %Y %I:%M:%S %p")} and is attached."
+    journal.notes = "Email received from #{email.from[0]} at #{Time.now.strftime("%d %b %Y %I:%M:%S %p")} and is attached:\n\n#{SupportMailHandler.get_email_body_text(email)}"
     journal.user_id = issue.support_helpdesk_setting.author_id
     issue.journals << journal
     if not issue.save
