@@ -91,4 +91,5 @@ support_005:
   send_created_email_to_user: 1
   send_closed_email_to_user: 0
   reply_all_for_outgoing: true
+  domains_to_ignore: ignore.com;anotherignore.com
   active: true

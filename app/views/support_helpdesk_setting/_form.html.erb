@@ -24,6 +24,13 @@
           <%= f.text_field :to_email_address, :required => true %>
         </p>
         <p>
+          <%= f.label "Email domains to ignore" %>
+          <%= f.text_field :domains_to_ignore %>
+          <em class="info">
+            You can specify a semi-colon separated list of email domains you receive mail from that you want to ignore and NOT create a ticket for. NOTE: Emails from these domains will be ignored and have the email deleted from the mailbox.
+          </em>
+        </p>
+        <p>
           <%= f.label "Email to send as" %>
           <span class="required"> *</span>
           <%= f.text_field :from_email_address, :required => true %>

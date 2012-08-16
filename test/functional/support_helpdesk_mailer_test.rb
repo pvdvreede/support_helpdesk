@@ -154,6 +154,51 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
     issue
   end
 
+  def test_email_ignored_from_domain
+    mail = load_email "multipart_email.eml"
+    mail.from = "test@ignore.com"
+    mail.to = "test5@support.com"
+
+    handler = SupportMailHandler.new
+    result = handler.receive mail
+    assert result, "Should have returned true"
+
+    # make sure no issue was created
+    issue = Issue.where(:subject => mail.subject).where(:tracker_id => 3)[0]
+
+    assert_nil issue, "Issue was created when it should not have been."
+  end
+
+  def test_email_ignored_from_domain_part
+    mail = load_email "multipart_email.eml"
+    mail.from = "test@dontignore.com"
+    mail.to = "test5@support.com"
+
+    handler = SupportMailHandler.new
+    result = handler.receive mail
+    assert result, "Should have returned true"
+
+    # make sure issue was created
+    issue = Issue.where(:subject => mail.subject).where(:tracker_id => 3)[0]
+
+    assert_not_nil issue, "Issue not created when it should have been."
+  end
+
+  def test_email_ignored_from_domain_substring
+    mail = load_email "multipart_email.eml"
+    mail.from = "test@nore.com"
+    mail.to = "test5@support.com"
+
+    handler = SupportMailHandler.new
+    result = handler.receive mail
+    assert result, "Should have returned true"
+
+    # make sure issue was created
+    issue = Issue.where(:subject => mail.subject).where(:tracker_id => 3)[0]
+
+    assert_not_nil issue, "Issue not created when it should have been."
+  end
+
   def test_creation_in_cc_with_multiple_emails
     mail = load_email "multipart_email.eml"
     mail.from = "test@david.com"

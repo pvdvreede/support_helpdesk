@@ -28,6 +28,20 @@ class SupportMailHandler
     end
 	end
 
+  def is_ignored_email_domain(email, support)
+    # if there are no domains to ignore return
+    return false if support.domains_to_ignore.nil?
+    
+    #other split the domains and check
+    domain_array = support.domains_to_ignore.split(";")
+    if domain_array.include?(email.from[0].split('@')[1].downcase)
+      return true
+    end
+
+    false
+  end
+
+
   def route_email(email)
     status = false
 
@@ -45,6 +59,12 @@ class SupportMailHandler
           Support.log_info "No active support setups match the email address: #{email.to[0]}."
           # tell POP3 to not delete the email, cause it might not be for us
           return false
+        end
+
+        # check if there is ignore email and this emails is one of them
+        if is_ignored_email_domain(email, supports[0]) == true
+          Support.log_info "Email from #{email.from[0]} is on the ignored domain list. Message ignored and will be deleted."
+          return true
         end
 
         status = self.create_issue(supports[0], email)
@@ -73,7 +93,6 @@ class SupportMailHandler
     # pop in the where clause over the top of the values for an escapable where array
     where_array.unshift where_string
 
-    # loop over each to create the query
     SupportHelpdeskSetting.active.where(where_array)
   end
 
