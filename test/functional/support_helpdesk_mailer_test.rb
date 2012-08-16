@@ -184,6 +184,27 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
     assert_not_nil issue, "Issue not created when it should have been."
   end
 
+  def test_proper_decoding_singlepart_email
+    mail = load_email "singlepart_email.eml"
+    mail.from = "test@none.org"
+    mail.to = "test4@support.com"
+
+    # pass to handler
+    handler = SupportMailHandler.new
+    result = handler.receive mail
+    assert result, "Should have created issue"
+
+    # check the issue is there with the correct settings
+    issue = check_issue_created mail, 3, "supp04", 4, 2, 3
+
+    #check description
+    assert_equal "<p>This is the html part</p>", issue.description, "Single part email not properly decoded"
+
+    # check to see if the email was sent, shouldnt have cause set to false
+    assert_equal 1, ActionMailer::Base.deliveries.count, "Creation email wasnt sent"
+
+  end
+
   def test_email_ignored_from_domain_substring
     mail = load_email "multipart_email.eml"
     mail.from = "test@nore.com"
