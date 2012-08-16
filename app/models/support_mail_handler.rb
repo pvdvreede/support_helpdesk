@@ -164,7 +164,12 @@ class SupportMailHandler
   end
 
   def update_issue(issue_id, email)
-    issue = Issue.find(issue_id)
+    begin
+      issue = Issue.find(issue_id)
+    rescue ActiveRecord::RecordNotFound
+      # make sure there is an issue with that number or else return false to ignore the email
+      return false
+    end
 
     # add a note to the issue with email body
     journal = Journal.new
