@@ -61,7 +61,7 @@ class SupportMailHandler
           return false
         end
 
-        # check if there is ignore email and this emails is one of them
+        # check if there is ignore email and this email is one of them
         if is_ignored_email_domain(email, supports[0]) == true
           Support.log_info "Email from #{email.from[0]} is on the ignored domain list. Message ignored and will be deleted."
           return true
@@ -104,10 +104,29 @@ class SupportMailHandler
 
   def self.get_email_body_text(email)
     begin
-      body = email.text_part.body.raw_source
+      html_encode = false
+      if email.text_part.nil? == false
+        part = email.text_part
+      elsif email.html_part.nil? == false
+        part = email.html_part
+        html_encode = true
+      else
+        raise TypeError.new "Email does not have text or html part."
+      end
+
+      case part.body.encoding
+      when "base64"
+        body = Base64.decode64(email.text_part.body.raw_source)
+      else
+        body = email.text_part.body.raw_source
+      end
+
+      if html_encode
+        body = CGI.unescapeHTML(body)
+      end
     rescue => ex
       Support.log_error "Exception trying to load email body so using static text: #{ex}"
-      body = "Ticket generated from attached email."
+      body = "Could not decode email body. Email body in attached email."
     end
     body
   end

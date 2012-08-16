@@ -32,6 +32,7 @@ class SupportHelpdeskMailer < ActionMailer::Base
     @issue = issue
     @support = issue.support_helpdesk_setting
     Support.log_info "Sending ticket creation support email from #{@support.from_email_address}..."
+    headers["X-MXCSupport-Id"] = @issue.id.to_s
     mail(
       :to => create_to_from_string(to), 
       :from => @support.from_email_address,
@@ -45,6 +46,7 @@ class SupportHelpdeskMailer < ActionMailer::Base
     @issue = issue
     @support = issue.support_helpdesk_setting
     Support.log_info "Sending closing support email from #{@support.from_email_address}..."
+    headers["X-MXCSupport-Id"] = @issue.id.to_s
     mail(
       :to => create_to_from_string(to),
       :from => @support.from_email_address,
@@ -58,6 +60,7 @@ class SupportHelpdeskMailer < ActionMailer::Base
     @issue = issue
     @support = issue.support_helpdesk_setting
     @question = question
+    headers["X-MXCSupport-Id"] = @issue.id.to_s
     added_attachments.each do |a|
       attachments[a[:original_filename]] = a[:file]
     end
