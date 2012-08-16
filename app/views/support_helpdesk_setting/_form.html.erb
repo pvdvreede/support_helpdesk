@@ -73,6 +73,13 @@
           </em>
         </p>
         <p>
+          <%= f.label "Reply all" %>
+          <%= f.check_box(:reply_all_for_outgoing) %>
+          <em class="info">
+            If this is checked, all email addresses in the incoming email will be added to the reply email address fields, so that all recipients are replied to with ticket creation and any other redmine emails.
+          </em>
+        </p>
+        <p>
           <%= f.label "Support type field" %>
           <span class="required"> *</span>
           <%= f.collection_select(:type_custom_field_id, @issue_custom_fields, :id, :name) %>

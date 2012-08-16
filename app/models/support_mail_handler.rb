@@ -93,6 +93,15 @@ class SupportMailHandler
     body
   end
 
+  def get_email_reply_string(support, email)
+    return email.from[0] if not support.reply_all_for_outgoing
+
+    #build semicolon string from all fields if not the support email
+    email_array = email.to.to_a + email.from.to_a + email.cc.to_a
+
+    email_array.find_all { |e| e.downcase unless e.downcase == support.to_email_address.downcase }.join(";")
+  end
+
   def create_issue(support, email)   
     # if project_id is nil then get id from domain
     if support.email_domain_custom_field_id != nil
@@ -116,7 +125,7 @@ class SupportMailHandler
       :start_date => Time.now.utc
     )
     issue.support_helpdesk_setting = support
-    issue.reply_email = email.from[0]
+    issue.reply_email = get_email_reply_string(support, email)
     issue.support_type = support.name
 
     if not issue.save
@@ -136,7 +145,7 @@ class SupportMailHandler
     # send email back to ticket creator if it has been request
     if support.send_created_email_to_user
       begin
-        mail = SupportHelpdeskMailer.ticket_created(issue, email.from[0]).deliver
+        mail = SupportHelpdeskMailer.ticket_created(issue, issue.reply_email).deliver
       rescue Exception => e
         Support.log_error "Error in sending email for #{issue.id}: #{e}\n#{e.backtrace.join("\n")}"
         email_status = "Error sending ticket creation email, email was *NOT* sent."
@@ -213,5 +222,4 @@ class SupportMailHandler
       raise ActiveRecord::Rollback
     end
   end
-
 end

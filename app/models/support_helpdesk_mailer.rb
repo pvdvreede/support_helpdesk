@@ -33,7 +33,7 @@ class SupportHelpdeskMailer < ActionMailer::Base
     @support = issue.support_helpdesk_setting
     Support.log_info "Sending ticket creation support email from #{@support.from_email_address}..."
     mail(
-      :to => to, 
+      :to => create_to_from_string(to), 
       :from => @support.from_email_address,
       :bcc => @support.bcc_email || nil,
       :subject => "#{@support.name} Ticket ##{@issue.id}: #{issue.subject}", 
@@ -46,7 +46,7 @@ class SupportHelpdeskMailer < ActionMailer::Base
     @support = issue.support_helpdesk_setting
     Support.log_info "Sending closing support email from #{@support.from_email_address}..."
     mail(
-      :to => to,
+      :to => create_to_from_string(to),
       :from => @support.from_email_address,
       :bcc => @support.bcc_email || nil,
       :subject => "#{@support.name} Ticket ##{@issue.id}: #{issue.subject}", 
@@ -64,11 +64,15 @@ class SupportHelpdeskMailer < ActionMailer::Base
     Support.log_debug "Attachments being sent:\n#{added_attachments.inspect}"
     Support.log_info "Sending user question email from #{@support.from_email_address}..."
     mail(
-      :to => to, 
+      :to => create_to_from_string(to), 
       :from => @support.from_email_address,
       :bcc => @support.bcc_email || nil,
       :subject => "#{@support.name} Ticket ##{@issue.id}: #{issue.subject}", 
       :template_name => @support.question_template_name
     )
+  end
+
+  def create_to_from_string(email_string)
+    email_string.split ";"
   end
 end
