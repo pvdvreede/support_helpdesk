@@ -32,7 +32,7 @@ class SupportHelpdeskMailer < ActionMailer::Base
     @issue = issue
     @support = issue.support_helpdesk_setting
     Support.log_info "Sending ticket creation support email from #{@support.from_email_address}..."
-    headers["X-MXCSupport-Id"] = @issue.id.to_s
+    add_email_headers(@issue)
     mail(
       :to => create_to_from_string(to), 
       :from => @support.from_email_address,
@@ -46,7 +46,7 @@ class SupportHelpdeskMailer < ActionMailer::Base
     @issue = issue
     @support = issue.support_helpdesk_setting
     Support.log_info "Sending closing support email from #{@support.from_email_address}..."
-    headers["X-MXCSupport-Id"] = @issue.id.to_s
+    add_email_headers(@issue)
     mail(
       :to => create_to_from_string(to),
       :from => @support.from_email_address,
@@ -60,7 +60,7 @@ class SupportHelpdeskMailer < ActionMailer::Base
     @issue = issue
     @support = issue.support_helpdesk_setting
     @question = question
-    headers["X-MXCSupport-Id"] = @issue.id.to_s
+    add_email_headers(@issue)
     added_attachments.each do |a|
       attachments[a[:original_filename]] = a[:file]
     end
@@ -73,6 +73,16 @@ class SupportHelpdeskMailer < ActionMailer::Base
       :subject => "#{@support.name} Ticket ##{@issue.id}: #{issue.subject}", 
       :template_name => @support.question_template_name
     )
+  end
+
+  private
+  def add_email_headers(issue)
+    headers["X-MXCSupport-Id"] = issue.id.to_s
+    related_message = issue.issues_support_message_id[0]
+    unless related_message.nil?
+      headers["References"] = "<#{related_message.message_id}>"
+      headers["In-Reply-To"] = "<#{related_message.message_id}>"
+    end
   end
 
   def create_to_from_string(email_string)

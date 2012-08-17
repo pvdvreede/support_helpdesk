@@ -20,6 +20,7 @@ class CreateIssuesSupportMessageIds < ActiveRecord::Migration
   def change
     create_table :issues_support_message_ids do |t|
       t.integer :issue_id, :null => false
+      t.integer :support_helpdesk_setting_id
       t.integer :parent_message_id
       t.integer :reply_to_message_id
       t.string  :message_id, :null => false

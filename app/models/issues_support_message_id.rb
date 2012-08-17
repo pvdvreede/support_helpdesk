@@ -16,8 +16,9 @@
 # You should have received a copy of the GNU General Public License
 # along with Support Helpdesk.  If not, see <http://www.gnu.org/licenses/>.
 
-class IssueSupportMessageId < ActiveRecord::Base
+class IssuesSupportMessageId < ActiveRecord::Base
   unloadable
 
   belongs_to :issue
+  belongs_to :support_helpdesk_setting
 end

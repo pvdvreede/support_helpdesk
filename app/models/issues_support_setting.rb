@@ -21,4 +21,5 @@ class IssuesSupportSetting < ActiveRecord::Base
   
   belongs_to :issue
   belongs_to :support_helpdesk_setting
+  has_many :issues_support_message_id
 end

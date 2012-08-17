@@ -32,7 +32,7 @@ module Support
         has_one :support_helpdesk_setting, :through => :issues_support_setting
 
         # add link to email message ids
-        has_many :issue_support_message_id
+        has_many :issues_support_message_id
       end
     end
 

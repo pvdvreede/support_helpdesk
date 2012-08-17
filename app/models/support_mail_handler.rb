@@ -17,8 +17,7 @@
 # along with Support Helpdesk.  If not, see <http://www.gnu.org/licenses/>.
 
 
-class SupportMailHandler
-  
+class SupportMailHandler 
 	def receive(message, options={})
     begin     
       return self.route_email message    
@@ -40,7 +39,6 @@ class SupportMailHandler
 
     false
   end
-
 
   def route_email(email)
     status = false
@@ -102,35 +100,6 @@ class SupportMailHandler
     id = (subject =~ /Ticket #([0-9]*)/ ? $1 : false)
   end
 
-  def self.get_email_body_text(email)
-    begin
-      html_encode = false
-      if email.text_part.nil? == false
-        part = email.text_part
-      elsif email.html_part.nil? == false
-        part = email.html_part
-        html_encode = true
-      else
-        raise TypeError.new "Email does not have text or html part."
-      end
-
-      case part.body.encoding
-      when "base64"
-        body = Base64.decode64(email.text_part.body.raw_source)
-      else
-        body = email.text_part.body.raw_source
-      end
-
-      if html_encode
-        body = CGI.unescapeHTML(body)
-      end
-    rescue => ex
-      Support.log_error "Exception trying to load email body so using static text: #{ex}"
-      body = "Could not decode email body. Email body in attached email."
-    end
-    body
-  end
-
   def get_email_reply_string(support, email)
     return email.from[0] if not support.reply_all_for_outgoing
 
@@ -166,8 +135,20 @@ class SupportMailHandler
     issue.reply_email = get_email_reply_string(support, email)
     issue.support_type = support.name
 
-    if not issue.save
+    unless issue.save
       Support.log_error "Error saving issue because #{issue.errors.full_messages.join("\n")}"
+      raise ActiveRecord::Rollback
+    end
+
+    # create the message id from the email and relate it to the issue and support
+    support_message_id = IssuesSupportMessageId.new(
+        :issue_id => issue.id,
+        :support_helpdesk_setting_id => support.id,
+        :message_id => email.message_id
+    )
+
+    unless support_message_id.save
+      Support.log_error "Error saving support message id because #{issue.errors.full_messages.join("\n")}"
       raise ActiveRecord::Rollback
     end
 
@@ -178,7 +159,7 @@ class SupportMailHandler
       "#{email.from[0]}_#{email.to[0]}.eml",
       "Original Email Sent from Customer.",
       support.author_id
-     )
+    )
 
     # send email back to ticket creator if it has been request
     if support.send_created_email_to_user
@@ -259,5 +240,34 @@ class SupportMailHandler
     if not attachment.save
       raise ActiveRecord::Rollback
     end
+  end
+
+  def self.get_email_body_text(email)
+    begin
+      html_encode = false
+      if email.text_part.nil? == false
+        part = email.text_part
+      elsif email.html_part.nil? == false
+        part = email.html_part
+        html_encode = true
+      else
+        raise TypeError.new "Email does not have text or html part."
+      end
+
+      case part.body.encoding
+      when "base64"
+        body = Base64.decode64(email.text_part.body.raw_source)
+      else
+        body = email.text_part.body.raw_source
+      end
+
+      if html_encode
+        body = CGI.unescapeHTML(body)
+      end
+    rescue => ex
+      Support.log_error "Exception trying to load email body so using static text: #{ex}"
+      body = "Could not decode email body. Email body in attached email."
+    end
+    body
   end
 end
