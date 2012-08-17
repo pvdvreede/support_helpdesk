@@ -30,6 +30,9 @@ module Support
         # add link to support item for each issue
         has_one :issues_support_setting, :dependent => :destroy
         has_one :support_helpdesk_setting, :through => :issues_support_setting
+
+        # add link to email message ids
+        has_many :issue_support_message_id
       end
     end
 
