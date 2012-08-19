@@ -16,10 +16,18 @@
 # You should have received a copy of the GNU General Public License
 # along with Support Helpdesk.  If not, see <http://www.gnu.org/licenses/>.
 
-class IssuesSupportSetting < ActiveRecord::Base
+class IssuesSupportMessageId < ActiveRecord::Base
   unloadable
-  
+  attr_accessible :parent_id, \
+                  :issue_id, \
+                  :message_id, \
+                  :support_helpdesk_setting_id, \
+                  :attachment_id
+
+  # add plugin for creating tree
+  acts_as_nested_set :order => 'message_id', :dependent => :destroy
+
   belongs_to :issue
   belongs_to :support_helpdesk_setting
-  has_many :issues_support_message_id
+  belongs_to :attachment
 end

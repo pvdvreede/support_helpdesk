@@ -75,13 +75,15 @@ class JournalHookListener < Redmine::Hook::ViewListener
         email_status = "Emailed to #{issue.reply_email} at #{Time.now.strftime("%d %b %Y %I:%M:%S %p")}:"
 
         # save the email sent for our records
-        SupportMailHandler.attach_email(
+        attachment_id = SupportMailHandler.attach_email(
             issue,
             mail.encoded,
             "#{mail.from}_#{mail.to}.eml",
             "Email sent to Customer from note.",
             issue.support_helpdesk_setting.author_id
           )
+
+        add_created_email_message_id(issue, mail, attachment_id)
       end
 
       # add info to the note so we know it was emailed.
@@ -168,6 +170,21 @@ NOTE
     end
     Support.log_debug "File has been assigned: #{file_contents.inspect}"
     file_contents
+  end
+
+  def add_created_email_message_id(issue, email, attachment_id)
+    # add to message id tree
+    newest_descendant = issue.issues_support_message_id.root.descendants.last
+    unless newest_descendant.nil?
+      current_message_id = IssuesSupportMessageId.create!(
+        :issue_id => issue.id,
+        :support_helpdesk_setting_id => issue.support_helpdesk_setting.id,
+        :message_id => email.message_id
+      )
+      current_message_id.move_to_child_of(newest_descendant)
+
+      current_message_id.save
+    end
   end
 
 end
