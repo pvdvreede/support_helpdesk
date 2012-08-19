@@ -20,56 +20,65 @@
 require File.expand_path(File.dirname(__FILE__) + '/../../../test/test_helper')
 
 def load_email(file)
-    # load email into string
-    email_file = File.open File.dirname(__FILE__) + "/emails/#{file}"
-    email_string = email_file.read
-    email = Mail.new email_string
+  # load email into string
+  email_file = File.open File.dirname(__FILE__) + "/emails/#{file}"
+  email_string = email_file.read
+  email = Mail.new email_string
 end
 
 def create_issue(mail, tracker_id, support_id, assignee, project_id, created=true)
-    # pass to handler
-    start_time = Time.now
-    handler = SupportMailHandler.new
-    result = handler.receive mail
-    if created
-      assert result, "Handler should have created issue and returned true"
-    else
-      #assert !result, "Handler should have returned false"
-      # make sure no issue was created
-      issue = Issue.where(:subject => mail.subject).where(:tracker_id => tracker_id)[0]
+  # pass to handler
+  start_time = Time.now
+  handler = SupportMailHandler.new
+  result = handler.receive mail
+  if created
+    assert result, "Handler should have created issue and returned true"
+  else
+    #assert !result, "Handler should have returned false"
+    # make sure no issue was created
+    issue = Issue.where(:subject => mail.subject). \
+                  where(:tracker_id => tracker_id). \
+                  where(:project_id => project_id). \
+                  where(:assigned_to_id => assignee)[0]
 
-      assert_nil issue, "Issue was created when it should not have been."
-      return
-    end
+    assert_nil issue, "Issue was created when it should not have been."
+    return
+  end
 
-    end_time = Time.now
+  end_time = Time.now
 
-    support = SupportHelpdeskSetting.find support_id
+  support = SupportHelpdeskSetting.find support_id
 
-    # check the issue is there with the correct settings
-    issue = check_issue_created mail, tracker_id, support.name, support.id, assignee, project_id
+  # check the issue is there with the correct settings
+  issue = check_issue_created mail, tracker_id, support.name, support.id, assignee, project_id
 
-    # check to see if the email was sent including email to assignee
-    assert_equal (support.send_created_email_to_user ? 1 : 0), ActionMailer::Base.deliveries.count, "Creation email error"
+  # check to see if the email was sent including email to assignee
+  assert_equal (support.send_created_email_to_user ? 1 : 0), ActionMailer::Base.deliveries.count, "Creation email error"
 
-    if support.send_created_email_to_user
-      # check email is correct
-      email = ActionMailer::Base.deliveries[0]
+  if support.send_created_email_to_user
+    # check email is correct
+    email = ActionMailer::Base.deliveries[0]
 
-      #assert_equal mail.to.count, email.to.count, "Incorrect amount of emails in reply"
-      #assert_equal mail.from[0], email.to[0], "Email to sent out isnt correct"
-      assert (support.from_email_address.to_s.include?(email.from[0].to_s)), "Email from sent out isnt correct"      
-    end
+    #assert_equal mail.to.count, email.to.count, "Incorrect amount of emails in reply"
+    #assert_equal mail.from[0], email.to[0], "Email to sent out isnt correct"
+    assert (support.from_email_address.to_s.include?(email.from[0].to_s)), "Email from sent out isnt correct"      
+  end
 
-    # make sure the processed and run time where updated
-    check_support_times_updated support, start_time, end_time
+  # make sure the processed and run time where updated
+  check_support_times_updated support, start_time, end_time
 
-    # make sure the message id was added from the email
-    message = issue.issues_support_message_id[0]
-    assert_not_nil message, "Email message id was inserted"
-    assert_equal mail.message_id, message.message_id, "Email message id wasnt inserted"
+  # make sure the message id was added from the email
+  message = issue.issues_support_message_id.root
+  assert_not_nil message, "Email message id was inserted"
+  assert_equal mail.message_id, message.message_id, "Email message id wasnt inserted"
 
-    return issue, email
+  # make sure the message id was added for return mail if its set
+  if support.send_created_email_to_user
+    created_id = issue.issues_support_message_id.root.children[0]
+    assert_not_nil created_id, "Created email message id not created"
+  end
+
+  return issue, email
 end
 
 def check_issue_created(email, tracker_id, support_name, support_id, assignee, project_id)

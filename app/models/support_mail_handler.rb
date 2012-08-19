@@ -140,26 +140,16 @@ class SupportMailHandler
       raise ActiveRecord::Rollback
     end
 
-    # create the message id from the email and relate it to the issue and support
-    support_message_id = IssuesSupportMessageId.create!(
-        :issue_id => issue.id,
-        :support_helpdesk_setting_id => support.id,
-        :message_id => email.message_id
-    )
-
-    unless support_message_id.save
-      Support.log_error "Error saving support message id because #{issue.errors.full_messages.join("\n")}"
-      raise ActiveRecord::Rollback
-    end
-
     # send attachment to redmine
-    SupportMailHandler.attach_email(
+    attachment_id = SupportMailHandler.attach_email(
       issue, 
       email.encoded, 
       "#{email.from[0]}_#{email.to[0]}.eml",
       "Original Email Sent from Customer.",
       support.author_id
     )
+
+    SupportMailHandler.create_email_message_id(issue, email, support.id, attachment_id)
 
     # send email back to ticket creator if it has been request
     if support.send_created_email_to_user
@@ -172,7 +162,7 @@ class SupportMailHandler
         email_status = "Emailed ticket creation to #{email.from[0]} at #{Time.now.strftime("%d %b %Y %I:%M:%S %p")}."
 
         # save the email sent for our records
-        SupportMailHandler.attach_email(
+        attachment_id = SupportMailHandler.attach_email(
             issue,
             mail.encoded,
             "#{mail.from}_#{mail.to}.eml",
@@ -180,16 +170,7 @@ class SupportMailHandler
             support.author_id
           )
 
-        reply_message_id = IssuesSupportMessageId.create!(
-          :issue_id => issue.id,
-          :support_helpdesk_setting_id => support.id,
-          :message_id => mail.message_id
-        )
-        reply_message_id.move_to_child_of(support_message_id)
-        unless reply_message_id.save
-          Support.log_error "Error saving support message id because #{issue.errors.full_messages.join("\n")}"
-          raise ActiveRecord::Rollback
-        end
+        SupportMailHandler.create_email_message_id(issue, mail, support.id, attachment_id)
 
       end
 
@@ -221,26 +202,8 @@ class SupportMailHandler
       raise ActiveRecord::Rollback
     end
 
-    # create the message id from the email and relate it to the issue and support
-    support_message_id = IssuesSupportMessageId.create!(
-        :issue_id => issue.id,
-        :support_helpdesk_setting_id => issue.support_helpdesk_setting.id,
-        :message_id => email.message_id
-    )
-    # get the parent and add to it
-    if email.reply_to.nil? == false
-      parent_message = IssuesSupportMessageId.where(:message_id => email.reply_to)[0]
-    elsif email.references.nil? == false
-      parent_message = IssuesSupportMessageId.where(:message_id => email.references)[0]
-    end
-    support_message_id.move_to_child_of(parent_message) unless parent_message.nil?
-    unless support_message_id.save
-      Support.log_error "Error saving support message id because #{issue.errors.full_messages.join("\n")}"
-      raise ActiveRecord::Rollback
-    end
-
     # attach the email to the issue
-    SupportMailHandler.attach_email(
+    attachment_id = SupportMailHandler.attach_email(
       issue, 
       email.encoded, 
       "#{email.from[0]}_#{email.to[0]}.eml",
@@ -248,6 +211,8 @@ class SupportMailHandler
       issue.support_helpdesk_setting.author_id
     )
 
+    SupportMailHandler.create_email_message_id(issue, email, issue.support_helpdesk_setting.id, attachment_id)
+    
     return true
   end
 
@@ -261,6 +226,7 @@ class SupportMailHandler
   end
 
   def self.attach_email(issue, email_string, filename, description, author_id)
+    #add attachment
     attachment = Attachment.new(:file => email_string)
     attachment.author = User.find author_id
     attachment.content_type = "message/rfc822"
@@ -268,6 +234,29 @@ class SupportMailHandler
     attachment.container = issue
     attachment.description = description if description
     if not attachment.save
+      raise ActiveRecord::Rollback
+    end
+    attachment.id
+  end
+
+  def self.create_email_message_id(issue, email, support_id, attachment_id)
+    # create the message id from the email and relate it to the issue and support
+    support_message_id = IssuesSupportMessageId.create!(
+      :issue_id => issue.id,
+      :support_helpdesk_setting_id => support_id,
+      :message_id => email.message_id,
+      :attachment_id => attachment_id
+    )
+
+    # get the parent and add to it
+    if email.reply_to.nil? == false
+      parent_message = IssuesSupportMessageId.where(:message_id => email.reply_to)[0]
+    elsif email.references.nil? == false
+      parent_message = IssuesSupportMessageId.where(:message_id => email.references)[0]
+    end
+    support_message_id.move_to_child_of(parent_message) unless parent_message.nil?
+    unless support_message_id.save
+      Support.log_error "Error saving support message id because #{issue.errors.full_messages.join("\n")}"
       raise ActiveRecord::Rollback
     end
   end
