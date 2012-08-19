@@ -110,7 +110,8 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
     issue = check_issue_created mail, 3, "supp04", 4, 2, 3
 
     #check description
-    assert_equal "<p>This is the html part</p>", issue.description, "Single part email not properly decoded"
+    # html decoding is disabled as it doesn't render the html unescaped
+    assert_equal "Could not decode email body. Email body in attached email.", issue.description, "Single part email not properly decoded"
 
     # check to see if the email was sent, shouldnt have cause set to false
     assert_equal 1, ActionMailer::Base.deliveries.count, "Creation email wasnt sent"
