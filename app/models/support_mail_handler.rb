@@ -32,7 +32,7 @@ class SupportMailHandler
     return false if support.domains_to_ignore.nil?
     
     #other split the domains and check
-    domain_array = support.domains_to_ignore.split(";")
+    domain_array = support.domains_to_ignore.downcase.split(";")
     if domain_array.include?(email.from[0].split('@')[1].downcase)
       return true
     end
@@ -141,7 +141,7 @@ class SupportMailHandler
     end
 
     # create the message id from the email and relate it to the issue and support
-    support_message_id = IssuesSupportMessageId.new(
+    support_message_id = IssuesSupportMessageId.create!(
         :issue_id => issue.id,
         :support_helpdesk_setting_id => support.id,
         :message_id => email.message_id
@@ -206,6 +206,24 @@ class SupportMailHandler
     issue.journals << journal
     if not issue.save
       Support.log_error "Could not save issue #{issue.errors.full_messages.join("\n")}"
+      raise ActiveRecord::Rollback
+    end
+
+    # create the message id from the email and relate it to the issue and support
+    support_message_id = IssuesSupportMessageId.create!(
+        :issue_id => issue.id,
+        :support_helpdesk_setting_id => issue.support_helpdesk_setting.id,
+        :message_id => email.message_id
+    )
+    # get the parent and add to it
+    if email.reply_to.nil? == false
+      parent_message = IssuesSupportMessageId.where(:message_id => email.reply_to)[0]
+    elsif email.references.nil? == false
+      parent_message = IssuesSupportMessageId.where(:message_id => email.references)[0]
+    end
+    support_message_id.move_to_child_of(parent_message) unless parent_message.nil?
+    unless support_message_id.save
+      Support.log_error "Error saving support message id because #{issue.errors.full_messages.join("\n")}"
       raise ActiveRecord::Rollback
     end
 

@@ -19,6 +19,11 @@
 class IssuesSupportMessageId < ActiveRecord::Base
   unloadable
 
+  attr_accessible :parent_id, :issue_id, :message_id,:support_helpdesk_setting_id
+
+  # add plugin for creating tree
+  acts_as_nested_set :order => 'message_id', :dependent => :destroy
+
   belongs_to :issue
   belongs_to :support_helpdesk_setting
 end
