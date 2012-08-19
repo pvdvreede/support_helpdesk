@@ -116,11 +116,6 @@ NOTE
           )
       end
 
-      # add a note to the issue so we know the closing email was sent
-      journal = Journal.new
-      journal.notes = email_status
-      journal.user_id = issue.support_helpdesk_setting.author_id
-      issue.journals << journal
     end
 
     if context[:params][:resend_closing_email]

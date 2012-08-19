@@ -141,44 +141,21 @@ class SupportMailHandler
     end
 
     # send attachment to redmine
-    attachment_id = SupportMailHandler.attach_email(
+    attachment_client_id = SupportMailHandler.attach_email(
       issue, 
-      email.encoded, 
+      email, 
       "#{email.from[0]}_#{email.to[0]}.eml",
       "Original Email Sent from Customer.",
       support.author_id
     )
 
-    SupportMailHandler.create_email_message_id(issue, email, support.id, attachment_id)
+    SupportMailHandler.create_email_message_id(issue, email, support.id, attachment_client_id)
 
     # send email back to ticket creator if it has been request
     if support.send_created_email_to_user
-      begin
-        mail = SupportHelpdeskMailer.ticket_created(issue, issue.reply_email).deliver
-      rescue Exception => e
-        Support.log_error "Error in sending email for #{issue.id}: #{e}\n#{e.backtrace.join("\n")}"
-        email_status = "Error sending ticket creation email, email was *NOT* sent."
-      else
-        email_status = "Emailed ticket creation to #{email.from[0]} at #{Time.now.strftime("%d %b %Y %I:%M:%S %p")}."
-
-        # save the email sent for our records
-        attachment_id = SupportMailHandler.attach_email(
-            issue,
-            mail.encoded,
-            "#{mail.from}_#{mail.to}.eml",
-            "Ticket created email sent to Customer.",
-            support.author_id
-          )
-
-        SupportMailHandler.create_email_message_id(issue, mail, support.id, attachment_id)
-
+      SupportMailHandler.send_email(issue, email) do 
+        SupportHelpdeskMailer.ticket_created(issue, issue.reply_email).deliver
       end
-
-      # add a note to the issue so we know the closing email was sent
-      journal = Journal.new
-      journal.notes = email_status
-      journal.user_id = support.author_id
-      issue.journals << journal
     end
     
     return true
@@ -192,11 +169,6 @@ class SupportMailHandler
       return false
     end
 
-    # add a note to the issue with email body
-    journal = Journal.new
-    journal.notes = "Email received from #{email.from[0]} at #{Time.now.strftime("%d %b %Y %I:%M:%S %p")} and is attached:\n\n#{SupportMailHandler.get_email_body_text(email)}"
-    journal.user_id = issue.support_helpdesk_setting.author_id
-    issue.journals << journal
     if not issue.save
       Support.log_error "Could not save issue #{issue.errors.full_messages.join("\n")}"
       raise ActiveRecord::Rollback
@@ -205,7 +177,7 @@ class SupportMailHandler
     # attach the email to the issue
     attachment_id = SupportMailHandler.attach_email(
       issue, 
-      email.encoded, 
+      email, 
       "#{email.from[0]}_#{email.to[0]}.eml",
       "Email from #{email.from[0]}.",
       issue.support_helpdesk_setting.author_id
@@ -225,9 +197,9 @@ class SupportMailHandler
     return projects[0].id
   end
 
-  def self.attach_email(issue, email_string, filename, description, author_id)
+  def self.attach_email(issue, email, filename, description, author_id)
     #add attachment
-    attachment = Attachment.new(:file => email_string)
+    attachment = Attachment.new(:file => email.encoded)
     attachment.author = User.find author_id
     attachment.content_type = "message/rfc822"
     attachment.filename = filename
@@ -236,6 +208,25 @@ class SupportMailHandler
     if not attachment.save
       raise ActiveRecord::Rollback
     end
+
+    # add a note to the issue with email body
+    journal = Journal.new
+    journal.notes = "Email at #{Time.now.strftime("%d %b %Y %I:%M:%S %p")}:\n\n#{SupportMailHandler.get_email_body_text(email)}"
+    journal.user_id = issue.support_helpdesk_setting.author_id
+    issue.journals << journal
+
+    # add detail to specify which attachment is the email
+    detail = JournalDetail.new
+    detail.journal_id = journal.id
+    detail.property = "attachment"
+    detail.prop_key = attachment.id
+    detail.value = filename
+
+    unless detail.save
+      Support.log_error "Error saving journal detail because #{issue.errors.full_messages.join("\n")}"
+      raise ActiveRecord::Rollback
+    end
+
     attachment.id
   end
 
@@ -288,5 +279,32 @@ class SupportMailHandler
       body = "Could not decode email body. Email body in attached email."
     end
     body
+  end
+
+  def self.send_email(issue, email, &block)
+    email_status = ""
+    begin
+      mail = block.call
+    rescue Exception => e
+      Support.log_error "Error in sending email for #{issue.id}: #{e}\n#{e.backtrace.join("\n")}"
+      email_status = "Error sending ticket creation email, email was *NOT* sent."
+    else
+      email_status = "Emailed ticket creation to #{email.from[0]} at #{Time.now.strftime("%d %b %Y %I:%M:%S %p")}."
+
+      filename = "#{mail.from}_#{mail.to}.eml"
+
+      # save the email sent for our records
+      attachment_id = SupportMailHandler.attach_email(
+          issue,
+          mail,
+          filename,
+          "Ticket created email sent to Customer.",
+          support.author_id
+        )
+
+      SupportMailHandler.create_email_message_id(issue, mail, support.id, attachment_id)
+
+    end
+
   end
 end
