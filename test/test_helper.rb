@@ -31,16 +31,19 @@ def create_issue(mail, tracker_id, support_id, assignee, project_id, created=tru
   start_time = Time.now
   handler = SupportMailHandler.new
   result = handler.receive mail
-  if created
-    assert result, "Handler should have created issue and returned true"
-  else
-    #assert !result, "Handler should have returned false"
-    # make sure no issue was created
-    issue = Issue.where(:subject => mail.subject). \
+
+  issue = Issue.where(:subject => mail.subject). \
                   where(:tracker_id => tracker_id). \
                   where(:project_id => project_id). \
                   where(:assigned_to_id => assignee)[0]
 
+  if created
+    assert result, "Handler should have created issue and returned true"
+    assert_not_nil issue, "Issue not created when it should have"
+  else
+    #assert !result, "Handler should have returned false"
+    # make sure no issue was created
+  
     assert_nil issue, "Issue was created when it should not have been."
     return
   end
