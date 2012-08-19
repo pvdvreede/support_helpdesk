@@ -179,6 +179,18 @@ class SupportMailHandler
             "Ticket created email sent to Customer.",
             support.author_id
           )
+
+        reply_message_id = IssuesSupportMessageId.create!(
+          :issue_id => issue.id,
+          :support_helpdesk_setting_id => support.id,
+          :message_id => mail.message_id
+        )
+        reply_message_id.move_to_child_of(support_message_id)
+        unless reply_message_id.save
+          Support.log_error "Error saving support message id because #{issue.errors.full_messages.join("\n")}"
+          raise ActiveRecord::Rollback
+        end
+
       end
 
       # add a note to the issue so we know the closing email was sent

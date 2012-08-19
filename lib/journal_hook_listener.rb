@@ -68,6 +68,19 @@ class JournalHookListener < Redmine::Hook::ViewListener
           issue.reply_email,
           added_attachments
         ).deliver
+
+        # add to message id tree
+        newest_descendant = issue.issues_support_message_id.root.descendants.last
+        unless newest_descendant.nil?
+          current_message_id = IssuesSupportMessageId.create!(
+            :issue_id => issue.id,
+            :support_helpdesk_setting_id => issue.support_helpdesk_setting.id,
+            :message_id => mail.message_id
+          )
+          current_message_id.move_to_child_of(newest_descendant)
+
+          current_message_id.save
+        end
       rescue Exception => e
         Support.log_error "Error in sending email for #{issue.id}: #{e}\n#{e.backtrace.join("\n")}"
         email_status = "Error sending email, email was *NOT* sent because #{e}"
