@@ -18,14 +18,14 @@
 
 
 class SupportMailHandler 
-	def receive(message, options={})
-    begin     
-      return self.route_email message    
+  def receive(message, options={})
+    begin
+      return self.route_email message
     rescue Exception => e
       Support.log_error "There was an error #{e} processing message:\n#{e.backtrace}\n\n#{message}"
       return false
     end
-	end
+  end
 
   def is_ignored_email_domain(email, support)
     # if there are no domains to ignore return
@@ -255,20 +255,31 @@ class SupportMailHandler
   def self.get_email_body_text(email)
     begin
       html_encode = false
-      if email.text_part.nil? == false
-        part = email.text_part
-      elsif email.html_part.nil? == false
-        part = email.html_part
-        html_encode = true
+
+      # handle single part emails
+      unless email.multipart?
+        part = email
+
+        if email.content_type.include? "text/html"
+          raise TypeError.new "Email is html only."
+        end
       else
-        raise TypeError.new "Email does not have text or html part."
+        if email.text_part.nil? == false
+          part = email.text_part
+        elsif email.html_emailpart.nil? == false
+          raise TypeError.new "Email only has html part."
+          #part = email.html_part
+          #html_encode = true
+        else
+          raise TypeError.new "Email does not have text or html part."
+        end
       end
 
       case part.body.encoding
       when "base64"
-        body = Base64.decode64(email.text_part.body.raw_source)
+        body = Base64.decode64(part.body.raw_source)
       else
-        body = email.text_part.body.raw_source
+        body = part.body.raw_source
       end
 
       if html_encode

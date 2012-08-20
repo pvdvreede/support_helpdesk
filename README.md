@@ -14,6 +14,8 @@ Support Helpdesk provides the following functionalities:
   * Custom email templates (in erb format)
   * Your sender email address
   * Whether or not to send a creation or closing email
+  * Specify bcc email addresses for outgoing emails
+  * Add email domains to ignore
 
 You can also get round robin assigning of issues from a group with the Round Robin plugin. See [Round Robin - Redmine Plugin](https://github.com/pvdvreede/round_robin).
 
@@ -35,7 +37,7 @@ There will now be a rake task available:
    
 Use this command to set a cron job for how often you would like the mailbox polled.
 
-Once setup, a new option will appear in the adminitration menu called `Support Helpdesk`. From here you can setup support settings for which emails to bring in, what templates to use, and which tracker and projects to create the issues in.
+Once setup, a new option will appear in the administration menu called `Support Helpdesk`. From here you can setup support settings for which emails to bring in, what templates to use, and which tracker and projects to create the issues in.
 
 ### License
 

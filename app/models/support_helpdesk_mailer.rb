@@ -84,7 +84,7 @@ class SupportHelpdeskMailer < ActionMailer::Base
 
       # get the descendants to reply to the last email, if there are any
       descendants = related_message.descendants
-      if descendants.count == 0
+      if descendants.nil? || descendants.count == 0
         headers["In-Reply-To"] = "<#{related_message.message_id}>"
       else
         headers["In-Reply-To"] = "<#{descendants.last.message_id}>"
