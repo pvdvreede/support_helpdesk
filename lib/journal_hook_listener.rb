@@ -174,7 +174,12 @@ NOTE
 
   def add_created_email_message_id(issue, email, attachment_id)
     # add to message id tree
-    newest_descendant = issue.issues_support_message_id.root.descendants.last
+    begin
+      newest_descendant = issue.issues_support_message_id.root.descendants.last
+    rescue NoMethodError => e
+      # try catch for when there are no descendant objects
+      newest_descendant = issue.issues_support_message_id.root
+    end
     unless newest_descendant.nil?
       current_message_id = IssuesSupportMessageId.create!(
         :issue_id => issue.id,
