@@ -14,6 +14,8 @@ Support Helpdesk provides the following functionalities:
   * Custom email templates (in erb format)
   * Your sender email address
   * Whether or not to send a creation or closing email
+  * Specify bcc email addresses for outgoing emails
+  * Add email domains to ignore
 
 You can also get round robin assigning of issues from a group with the Round Robin plugin. See [Round Robin - Redmine Plugin](https://github.com/pvdvreede/round_robin).
 
