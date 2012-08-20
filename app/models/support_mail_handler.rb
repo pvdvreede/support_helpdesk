@@ -27,19 +27,6 @@ class SupportMailHandler
     end
   end
 
-  def is_ignored_email_domain(email, support)
-    # if there are no domains to ignore return
-    return false if support.domains_to_ignore.nil?
-    
-    #other split the domains and check
-    domain_array = support.domains_to_ignore.downcase.split(";")
-    if domain_array.include?(email.from[0].split('@')[1].downcase)
-      return true
-    end
-
-    false
-  end
-
   def route_email(email)
     status = false
 
@@ -60,7 +47,7 @@ class SupportMailHandler
         end
 
         # check if there is ignore email and this email is one of them
-        if is_ignored_email_domain(email, supports[0]) == true
+        if supports[0].is_ignored_email_domain(email) == true
           Support.log_info "Email from #{email.from[0]} is on the ignored domain list. Message ignored and will be deleted."
           return true
         end
@@ -100,15 +87,6 @@ class SupportMailHandler
     id = (subject =~ /Ticket #([0-9]*)/ ? $1 : false)
   end
 
-  def get_email_reply_string(support, email)
-    return email.from[0] if not support.reply_all_for_outgoing
-
-    #build semicolon string from all fields if not the support email
-    email_array = email.to.to_a + email.from.to_a + email.cc.to_a
-
-    email_array.find_all { |e| e.downcase unless e.downcase == support.to_email_address.downcase }.join(";")
-  end
-
   def create_issue(support, email)   
     # if project_id is nil then get id from domain
     if support.email_domain_custom_field_id != nil
@@ -132,7 +110,7 @@ class SupportMailHandler
       :start_date => Time.now.utc
     )
     issue.support_helpdesk_setting = support
-    issue.reply_email = get_email_reply_string(support, email)
+    issue.reply_email = support.get_email_reply_string(email)
     issue.support_type = support.name
 
     unless issue.save

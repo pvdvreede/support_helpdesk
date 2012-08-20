@@ -44,4 +44,26 @@ class SupportHelpdeskSetting < ActiveRecord::Base
   validates_associated :issue_status
 
   scope :active, where(:active => true)
+
+  def is_ignored_email_domain(email)
+    # if there are no domains to ignore return
+    return false if self.domains_to_ignore.nil?
+    
+    #other split the domains and check
+    domain_array = self.domains_to_ignore.downcase.split(";")
+    if domain_array.include?(email.from[0].split('@')[1].downcase)
+      return true
+    end
+
+    false
+  end
+
+  def get_email_reply_string(email)
+    return email.from[0] if not self.reply_all_for_outgoing
+
+    #build semicolon string from all fields if not the support email
+    email_array = email.to.to_a + email.from.to_a + email.cc.to_a
+
+    email_array.find_all { |e| e.downcase unless e.downcase == self.to_email_address.downcase }.join(";")
+  end
 end
