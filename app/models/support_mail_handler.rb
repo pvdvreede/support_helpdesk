@@ -131,8 +131,8 @@ class SupportMailHandler
 
     # send email back to ticket creator if it has been request
     if support.send_created_email_to_user
-      SupportMailHandler.send_email(issue, email) do 
-        SupportHelpdeskMailer.ticket_created(issue, issue.reply_email).deliver
+      SupportMailHandler.send_email(issue, email, support) do 
+        mail = SupportHelpdeskMailer.ticket_created(issue, issue.reply_email).deliver
       end
     end
     
@@ -270,7 +270,7 @@ class SupportMailHandler
     body
   end
 
-  def self.send_email(issue, email, &block)
+  def self.send_email(issue, email, support, &block)
     email_status = ""
     begin
       mail = block.call

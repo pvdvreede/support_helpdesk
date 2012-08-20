@@ -117,6 +117,12 @@ module Support
         end
       end
 
+      def can_send_item?
+        reply_email = self.reply_email
+        return false if reply_email == nil or reply_email == ""
+        return true
+      end
+
       def get_custom_support_value(id)
         custom_value = self.custom_field_values.detect {|x| x.custom_field_id == id }
       end

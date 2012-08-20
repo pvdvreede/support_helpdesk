@@ -43,7 +43,7 @@ class JournalHookListener < Redmine::Hook::ViewListener
     # code for sending email to user
     if context[:params][:email_to_user]
       # double check that we can email the user
-      return unless can_send_item? issue
+      return unless issue.can_send_item?
 
       notes = context[:journal].notes
       return if notes == ""
@@ -96,7 +96,7 @@ NOTE
     end
 
     if context[:params][:resend_creation_email]
-      return unless can_send_item? issue
+      return unless issue.can_send_item?
 
       begin
         mail = SupportHelpdeskMailer.ticket_created(issue, issue.reply_email).deliver
@@ -119,7 +119,7 @@ NOTE
     end
 
     if context[:params][:resend_closing_email]
-      return unless can_send_item? issue
+      return unless issue.can_send_item?
 
       begin
         mail = SupportHelpdeskMailer.ticket_closed(issue, issue.reply_email).deliver
@@ -148,12 +148,6 @@ NOTE
   end
 
   private
-  def can_send_item?(issue)
-    reply_email = issue.reply_email
-    return false if reply_email == nil or reply_email == ""
-    return true
-  end
-
   def read_uploaded_file(file)
     if file.respond_to?(:path)
       file_contents = File.read(file.path, "rb")
