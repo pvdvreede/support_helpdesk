@@ -37,7 +37,7 @@ There will now be a rake task available:
    
 Use this command to set a cron job for how often you would like the mailbox polled.
 
-Once setup, a new option will appear in the adminitration menu called `Support Helpdesk`. From here you can setup support settings for which emails to bring in, what templates to use, and which tracker and projects to create the issues in.
+Once setup, a new option will appear in the administration menu called `Support Helpdesk`. From here you can setup support settings for which emails to bring in, what templates to use, and which tracker and projects to create the issues in.
 
 ### License
 
