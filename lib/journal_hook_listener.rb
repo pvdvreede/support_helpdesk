@@ -173,35 +173,40 @@ NOTE
   end
 
   def add_created_email_message_id(issue, email, attachment_id)
-    current_message_id = IssuesSupportMessageId.create!(
-        :issue_id => issue.id,
-        :support_helpdesk_setting_id => issue.support_helpdesk_setting.id,
-        :message_id => email.message_id,
-        :attachment_id => attachment_id
-      )
-
-    # add to message id tree
-    messages = issue.issues_support_message_id
-
-    if messages.nil? || messages.count == 0
-      current_message_id.save
-      return current_message_id.id
-    end
-
+    # add catch for nested set error
     begin
-      newest_descendant = messages.root.descendants.last
-    rescue NoMethodError => e
-      # try catch for when there are no descendant objects
-      newest_descendant = messages.root
-    end
-    if newest_descendant.nil? && !messages.root.nil?
-      newest_descendant = messages.root
-    end
+      current_message_id = IssuesSupportMessageId.create!(
+          :issue_id => issue.id,
+          :support_helpdesk_setting_id => issue.support_helpdesk_setting.id,
+          :message_id => email.message_id,
+          :attachment_id => attachment_id
+        )
 
-    unless newest_descendant.nil?     
-      current_message_id.move_to_child_of(newest_descendant)
+      # add to message id tree
+      messages = issue.issues_support_message_id
 
-      current_message_id.save
+      if messages.nil? || messages.count == 0
+        current_message_id.save
+        return current_message_id.id
+      end
+
+      begin
+        newest_descendant = messages.root.descendants.last
+      rescue NoMethodError => e
+        # try catch for when there are no descendant objects
+        newest_descendant = messages.root
+      end
+      if newest_descendant.nil? && !messages.root.nil?
+        newest_descendant = messages.root
+      end
+
+      unless newest_descendant.nil?     
+        current_message_id.move_to_child_of(newest_descendant)
+
+        current_message_id.save
+      end
+    rescue ActiveRecord::ActiveRecordError => e
+      Support.log_error "Had nested set Active Record error: #{e}.\n#{e.backtrace}"
     end
   end
 
