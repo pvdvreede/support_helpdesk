@@ -167,7 +167,7 @@ class SupportMailHandler
         attachment_id = SupportMailHandler.attach_email(
             issue,
             mail.encoded,
-            "#{email.from[0]}_#{Time.now.strftime("%Y%m%d%H%M%S")}.eml",
+            "#{mail.from[0]}_#{Time.now.strftime("%Y%m%d%H%M%S")}.eml",
             "Ticket created email sent to Customer.",
             support.author_id
           )
