@@ -144,7 +144,7 @@ class SupportMailHandler
     attachment_id = SupportMailHandler.attach_email(
       issue, 
       email.encoded, 
-      "#{email.from[0]}_#{email.to[0]}.eml",
+      "#{email.from[0]}_#{Time.now.strftime("%Y%m%d%H%M%S")}.eml",
       "Original Email Sent from Customer.",
       support.author_id
     )
@@ -161,11 +161,13 @@ class SupportMailHandler
       else
         email_status = "Emailed ticket creation to #{email.from[0]} at #{Time.now.strftime("%d %b %Y %I:%M:%S %p")}."
 
+
+
         # save the email sent for our records
         attachment_id = SupportMailHandler.attach_email(
             issue,
             mail.encoded,
-            "#{mail.from[0]}_#{mail.to[0]}.eml",
+            "#{email.from[0]}_#{Time.now.strftime("%Y%m%d%H%M%S")}.eml",
             "Ticket created email sent to Customer.",
             support.author_id
           )
@@ -206,7 +208,7 @@ class SupportMailHandler
     attachment_id = SupportMailHandler.attach_email(
       issue, 
       email.encoded, 
-      "#{email.from[0]}_#{email.to[0]}.eml",
+      "#{email.from[0]}_#{Time.now.strftime("%Y%m%d%H%M%S")}.eml",
       "Email from #{email.from[0]}.",
       issue.support_helpdesk_setting.author_id
     )

@@ -78,7 +78,7 @@ class JournalHookListener < Redmine::Hook::ViewListener
         attachment_id = SupportMailHandler.attach_email(
             issue,
             mail.encoded,
-            "#{mail.from[0]}_#{mail.to[0]}.eml",
+            "#{mail.from[0]}_#{Time.now.strftime("%Y%m%d%H%M%S")}.eml",
             "Email sent to Customer from note.",
             issue.support_helpdesk_setting.author_id
           )
@@ -110,7 +110,7 @@ NOTE
         SupportMailHandler.attach_email(
             issue,
             mail.encoded,
-            "#{mail.from[0]}_#{mail.to[0]}.eml",
+            "#{mail.from[0]}_#{Time.now.strftime("%Y%m%d%H%M%S")}.eml",
             "Ticket created email resent to user.",
             issue.support_helpdesk_setting.author_id
           )
@@ -138,7 +138,7 @@ NOTE
         SupportMailHandler.attach_email(
             issue,
             mail.encoded,
-            "#{mail.from[0]}_#{mail.to[0]}.eml",
+            "#{mail.from[0]}_#{Time.now.strftime("%Y%m%d%H%M%S")}.eml",
             "Closing email resent to user.",
             issue.support_helpdesk_setting.author_id
           )
