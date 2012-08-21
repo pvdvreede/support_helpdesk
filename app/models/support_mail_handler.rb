@@ -106,7 +106,7 @@ class SupportMailHandler
     #build semicolon string from all fields if not the support email
     email_array = email.to.to_a + email.from.to_a + email.cc.to_a
 
-    email_array.find_all { |e| e.downcase unless e.downcase == support.to_email_address.downcase }.join(";")
+    email_array.find_all { |e| e.downcase unless e.downcase == support.to_email_address.downcase }.join("; ")
   end
 
   def create_issue(support, email)   
