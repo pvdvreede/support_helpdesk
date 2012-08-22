@@ -147,6 +147,7 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
     assert_equal "reply5@support.com", email.from[0], "Email from sent out isnt correct"
   end
 
+
   def test_address_in_from_and_cc
     mail = load_email "multipart_email.eml"
     mail.from = "test@david.com"
@@ -163,6 +164,28 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
     mail.cc = ["tEst5@suPpOrt.com", "cced@another.com"]
 
     issue, email = create_issue mail, 3, 5, 2, 3   
+  end
+
+  def test_ignored_subject_lines
+    mail = load_email "multipart_email.eml"
+    mail.from = "test@david.com"
+    mail.to = ["to2@random.com", "another@random.com"]
+    mail.cc = ["tEst5@suPpOrt.com", "cced@another.com"]
+    mail.subject = "Auto: The subject line"
+
+    create_issue mail, 3, 5, 2, 3, false
+
+    mail.subject = "Out of Office: this another subject"
+    create_issue mail, 3, 5, 2, 3, false
+
+    mail.subject = "AUtomatic rEPLY: this is another subject"
+    create_issue mail, 3, 5, 2, 3, false
+
+    mail.subject = "AUtomatic rEPLY:"
+    create_issue mail, 3, 5, 2, 3, false
+
+    mail.subject = "The auto: isnt at the start"
+    create_issue mail, 3, 5, 2, 3
   end
 
   def test_update_issue_01

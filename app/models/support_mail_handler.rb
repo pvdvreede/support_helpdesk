@@ -20,6 +20,9 @@
 class SupportMailHandler 
   def receive(message, options={})
     begin
+      # make sure the email shouldnt be ignored
+      return true if self.should_ignore_email?(message)
+
       return self.route_email message
     rescue Exception => e
       Support.log_error "There was an error #{e} processing message:\n#{e.backtrace}\n\n#{message}"
@@ -36,7 +39,18 @@ class SupportMailHandler
     if domain_array.include?(email.from[0].split('@')[1].downcase)
       return true
     end
+    false
+  end
 
+  def should_ignore_email?(email)
+    return false if email.subject.nil?
+    subject_start_ignores = [/^auto:.*/, /^out of office:.*/, /^automatic reply:.*/]
+    subject_start_ignores.each do |ig|
+      if !email.subject.downcase.match(ig).nil?
+        Support.log_info "Email with subject #{email.subject} matches the ignore reg ex #{ig.to_s}."
+        return true
+      end
+    end
     false
   end
 
