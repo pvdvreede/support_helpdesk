@@ -111,7 +111,20 @@ class SupportMailHandler
   def check_issue_exists(email)
     # see if this is an update to an existing ticket based on subject
     subject = email.subject
+    return false if subject.nil?
     id = (subject =~ /Ticket #([0-9]*)/ ? $1 : false)
+    return id unless id == false
+
+    # check and see if we have logged messages in the References or In-Reply-To
+    unless email.reply_to.nil?
+      email_reply = IssuesSupportMessageId.where(:message_id => email.reply_to)[0]
+      return email_reply.issue_id unless email_reply.nil?
+    end
+    unless email.references.nil?
+      email_reference = IssuesSupportMessageId.where(:message_id => email.references)[0]
+      return email_reference.issue_id unless email_reference.nil?
+    end
+    false
   end
 
   def get_email_reply_string(support, email)

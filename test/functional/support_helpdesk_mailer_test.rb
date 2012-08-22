@@ -200,10 +200,29 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
 
     # pass to handler
     handler = SupportMailHandler.new
-    result = handler.receive email
+    result = handler.receive update_email
     assert result, "Should have updated issue and returned true"
 
-    check_issue_updated issue, mail, 3
+    check_issue_updated issue, update_email, 3
+  end
+
+  def test_update_from_references
+    mail = load_email "multipart_email.eml"
+    mail.from = "test@hello.com"
+    mail.to = "test@support.com"
+
+    issue, email = create_issue mail, 3, 1, 1, 2
+
+    update_mail = load_email "multipart_email_related.eml"
+    update_mail.from = "test@hello.com"
+    update_mail.to = "test@support.com"
+
+    # pass to handler
+    handler = SupportMailHandler.new
+    result = handler.receive update_mail
+    assert result, "Should have updated issue and returned true"
+
+    check_issue_updated issue, update_mail, 3
   end
 
 end
