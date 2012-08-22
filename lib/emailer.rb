@@ -59,14 +59,26 @@ module Support
       email_array.find_all { |e| e.downcase unless e.downcase == support.to_email_address.downcase }.join(";")
     end
 
+    def should_ignore?
+      return false if @email.subject.nil?
+      subject_start_ignores = [/^auto:.*/, /^out of office:.*/, /^automatic reply:.*/]
+      subject_start_ignores.each do |ig|
+        if !@email.subject.downcase.match(ig).nil?
+          Support.log_info "Email with subject #{email.subject} matches the ignore reg ex #{ig.to_s}."
+          return true
+        end
+      end
+      false
+    end
+
     def find_support
       # join all possible emails address into one array for looping
       emails = @email.to.to_a + @email.cc.to_a + @email.bcc.to_a
       where_string = ""
       where_array = []
-      emails.each do |e|
-        where_string += "LOWER(to_email_address) LIKE ?"
-        where_string += " OR " unless emails.last == e
+      emails.each_with_index do |e, i|
+        where_string += " LOWER(to_email_address) LIKE ? "
+        where_string += " OR " unless i == (emails.count - 1)
         where_array.push "%#{e.downcase}%"
       end
 
@@ -77,12 +89,14 @@ module Support
     end
 
     def attach_email(issue, description)
+      filename = "#{@email.from[0].to_s.downcase}_#{Time.now.strftime("%Y%m%d%H%M%S")}.eml"
+
       #add attachment
       attachment = Attachment.new(
         :file         => @email.encoded,
         :author       => User.find(issue.support_helpdesk_setting.author_id),
         :content_type => "message/rfc822",
-        :filename     => "#{@email.from[0].to_s.downcase}_to_#{@email.to[0].to_s.downcase}.eml",
+        :filename     => filename,
         :container    => issue,
         :description  => description
       )
@@ -93,13 +107,13 @@ module Support
 
       # add a note to the issue with email body
       journal = Journal.new(
-        :journalized_id   => issue.id,
-        :journalized_type => "Issue",
         :notes            => "",
         :user_id          => issue.support_helpdesk_setting.author_id
       )
 
-      unless journal.save
+      issue.journals << journal
+
+      unless journal.save!
         Support.log_error "Could not save journal because:\n#{journal.errors.full_messages.join("\n")}"
         raise ActiveRecord::Rollback
       end   

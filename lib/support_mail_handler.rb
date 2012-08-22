@@ -21,6 +21,10 @@ class SupportMailHandler
 	def receive(message, options={})
     begin
       emailer = Support::Emailer.new message
+
+      # make sure the email shouldnt be ignored
+      return true if emailer.should_ignore?
+
       return self.route_email emailer
     rescue Exception => e
       Support.log_error "There was an error #{e} processing message:\n#{e.backtrace}\n\n#{message}"
@@ -38,7 +42,7 @@ class SupportMailHandler
     id = self.check_issue_exists(emailer.email)
     ActiveRecord::Base.transaction do
       if id != false
-        status = update_issue(id, emailer)
+        status = self.update_issue(id, emailer)
       else
         # if none than ignore the email
         if support.nil?
@@ -68,7 +72,20 @@ class SupportMailHandler
   def check_issue_exists(email)
     # see if this is an update to an existing ticket based on subject
     subject = email.subject
+    return false if subject.nil?
     id = (subject =~ /Ticket #([0-9]*)/ ? $1 : false)
+    return id unless id == false
+
+    # check and see if we have logged messages in the References or In-Reply-To
+    unless email.reply_to.nil?
+      email_reply = IssuesSupportMessageId.where(:message_id => email.reply_to)[0]
+      return email_reply.issue_id unless email_reply.nil?
+    end
+    unless email.references.nil?
+      email_reference = IssuesSupportMessageId.where(:message_id => email.references)[0]
+      return email_reference.issue_id unless email_reference.nil?
+    end
+    false
   end
 
   def create_issue(support, emailer)   

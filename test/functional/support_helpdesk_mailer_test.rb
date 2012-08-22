@@ -147,6 +147,47 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
     assert_equal "reply5@support.com", email.from[0], "Email from sent out isnt correct"
   end
 
+
+  def test_address_in_from_and_cc
+    mail = load_email "multipart_email.eml"
+    mail.from = "test@david.com"
+    mail.to = ["to2@random.com"]
+    mail.cc = ["tEst5@suPpOrt.com", "test@david.com", "cced@another.com"]
+
+    issue, email = create_issue mail, 3, 5, 2, 3
+  end
+
+  def test_address_in_from_and_to
+    mail = load_email "multipart_email.eml"
+    mail.from = "test@david.com"
+    mail.to = ["to2@random.com", "test@david.com"]
+    mail.cc = ["tEst5@suPpOrt.com", "cced@another.com"]
+
+    issue, email = create_issue mail, 3, 5, 2, 3   
+  end
+
+  def test_ignored_subject_lines
+    mail = load_email "multipart_email.eml"
+    mail.from = "test@david.com"
+    mail.to = ["to2@random.com", "another@random.com"]
+    mail.cc = ["tEst5@suPpOrt.com", "cced@another.com"]
+    mail.subject = "Auto: The subject line"
+
+    create_issue mail, 3, 5, 2, 3, false
+
+    mail.subject = "Out of Office: this another subject"
+    create_issue mail, 3, 5, 2, 3, false
+
+    mail.subject = "AUtomatic rEPLY: this is another subject"
+    create_issue mail, 3, 5, 2, 3, false
+
+    mail.subject = "AUtomatic rEPLY:"
+    create_issue mail, 3, 5, 2, 3, false
+
+    mail.subject = "The auto: isnt at the start"
+    create_issue mail, 3, 5, 2, 3
+  end
+
   def test_update_issue_01
     mail = load_email "multipart_email.eml"
     mail.from = "test@hello.com"
@@ -159,10 +200,29 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
 
     # pass to handler
     handler = SupportMailHandler.new
-    result = handler.receive email
+    result = handler.receive update_email
     assert result, "Should have updated issue and returned true"
 
-    check_issue_updated issue, mail, 3
+    check_issue_updated issue, update_email, 3
+  end
+
+  def test_update_from_references
+    mail = load_email "multipart_email.eml"
+    mail.from = "test@hello.com"
+    mail.to = "test@support.com"
+
+    issue, email = create_issue mail, 3, 1, 1, 2
+
+    update_mail = load_email "multipart_email_related.eml"
+    update_mail.from = "test@hello.com"
+    update_mail.to = "test@support.com"
+
+    # pass to handler
+    handler = SupportMailHandler.new
+    result = handler.receive update_mail
+    assert result, "Should have updated issue and returned true"
+
+    check_issue_updated issue, update_mail, 3
   end
 
 end
