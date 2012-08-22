@@ -82,9 +82,9 @@ class SupportMailHandler
     emails = email.to.to_a + email.cc.to_a + email.bcc.to_a
     where_string = ""
     where_array = []
-    emails.each do |e|
-      where_string += "LOWER(to_email_address) LIKE ?"
-      where_string += " OR " unless emails.last == e
+    emails.each_with_index do |e, i|
+      where_string += " LOWER(to_email_address) LIKE ? "
+      where_string += " OR " unless i == (emails.count - 1)
       where_array.push "%#{e.downcase}%"
     end
 
