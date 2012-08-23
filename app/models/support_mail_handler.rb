@@ -43,6 +43,7 @@ class SupportMailHandler
   end
 
   def should_ignore_email?(email)
+    return true if email.from.empty? || email.from.nil?
     return false if email.subject.nil?
     subject_start_ignores = [/^auto:.*/, /^out of office:.*/, /^automatic reply:.*/]
     subject_start_ignores.each do |ig|

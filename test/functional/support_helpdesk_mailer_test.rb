@@ -225,4 +225,20 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
     check_issue_updated issue, update_mail, 3
   end
 
+  def test_bad_email
+    mail = load_email "multipart_email_bad.eml"
+    mail.to = "tEst5@suPpOrt.com"
+    create_issue mail, 3, 5, 2, 3, false
+  end
+
+  def test_no_from
+    mail = load_email "multipart_email_bad.eml"
+    mail.to = "tEst5@suPpOrt.com"
+    mail.from = nil
+    create_issue mail, 3, 5, 2, 3, false
+
+    mail.from = []
+    create_issue mail, 3, 5, 2, 3, false
+  end
+
 end
