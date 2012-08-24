@@ -19,26 +19,26 @@
 module Support
   module Pipeline
     class IgnorePipeline < Support::Pipeline::PipelineBase
-      def execute(context)
+      def execute
         # get the email
-        email = context[:email]
+        email = @context[:email]
 
         if email.subject.nil?
           Support.log_info "Email from #{email.from[0]} has no subject line so one has been added."
           email.subject = "Email had no subject line."
-          context[:email] = email
-          return context
+          @context[:email] = email
+          return @context
         end
 
         subject_start_ignores = [/^auto:.*/, /^out of office:.*/, /^automatic reply:.*/]
         subject_start_ignores.each do |ig|
-          unless email.subject.downcase.match(ig).nil?
-            raise Support::PipelineProcessingSuccessful.new "Email with subject '#{email.subject}' matches the ignore reg ex '#{ig.to_s}'."
+          unless email.subject.to_s.downcase.match(ig).nil?
+            raise Support::PipelineProcessingSuccessful.new "Email with subject '#{email.subject.to_s}' matches the ignore reg ex '#{ig.to_s}'."
           end
         end
 
         # return true to keep processing
-        context
+        @context
       end
     end
   end

@@ -19,9 +19,9 @@
 module Support
   module Pipeline
     class SupportPipeline < Support::Pipeline::PipelineBase
-      def execute(context)
+      def execute
         # get the email
-        email = context[:email]
+        email = @context[:email]
 
         # join all possible emails address into one array for looping
         emails = email.to.to_a + email.cc.to_a + email.bcc.to_a
@@ -44,8 +44,8 @@ module Support
         end
 
         # otherwise add the support to the context
-        context[:support] = support
-        context
+        @context[:support] = support
+        @context
       end
     end
   end

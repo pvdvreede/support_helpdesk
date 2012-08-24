@@ -18,29 +18,29 @@
 
 module Support
   module Pipeline
-    class IgnoreDomainPipeline < Support::Pipeline::PipelineBase
-      def should_run?
-        return false if @context[:support].domains_to_ignore.nil?
-
-        true
-      end
-
-      def execute
-        # get the email
+    class UpdateIssuePipeline < Support::Pipeline::PipelineBase
+      def should_run?(context)
+        # see if this is an update to an existing ticket based on subject
         email = @context[:email]
-
-        # make sure support is there
-        support = @context[:support]
-        
-        #otherwise split the domains and check
-        domain_array = support.domains_to_ignore.downcase.split(";")
-        if domain_array.include?(email.from[0].to_s.split('@')[1].downcase)
-          raise Support::PipelineProcessingSuccessful.new "Email #{email.from[0].to_s} is on the ignored email domain list."
+        subject = email.subject.to_s
+        id = (subject =~ /Ticket #([0-9]*)/ ? $1 : false)
+        unless id == false
+          @context[:issue_id] = id
+          return true
         end
-        
-        @context
-      end
 
+        # check and see if we have logged messages in the References or In-Reply-To
+        unless email.reply_to.nil?
+          email_reply = IssuesSupportMessageId.where(:message_id => email.reply_to)[0]
+          return email_reply.issue_id unless email_reply.nil?
+        end
+        unless email.references.nil?
+          email_reference = IssuesSupportMessageId.where(:message_id => email.references)[0]
+          return email_reference.issue_id unless email_reference.nil?
+        end
+
+        false
+      end
     end
   end
 end

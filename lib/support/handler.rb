@@ -51,10 +51,11 @@ module Support
       # wrap in a transaction
       ActiveRecord::Base.transaction do
         @@pipelines.each do |pipeline|
-          if pipeline.should_run?(context)
+          pipeline.context = context
+          if pipeline.should_run?
             begin
               Support.log_info "Running #{pipeline.name} pipeline..."
-              context = pipeline.execute(context)
+              context = pipeline.execute
             rescue Support::PipelineProcessingError => e
               Support.log_error "There was an error in #{pipeline.name}: #{e}."
               raise ActiveRecord::Rollback

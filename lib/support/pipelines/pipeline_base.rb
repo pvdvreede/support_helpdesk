@@ -20,16 +20,17 @@ module Support
   module Pipeline
     class PipelineBase
       attr_reader :name
+      attr_accessible :context
 
       def initialize(name)
         @name = name
       end
 
-      def should_run?(context)
+      def should_run?
         true
       end
 
-      def execute(context)
+      def execute
         raise NotImplementedException "You must implement the #execute(context) method in your pipeline class."
       end
 
