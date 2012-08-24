@@ -27,7 +27,7 @@ module Support
         support = context[:support]
 
         # if there are no domains to ignore return
-        return true if support.domains_to_ignore.nil?
+        return context if support.domains_to_ignore.nil?
         
         #otherwise split the domains and check
         domain_array = support.domains_to_ignore.downcase.split(";")
@@ -35,7 +35,7 @@ module Support
           raise Support::PipelineProcessingSuccessful.new "Email #{email.from[0].to_s} is on the ignored email domain list."
         end
         
-        true
+        context
       end
 
     end

@@ -26,7 +26,8 @@ module Support
         if email.subject.nil?
           Support.log_info "Email from #{email.from[0]} has no subject line so one has been added."
           email.subject = "Email had no subject line."
-          return true
+          context[:email] = email
+          return context
         end
 
         subject_start_ignores = [/^auto:.*/, /^out of office:.*/, /^automatic reply:.*/]
@@ -37,7 +38,7 @@ module Support
         end
 
         # return true to keep processing
-        true
+        context
       end
     end
   end
