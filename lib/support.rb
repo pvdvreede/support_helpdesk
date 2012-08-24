@@ -25,8 +25,8 @@ require "support/pipelines/support_pipeline"
 
 # create array of plugins to add
 Support::Handler.pipelines = [
-  Support::Pipeline::IgnorePipeline.new("Ignore Pipeline"),
+  Support::Pipeline::IgnorePipeline.new("Ignore"),
   Support::Pipeline::SupportPipeline.new("Support finder"),
-  Support::Pipeline::IgnoreDomainPipeline.new("Ignore Domain Pipeline")
+  Support::Pipeline::IgnoreDomainPipeline.new("Ignore Domain")
 ]
 
