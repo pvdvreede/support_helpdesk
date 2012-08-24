@@ -150,7 +150,7 @@ class SupportMailHandler
     end
 
     issue = Issue.new(
-      :subject => email.subject, 
+      :subject => email.subject.to_s, 
       :tracker_id => support.tracker_id,
       :project_id => project_id,
       :description => SupportMailHandler.get_email_body_text(email), 
