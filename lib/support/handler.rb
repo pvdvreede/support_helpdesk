@@ -62,6 +62,8 @@ module Support
               Support.log_info "Pipeline #{pipeline.name} marked the email as successfully processed because: #{e}."
               return true
             end
+          else
+            Support.log_info "Pipeline #{pipeline.name} is not being run."
           end
         end
       end

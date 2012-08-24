@@ -19,15 +19,18 @@
 module Support
   module Pipeline
     class IgnoreDomainPipeline < Support::Pipeline::PipelineBase
+      def should_run?(context)
+        return false if context[:support].domains_to_ignore.nil?
+
+        true
+      end
+
       def execute(context)
         # get the email
         email = context[:email]
 
         # make sure support is there
         support = context[:support]
-
-        # if there are no domains to ignore return
-        return context if support.domains_to_ignore.nil?
         
         #otherwise split the domains and check
         domain_array = support.domains_to_ignore.downcase.split(";")
