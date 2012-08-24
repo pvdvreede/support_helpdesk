@@ -241,4 +241,14 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
     create_issue mail, 3, 5, 2, 3, false
   end
 
+  def test_email_body_decoding
+    mail = load_email "multipart_email.eml"
+    mail.from = "test@hello.com"
+    mail.to = "test@support.com"
+
+    issue, email = create_issue mail, 3, 1, 1, 2
+
+    assert_equal "This is the text plain email.\r\n\r\nThis is a second line.", issue.description, "Email body decoding did not work."
+  end
+
 end

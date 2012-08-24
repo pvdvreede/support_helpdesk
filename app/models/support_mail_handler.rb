@@ -314,16 +314,17 @@ class SupportMailHandler
         end
       end
 
-      case part.body.encoding
-      when "base64"
-        body = Base64.decode64(part.body.raw_source)
-      else
-        body = part.body.raw_source
-      end
+      body = part.body.decoded
 
-      if html_encode
-        body = CGI.unescapeHTML(body)
+      # split and only give the first 40 lines
+      body_array = body.split("\n")
+      if body_array.count <= 30
+        return body
       end
+      # other get the first 30 lines and return those.
+      new_body = body_array[0..29].join "\n"
+      # add on notice it is not the end of the email
+      return new_body + "\n\n=====================================\nEmail has been truncated at 30 lines, please open attached email to check the rest..."
     rescue => ex
       Support.log_error "Exception trying to load email body so using static text: #{ex}"
       body = "Could not decode email body. Email body in attached email."
