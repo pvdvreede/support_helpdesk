@@ -16,14 +16,28 @@
 # You should have received a copy of the GNU General Public License
 # along with Support Helpdesk.  If not, see <http://www.gnu.org/licenses/>.
 
-# add requires
-require "support/handler"
-require "support/pipelines/pipeline_base"
-require "support/pipelines/ignore_pipeline"
+module Support
+  module Pipeline
+    class IgnoreDomainPipeline < Support::Pipeline::PipelineBase
+      def execute(context)
+        # get the email
+        email = context[:email]
 
-# create array of plugins to add
-Support::Handler.pipelines = [
-  Support::Pipeline::IgnorePipeline.new("Ignore Pipeline"),
-  Support::Pipeline::IgnoreDomainPipeline.new("Ignore Domain Pipeline")
-]
+        # make sure support is there
+        support = context[:support]
 
+        # if there are no domains to ignore return
+        return true if support.domains_to_ignore.nil?
+        
+        #otherwise split the domains and check
+        domain_array = support.domains_to_ignore.downcase.split(";")
+        if domain_array.include?(email.from[0].split('@')[1].downcase)
+          raise Support::PipelineProcessingSuccessful.new "Email #{email.from[0].to_s} is on the ignored email domain list."
+        end
+        
+        true
+      end
+
+    end
+  end
+end
