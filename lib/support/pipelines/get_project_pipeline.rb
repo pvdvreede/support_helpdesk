@@ -18,25 +18,27 @@
 
 module Support
   module Pipeline
-    class PipelineBase
-      attr_reader :name
-      attr_accessor :context
-
-      def initialize(name)
-        @name = name
-      end
-
-      def should_run?
-        true
-      end
-
+    class GetProjectPipeline < Support::Pipeline::PipelineBase
       def execute
-        raise NotImplementedException "You must implement the #execute(context) method in your pipeline class."
+        support = @context[:support]
+        email = @context[:email]
+
+        # search for the project
+        projects = Project.joins(:custom_values). \
+                           where("#{CustomValue.table_name}.custom_field_id = ?", support.email_domain_custom_field_id). \
+                           where("LOWER(#{CustomValue.table_name}.value) like ?", "%#{get_email_domain(email.from[0].to_s)}%")
+        if projects.empty? || projects.count > 1
+          @context[:project] = Project.find(support.project_id)
+        else
+          @context[:project] = projects[0]
+        end
+        @context
       end
 
-      def render_settings
+      private
+      def get_email_domain(address)
+        address.downcase.split("@")[1]
       end
-
     end
   end
 end
