@@ -18,15 +18,21 @@
 
 # add requires
 require "support/handler"
+require "support/helpers/attachments"
+require "support/helpers/emails"
 require "support/pipelines/pipeline_base"
 require "support/pipelines/ignore_pipeline"
 require "support/pipelines/ignore_domain_pipeline"
 require "support/pipelines/support_pipeline"
+require "support/pipelines/update_issue_pipeline"
+require "support/pipelines/create_issue_pipeline"
 
 # create array of plugins to add
 Support::Handler.pipelines = [
   Support::Pipeline::IgnorePipeline.new("Ignore"),
   Support::Pipeline::SupportPipeline.new("Support finder"),
-  Support::Pipeline::IgnoreDomainPipeline.new("Ignore Domain")
+  Support::Pipeline::IgnoreDomainPipeline.new("Ignore Domain"),
+  Support::Pipeline::UpdateIssuePipeline.new("Update issue"),
+  Support::Pipeline::CreateIssuePipeline.new("Create issue")
 ]
 
