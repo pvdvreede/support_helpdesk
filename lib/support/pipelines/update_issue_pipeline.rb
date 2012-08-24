@@ -19,27 +19,48 @@
 module Support
   module Pipeline
     class UpdateIssuePipeline < Support::Pipeline::PipelineBase
+      include Support::Helper::Attachments
+
       def should_run?(context)
         # see if this is an update to an existing ticket based on subject
         email = @context[:email]
         subject = email.subject.to_s
         id = (subject =~ /Ticket #([0-9]*)/ ? $1 : false)
         unless id == false
-          @context[:issue_id] = id
+          begin
+            issue = Issue.find id
+          rescue ActiveRecord::RecordNotFound
+            return false
+          end
+          @context[:issue] = issue
           return true
         end
 
         # check and see if we have logged messages in the References or In-Reply-To
         unless email.reply_to.nil?
-          email_reply = IssuesSupportMessageId.where(:message_id => email.reply_to)[0]
-          return email_reply.issue_id unless email_reply.nil?
+          email_reply = IssuesSupportMessageId.find_by_message_id(email.reply_to)
+          return false if email_reply.nil?
+          @context[:issue] = email_reply.issue
+          return true
         end
         unless email.references.nil?
-          email_reference = IssuesSupportMessageId.where(:message_id => email.references)[0]
-          return email_reference.issue_id unless email_reference.nil?
+          email_reference = IssuesSupportMessageId.find_by_message_id(email.references)
+          return false if email_reference.nil?
+          @context[:issue] = email_reference.issue
+          return true
         end
 
         false
+      end
+
+      def execute
+        # get the email and issue to work with
+        email = @context[:email]
+        issue = @context[:issue]
+
+        attach_email(email, issue, "Email received from #{email.from[0].to_s}.")
+
+        raise Support::PipelineProcessingSuccessful.new "Issue #{issue.id} updated with email from #{email.from[0].to_s}."
       end
     end
   end
