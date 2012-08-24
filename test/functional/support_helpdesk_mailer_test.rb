@@ -29,7 +29,7 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
     mail.to = "not@item.com"
 
     # pass to handler
-    handler = SupportMailHandler.new
+    handler = Support::Handler.new
     result = handler.receive mail
     assert !result, "Should be false as the email is not part of support items"
   end
@@ -39,7 +39,7 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
     mail.to = "test3@support.com"
 
     # pass to handler
-    handler = SupportMailHandler.new
+    handler = Support::Handler.new
     result = handler.receive mail
     assert !result, "Should have return false for inactive support"
   end
@@ -102,7 +102,7 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
     mail.to = "test4@support.com"
 
     # pass to handler
-    handler = SupportMailHandler.new
+    handler = Support::Handler.new
     result = handler.receive mail
     assert result, "Should have created issue"
 
@@ -199,7 +199,7 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
     update_email.subject = "Re: #{email.subject}"
 
     # pass to handler
-    handler = SupportMailHandler.new
+    handler = Support::Handler.new
     result = handler.receive update_email
     assert result, "Should have updated issue and returned true"
 
@@ -218,7 +218,7 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
     update_mail.to = "test@support.com"
 
     # pass to handler
-    handler = SupportMailHandler.new
+    handler = Support::Handler.new
     result = handler.receive update_mail
     assert result, "Should have updated issue and returned true"
 

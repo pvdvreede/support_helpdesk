@@ -16,17 +16,26 @@
 # You should have received a copy of the GNU General Public License
 # along with Support Helpdesk.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace :support do
-	desc <<-END_DESC
-Pick up emails from POP3 server and process them into support tickets.
-END_DESC
-  task :fetch_pop_emails => :environment do
-    options = {}
-    pop_options = {}
-    pop_options[:host] = ENV['host'] if ENV['host']
-    pop_options[:port] = ENV['port'].to_i if ENV['port']
-    pop_options[:username] = ENV['username'] if ENV['username']
-    pop_options[:password] = ENV['password'] if ENV['password']
-    Support::POP3.check(pop_options)
+module Support
+  module Pipeline
+    class PipelineBase
+      attr_reader :name
+
+      def initialize(name)
+        @name = name
+      end
+
+      def should_run?(context)
+        true
+      end
+
+      def execute(context)
+        raise NotImplementedException "You must implement the #execute(context) method in your pipeline class."
+      end
+
+      def render_settings
+      end
+
+    end
   end
 end

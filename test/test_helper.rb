@@ -29,7 +29,7 @@ end
 def create_issue(mail, tracker_id, support_id, assignee, project_id, created=true)
   # pass to handler
   start_time = Time.now
-  handler = SupportMailHandler.new
+  handler = Support::Handler.new
   result = handler.receive mail
 
   issue = Issue.where(:subject => mail.subject). \
