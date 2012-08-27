@@ -20,8 +20,9 @@ module Support
   module Pipeline
     class UpdateIssuePipeline < Support::Pipeline::PipelineBase
       include Support::Helper::Attachments
+      include Support::Helper::Misc
 
-      def should_run?(context)
+      def should_run?
         # see if this is an update to an existing ticket based on subject
         email = @context[:email]
         subject = email.subject.to_s
@@ -59,6 +60,9 @@ module Support
         issue = @context[:issue]
 
         attach_email(email, issue, "Email received from #{email.from[0].to_s}.")
+
+        # update the last processed time
+        update_last_processed(@context[:support])
 
         raise Support::PipelineProcessingSuccessful.new "Issue #{issue.id} updated with email from #{email.from[0].to_s}."
       end

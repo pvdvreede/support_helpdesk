@@ -42,6 +42,7 @@ module Support
         execute_pipelines(context)
       rescue Exception => e
         Support.log_error "There was an error executing the pipelines: #{e}."
+        Support.log_debug "Error backtrace:\n#{e.backtrace}"
         return false
       end
     end
@@ -58,6 +59,7 @@ module Support
               context = pipeline.execute
             rescue Support::PipelineProcessingError => e
               Support.log_error "There was an error in #{pipeline.name}: #{e}."
+              Support.log_debug "Error backtrace:\n#{e.backtrace}"
               raise ActiveRecord::Rollback
             rescue Support::PipelineProcessingSuccessful => e
               Support.log_info "Pipeline #{pipeline.name} marked the email as successfully processed because: #{e}."

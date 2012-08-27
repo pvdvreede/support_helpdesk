@@ -77,6 +77,7 @@ module Support
           notes = "There was an error and the email was not sent because #{e}"
         else
           attach_email(
+            mail,
             issue,
             "Email sent from Redmine to #{mail.to[0].to_s}"
           )

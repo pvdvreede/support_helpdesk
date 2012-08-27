@@ -40,7 +40,7 @@ module Support
 
         # cancel processing if there is no support in our system
         if support.nil?
-          raise Support::PipelineProcessingSuccessful.new "No support setup exists for any of these email addresses: #{emails.join(", ")}."
+          raise Support::PipelineProcessingSuccessful.new "No support setup exists for any of these email addresses: #{emails.join(", ")}"
         end
 
         # otherwise add the support to the context

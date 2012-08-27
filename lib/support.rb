@@ -20,6 +20,7 @@
 require "support/handler"
 require "support/helpers/attachments"
 require "support/helpers/emails"
+require "support/helpers/misc"
 require "support/pipelines/pipeline_base"
 require "support/pipelines/ignore_pipeline"
 require "support/pipelines/ignore_domain_pipeline"

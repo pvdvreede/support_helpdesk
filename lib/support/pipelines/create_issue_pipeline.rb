@@ -21,44 +21,49 @@ module Support
     class CreateIssuePipeline < Support::Pipeline::PipelineBase
       include Support::Helper::Attachments
       include Support::Helper::Emails
+      include Support::Helper::Misc
 
       def execute
-      	support = @context[:support]
-      	project = @context[:project]
-      	email = @context[:email]
+        support = @context[:support]
+        project = @context[:project]
+        email = @context[:email]
 
-	    issue = Issue.new(
-	      :subject => email.subject.to_s, 
-	      :tracker_id => support.tracker_id,
-	      :project_id => project.id,
-	      :description => get_email_body_text(email), 
-	      :author_id => support.author_id, 
-	      :status_id => support.new_status_id, 
-	      :assigned_to_id => support.assignee_group_id,
-	      :start_date => Time.now.utc
-	    )
-	    issue.support_helpdesk_setting = support
-	    issue.reply_email = get_email_reply_string(support, email)
-	    issue.support_type = support.name
+        issue = Issue.new(
+          :subject => email.subject.to_s,
+          :tracker_id => support.tracker_id,
+          :project_id => project.id,
+          :description => get_email_body_text(email),
+          :author_id => support.author_id,
+          :status_id => support.new_status_id,
+          :assigned_to_id => support.assignee_group_id,
+          :start_date => Time.now.utc
+        )
+        issue.support_helpdesk_setting = support
+        issue.reply_email = get_email_reply_string(support, email)
+        issue.support_type = support.name
 
-	    unless issue.save
-	      Support.log_error "Error saving issue because #{issue.errors.full_messages.join("\n")}"
-	      raise Support::PipelineProcessingError.new "Error saving issue: #{issue.errors.full_messages.join("\n")}"
-	    end
+        unless issue.save
+          Support.log_error "Error saving issue because #{issue.errors.full_messages.join("\n")}"
+          raise Support::PipelineProcessingError.new "Error saving issue: #{issue.errors.full_messages.join("\n")}"
+        end
 
-	    attach_email(
-	      issue,
-	      "Original email from client."
-	    )
+        attach_email(
+          email,
+          issue,
+          "Original email from client."
+        )
 
-	    # send email back to ticket creator if it has been requested
-	    if support.send_created_email_to_user
-	      send_email(issue) do 
-	        SupportHelpdeskMailer.ticket_created(issue, issue.reply_email).deliver
-	      end
-	    end
-	    
-	    @context
+        # send email back to ticket creator if it has been requested
+        if support.send_created_email_to_user
+          send_email(issue) do
+            SupportHelpdeskMailer.ticket_created(issue, issue.reply_email).deliver
+          end
+        end
+
+        # update the last processed time
+        update_last_processed(@context[:support])
+
+        @context
       end
   	end
   end

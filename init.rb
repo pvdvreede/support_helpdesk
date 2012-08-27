@@ -24,7 +24,7 @@ Redmine::Plugin.register :support_helpdesk do
   name 'Support Helpdesk plugin'
   author 'Paul Van de Vreede'
   description 'Allow issues to be created from incoming emails.'
-  version '0.9.0'
+  version '2.0.0'
   url 'https://github.com/pvdvreede/support_helpdesk'
   author_url 'https://github.com/pvdvreede'
 
@@ -39,14 +39,14 @@ end
 # create a generic logger
 module Support
   def self.log_info(msg)
-    Rails.logger.info "support_helpdesk INFO - #{msg}"
+    Rails.logger.info "#{Time.now.to_s} support_helpdesk INFO - #{msg}"
   end
 
   def self.log_error(msg)
-    Rails.logger.error "support_helpdesk ERROR - #{msg}"
+    Rails.logger.error "#{Time.now.to_s} support_helpdesk ERROR - #{msg}"
   end
 
   def self.log_debug(msg)
-    Rails.logger.debug "support_helpdesk DEBUG - #{msg}"
+    Rails.logger.debug "#{Time.now.to_s} support_helpdesk DEBUG - #{msg}"
   end
 end
