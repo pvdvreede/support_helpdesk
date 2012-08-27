@@ -17,9 +17,9 @@
 # along with Support Helpdesk.  If not, see <http://www.gnu.org/licenses/>.
 
 module Support
-	module POP3  
-		def self.check(pop_options={})
-			host = pop_options[:host] || '127.0.0.1'
+	module POP 
+	  def self.check(pop_options={})
+	    host = pop_options[:host] || '127.0.0.1'
       port = pop_options[:port] || '110'
       
       Mail.defaults do
