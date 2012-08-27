@@ -26,7 +26,8 @@ module Support
         # search for the project
         projects = Project.joins(:custom_values). \
                            where("#{CustomValue.table_name}.custom_field_id = ?", support.email_domain_custom_field_id). \
-                           where("LOWER(#{CustomValue.table_name}.value) like ?", "%#{get_email_domain(email.from[0].to_s)}%")
+                           where("LOWER(#{CustomValue.table_name}.value) like ?", "%#{get_email_domain(email.from[0].to_s)}%"). \
+                           limit(2)
         if projects.empty? || projects.count > 1
           @context[:project] = Project.find(support.project_id)
         else

@@ -31,9 +31,9 @@ module Support
 
         # get the parent and add to it
         if !email.reply_to.nil?
-          parent_message = IssuesSupportMessageId.where(:message_id => email.reply_to)[0]
+          parent_message = IssuesSupportMessageId.where(:message_id => email.reply_to).first
         elsif !email.references.nil?
-          parent_message = IssuesSupportMessageId.where(:message_id => email.references)[0]
+          parent_message = IssuesSupportMessageId.where(:message_id => email.references).first
         end
         support_message_id.move_to_child_of(parent_message) unless parent_message.nil?
 
@@ -56,7 +56,7 @@ module Support
           :container    => issue,
           :description  => description
         )
-        
+
         unless attachment.save
           raise ActiveRecord::Rollback
         end
@@ -72,7 +72,7 @@ module Support
         unless journal.save!
           Support.log_error "Could not save journal because:\n#{journal.errors.full_messages.join("\n")}"
           raise ActiveRecord::Rollback
-        end   
+        end
 
         detail = JournalDetail.new(
           :journal_id => journal.id,

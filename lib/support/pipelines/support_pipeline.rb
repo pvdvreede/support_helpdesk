@@ -36,7 +36,7 @@ module Support
         # pop in the where clause over the top of the values for an escapable where array
         where_array.unshift where_string
 
-        support = SupportHelpdeskSetting.active.where(where_array)[0]
+        support = SupportHelpdeskSetting.active.where(where_array).first
 
         # cancel processing if there is no support in our system
         if support.nil?
