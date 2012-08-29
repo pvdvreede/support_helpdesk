@@ -59,7 +59,12 @@ module Support
         email = @context[:email]
         issue = @context[:issue]
 
-        attach_email(email, issue, "Email received from #{email.from[0].to_s}.")
+        attach_email(
+          email, 
+          issue, 
+          "Email received from #{email.from[0].to_s}.",
+          @context[:body]
+        )
 
         # update the last processed time
         update_last_processed(@context[:support])

@@ -130,7 +130,7 @@ def check_issue_updated(issue, mail, tracker_id)
   assert_not_nil issue, "Issue not created"
 
   # make sure there is a notes entry with an updated comment
-  note = Journal.where(:journalized_id => issue.id).where(:journalized_type => "Issue").where("notes LIKE ?", "%Email received from%")[0]
+  note = Journal.where(:journalized_id => issue.id).where(:journalized_type => "Issue").where("notes <> ?", "").first
 
   assert_not_nil note, "Update did not create Journal entry for issue"
 

@@ -44,7 +44,7 @@ module Support
         end
       end
 
-      def attach_email(email, issue, description)
+      def attach_email(email, issue, description, email_body=nil)
         filename = "#{email.from[0].to_s.downcase}_#{Time.now.strftime("%Y%m%d%H%M%S")}.eml"
 
         #add attachment
@@ -63,7 +63,7 @@ module Support
 
         # add a note to the issue with email body
         journal = Journal.new(
-          :notes            => "",
+          :notes            => email_body || "",
           :user_id          => issue.support_helpdesk_setting.author_id
         )
 
