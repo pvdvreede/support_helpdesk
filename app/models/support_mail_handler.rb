@@ -149,8 +149,15 @@ class SupportMailHandler
       project_id = support.project_id
     end
 
+    # make sure the subject is set as it is a required field in the issue
+    if email.subject.to_s == nil || email.subject.to_s == ""
+      subject = "(no subject)"
+    else
+      subject = email.subject.to_s
+    end
+
     issue = Issue.new(
-      :subject => email.subject.to_s, 
+      :subject => subject,
       :tracker_id => support.tracker_id,
       :project_id => project_id,
       :description => SupportMailHandler.get_email_body_text(email), 
