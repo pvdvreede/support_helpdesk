@@ -23,9 +23,9 @@ module Support
         # get the email
         email = @context[:email]
 
-        if email.subject.nil? || email.subject = ''
+        if email.subject.nil? || email.subject.to_s == ""
           Support.log_info "Email from #{email.from[0]} has no subject line so one has been added."
-          email.subject = "(Email had no subject line.)"
+          email.subject = "(Email had no subject line)"
           @context[:email] = email
           return @context
         end
