@@ -141,3 +141,12 @@ def check_issue_updated(issue, mail, tracker_id)
   message = messages.detect { |x| x.message_id == mail.message_id }
   assert_not_nil message, "Message id for update mail wasnt added"
 end
+
+def create_and_run_pipeline(pipe, mail)
+  # run the pipeline
+  context = { :email => mail }
+  pipe.context = context
+  return_context = pipe.execute
+  assert_not_nil return_context[:body], "The body was not added to the context"
+  return_context
+end

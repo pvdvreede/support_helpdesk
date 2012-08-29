@@ -25,6 +25,7 @@ require "support/pipelines/pipeline_base"
 require "support/pipelines/ignore_pipeline"
 require "support/pipelines/ignore_domain_pipeline"
 require "support/pipelines/get_project_pipeline"
+require "support/pipelines/get_email_body_pipeline"
 require "support/pipelines/support_pipeline"
 require "support/pipelines/update_issue_pipeline"
 require "support/pipelines/create_issue_pipeline"
@@ -35,6 +36,7 @@ Support::Handler.pipelines = [
   Support::Pipeline::SupportPipeline.new("Support finder"),
   Support::Pipeline::IgnoreDomainPipeline.new("Ignore Domain"),
   Support::Pipeline::GetProjectPipeline.new("Get project"),
+  Support::Pipeline::GetEmailBodyPipeline.new("Get email body"),
   Support::Pipeline::UpdateIssuePipeline.new("Update issue"),
   Support::Pipeline::CreateIssuePipeline.new("Create issue")
 ]

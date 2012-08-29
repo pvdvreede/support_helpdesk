@@ -1,0 +1,78 @@
+                                                                                                                                                                                                                                                               
+Delivered-To: thetester@somewhere.com
+Received: by 10.231.135.10 with SMTP id l10csp28646ibt;
+        Sun, 5 Aug 2012 18:24:09 -0700 (PDT)
+Received: by 10.68.231.170 with SMTP id th10mr15061109pbc.104.1344216248642;
+        Sun, 05 Aug 2012 18:24:08 -0700 (PDT)
+Return-Path: <thetester@somewhere.com>
+Received: from nschwmtas01p.mx.bigpond.com (nschwmtas01p.mx.bigpond.com. [61.9.189.137])
+        by mx.google.com with ESMTP id os5si9797987pbb.261.2012.08.05.18.24.07;
+        Sun, 05 Aug 2012 18:24:08 -0700 (PDT)
+Received-SPF: neutral (google.com: 61.9.189.137 is neither permitted nor denied by best guess record for domain of thetester@somewhere.com) client-ip=61.9.89.137;
+Authentication-Results: mx.google.com; spf=neutral (google.com: 61.9.189.137 is neither permitted nor denied by best guess record for domain of thetester@somewhere.com) smtp.mail=thetester@somewhere.com
+Received: from nschwcmgw07p ([61.9.190.167]) by nschwmtas01p.mx.bigpond.com
+          with ESMTP
+          id <20120806012406.UIFO24679.nschwmtas01p.mx.bigpond.com@nschwcmgw07p>
+          for <thetester@somewhere.com>; Mon, 6 Aug 2012 01:24:06 +0000
+Received: from exch1.evision.local ([110.142.105.155])
+  by nschwcmgw07p with BigPond Outbound
+  id jDQ61j00G3MBDx201DQ601; Mon, 06 Aug 2012 01:24:06 +0000
+X-Authority-Analysis: v=2.0 cv=apgw+FlV c=1 sm=1
+ a=26h+nM7DyyaHuB3fscpgRA==:17 a=eF_zdsHNR50A:10 a=xqWC_Br6kY4A:10
+ a=FptwRdT3AAAA:8 a=AaSwr-VgVlKCVKbIHk4A:9 a=CjuIK1q_8ugA:10 a=oKru0f2j5WgA:10
+ a=yMhMjlubAAAA:8 a=SSmOFEACAAAA:8 a=HT_VeldCMs79jpWKRN8A:9 a=gKO2Hq4RSVkA:10
+ a=UiCQ7L4-1S4A:10 a=hTZeC7Yk6K0A:10 a=frz4AuCg-hUA:10
+ a=26h+nM7DyyaHuB3fscpgRA==:117
+Received: from ghf.gfhfgh.fghgfh ([fe80::2d15:d0d1:1s20:fb28]) by
+ fdgh.dfghg.fghf ([fe80::2g15:d0d1:19f0:fb28%11]) with mapi; Mon, 6 Aug
+ 2012 11:24:06 +1000
+From: The tester <thetester@somewhere.com>
+To: "test@support.com" <test@support.com>
+Subject: test email
+Thread-Topic: test email
+Thread-Index: Ac1zciqZnFqpSKLWTu+wlFkxcZ+86g==
+Date: Mon, 6 Aug 2012 01:24:04 +0000
+Message-ID: <A5B18DDC917C774589675E32301AEB1C0A2B69@exch1.evision.local>
+Accept-Language: en-GB, en-AU, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Content-Type: multipart/alternative;
+  boundary="_000_A5B18DDC917C774589675E32301AEB1C0A2B69exch1evisionlocal_"
+MIME-Version: 1.0
+
+--_000_A5B18DDC917C774589675E32301AEB1C0A2B69exch1evisionlocal_
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+This is the real text.
+
+from,
+
+Me
+
+From: that guy <that@guy.com>
+Sent: Wednesday, 29 August 2012 2:09 PM
+To: "test@support.com" <test@support.com>
+Subject: test email
+
+This is the previous email
+
+--_000_A5B18DDC917C774589675E32301AEB1C0A2B69exch1evisionlocal_
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<p>This is the real text.</p>
+
+<p>from,</p>
+
+<p>Me</p>
+
+From: that guy <that@guy.com>
+Sent: Wednesday, 29 August 2012 2:09 PM
+To: "test@support.com" <test@support.com>
+Subject: test email
+
+This is the previous email
+
+--_000_A5B18DDC917C774589675E32301AEB1C0A2B69exch1evisionlocal_--

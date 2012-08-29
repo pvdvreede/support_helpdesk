@@ -32,7 +32,7 @@ module Support
           :subject => email.subject.to_s,
           :tracker_id => support.tracker_id,
           :project_id => project.id,
-          :description => get_email_body_text(email),
+          :description => @context[:body],
           :author_id => support.author_id,
           :status_id => support.new_status_id,
           :assigned_to_id => support.assignee_group_id,
