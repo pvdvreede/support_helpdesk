@@ -31,7 +31,9 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
     # pass to handler
     handler = Support::Handler.new
     result = handler.receive mail
-    assert !result, "Should be false as the email is not part of support items"
+    assert result, "Should be true as the email is not part of support items"
+
+    create_issue mail, 3, 1, 1, 2, false
   end
 
   def test_false_when_support_inactive
@@ -41,7 +43,9 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
     # pass to handler
     handler = Support::Handler.new
     result = handler.receive mail
-    assert !result, "Should have return false for inactive support"
+    assert result, "Should have return true for inactive support"
+
+    create_issue mail, 3, 1, 1, 2, false
   end
 
   def test_creation_issue_01 
