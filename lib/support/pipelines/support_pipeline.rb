@@ -23,8 +23,8 @@ module Support
         # get the email
         email = @context[:email]
 
-        # join all possible emails address into one array for looping
-        emails = email.to.to_a + email.cc.to_a + email.bcc.to_a
+        # join all possible email addresses into one array for looping
+        emails = email.to.to_a + email.cc.to_a
         where_string = ""
         where_array = []
         emails.each do |e|
@@ -41,6 +41,21 @@ module Support
         # cancel processing if there is no support in our system
         if support.nil?
           raise Support::PipelineProcessingSuccessful.new "No support setup exists for any of these email addresses: #{emails.join(", ")}"
+        end
+
+        # cancel processing if the support email address is not in the field it is set to be in
+        if !support.search_in_to || !support.search_in_cc
+          if support.search_in_to
+            unless email.to.to_a.include? support.to_email_address
+              raise Support::PipelineProcessingSuccessful.new "The support email address is not in the to part of the email."
+            end
+          end
+
+          if support.search_in_cc
+            unless email.cc.to_a.include? support.to_email_address
+              raise Support::PipelineProcessingSuccessful.new "The support email address is not in the cc part of the email."
+            end
+          end
         end
 
         # otherwise add the support to the context

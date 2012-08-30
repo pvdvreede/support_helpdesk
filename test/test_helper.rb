@@ -147,6 +147,4 @@ def create_and_run_pipeline(pipe, mail)
   context = { :email => mail }
   pipe.context = context
   return_context = pipe.execute
-  assert_not_nil return_context[:body], "The body was not added to the context"
-  return_context
 end

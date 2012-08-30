@@ -17,4 +17,13 @@
 # along with Support Helpdesk.  If not, see <http://www.gnu.org/licenses/>.
 
 module SupportHelpdeskSettingHelper
+
+  def search_in_checkbox_marked?(setting, text)
+    if setting.search_in.nil?
+      return true
+    end
+
+    setting.search_in.includes?(text)
+  end
+
 end

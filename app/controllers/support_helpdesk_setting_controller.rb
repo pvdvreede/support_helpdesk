@@ -17,6 +17,8 @@
 # along with Support Helpdesk.  If not, see <http://www.gnu.org/licenses/>.
 
 class SupportHelpdeskSettingController < ApplicationController
+  include SupportHelpdeskSettingHelper
+
   unloadable
   layout 'admin'
 

@@ -16,12 +16,9 @@
 # You should have received a copy of the GNU General Public License
 # along with Support Helpdesk.  If not, see <http://www.gnu.org/licenses/>.
 
-require File.dirname(__FILE__) + '/../test_helper'
-
-class SupportHelpdeskSettingsTest < ActiveSupport::TestCase
-
-  # Replace this with your real tests.
-  def test_truth
-    assert true
+class AddToCcSelectionToTable < ActiveRecord::Migration
+  def change
+    add_column :support_helpdesk_settings, :search_in_to, :boolean, :default => true
+    add_column :support_helpdesk_settings, :search_in_cc, :boolean, :default => true
   end
 end

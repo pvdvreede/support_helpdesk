@@ -1,4 +1,4 @@
-<%= form_for(@setting) do |f| %>
+<%= labelled_form_for(@setting) do |f| %>
 <% if @setting.errors.any? %>
   <div id="errorExplanation">    
     <ul>
@@ -14,42 +14,41 @@
     <fieldset class="box tabular">
       <legend>Information</legend>
         <p>
-          <%= f.label :name %>
-          <span class="required"> *</span>
           <%= f.text_field :name, :required => true %>
         </p>
         <p>
-          <%= f.label "Email address to route" %>
-          <span class="required"> *</span>
           <%= f.text_field :to_email_address, :required => true %>
         </p>
         <p>
-          <%= f.label "Email domains to ignore" %>
-          <%= f.text_field :domains_to_ignore %>
+          <%= f.text_area :domains_to_ignore, :rows => 4, :cols => 29 %>
           <em class="info">
             You can specify a semi-colon separated list of email domains you receive mail from that you want to ignore and NOT create a ticket for. NOTE: Emails from these domains will be ignored and have the email deleted from the mailbox.
           </em>
         </p>
         <p>
-          <%= f.label "Email to send as" %>
-          <span class="required"> *</span>
           <%= f.text_field :from_email_address, :required => true %>
         </p>
         <p>
-          <%= f.label "Status to set" %>
-          <span class="required"> *</span>
-          <%= f.collection_select(:new_status_id, @statuses, :id, :name) %>
+          <label for="new_status_id">
+            Status for created issue
+            <span class="required"> *</span>
+          </label>
+          <%= f.collection_select(:new_status_id, @statuses, :id, :name, :required => true) %>
         </p>
         <p>
-          <%= f.label :project_id %>
-          <span class="required"> *</span>
+          <label for="project_id">
+            Default Project
+            <span class="required"> *</span>
+          </label>
           <%= f.collection_select(:project_id, @projects, :id, :name) %>
           <em class="info">
             If an email domain custom field is specified, this project will be used as the default project if the sender email address cannot be matched to any other project.
           </em>
         </p>
         <p>
-          <%= f.label "Email domain custom field  " %>
+          <label for="email_domain_custom_field_id">
+            Email domain custom field
+          </label>
           <%= f.collection_select(:email_domain_custom_field_id, @project_custom_fields, :id, :name, {:include_blank => true}) %>
           <em class="info">
             This is the custom project field where the domain name of the email will be matched from. This field should contain the domain name only, rather than a full email address, eg:<br />
@@ -57,45 +56,47 @@
           </em>
         </p>
         <p>
-          <%= f.label :tracker_id %>
-          <span class="required"> *</span>
+          <label for="tracker_id">
+            Tracker
+            <span class="required"> *</span>
+          </label>
           <%= f.collection_select(:tracker_id, @trackers, :id, :name) %>
         </p>
         <p>
-          <%= f.label "User or group to assign to" %>
-          <span class="required"> *</span>
+          <label for="assignee_group_id">
+            User or group to assign to
+            <span class="required"> *</span>
+          </label>
           <%= f.collection_select(:assignee_group_id, @groups_users, :id, :name) %>
         </p>
         <p>
-          <%= f.label "Issue author" %>
-          <span class="required"> *</span>
+          <label for="author_id">
+            Issue author
+            <span class="required"> *</span>
+          </label>
           <%= f.collection_select(:author_id, @users, :id, :name) %>
         </p>
         <p>
-          <%= f.label "Reply email field" %>
-          <span class="required"> *</span>
+          <label for="reply_email_custom_field_id">
+            Reply email custom field
+            <span class="required"> *</span>
+          </label>
           <%= f.collection_select(:reply_email_custom_field_id, @issue_custom_fields, :id, :name) %>
           <em class="info">
             This is a custom issue field where the sender's email address will be stored for information and to send creation, closed and user question emails back to the support user.
           </em>
         </p>
         <p>
-          <%= f.label "Reply all" %>
-          <%= f.check_box(:reply_all_for_outgoing) %>
-          <em class="info">
-            If this is checked, all email addresses in the incoming email will be added to the reply email address fields, so that all recipients are replied to with ticket creation and any other redmine emails.
-          </em>
-        </p>
-        <p>
-          <%= f.label "Support type field" %>
-          <span class="required"> *</span>
+          <label for="type_custom_field_id">
+            Support type custom field
+            <span class="required"> *</span>
+          </label>
           <%= f.collection_select(:type_custom_field_id, @issue_custom_fields, :id, :name) %>
           <em class="info">
             This is a custom issue field the support setting name is populated so you know which support setting created it, and which type of support the issue belongs to.
           </em>
         </p>
         <p>
-          <%= f.label "Active" %>
           <%= f.check_box(:active) %>
         </p>
       </fieldset>
@@ -104,34 +105,42 @@
       <fieldset class="box tabular">
         <legend>Emails</legend>
           <p>
-            <%= f.label "Ticket created template" %>
-            <span class="required"> *</span>
-            <%= f.select(:created_template_name, @template_files) %>
+            <%= f.select(:created_template_name, @template_files, :required => true) %>
           </p>
           <p>
-            <%= f.label "Send created email" %>
             <%= f.check_box(:send_created_email_to_user) %>
           </p>
           <p>
-            <%= f.label "Ticket closed template" %>
-            <span class="required"> *</span>
-            <%= f.select(:closed_template_name, @template_files) %>
+            <%= f.select(:closed_template_name, @template_files, :required => true) %>
           </p>
           <p>
-            <%= f.label "Send closed email" %>
             <%= f.check_box(:send_closed_email_to_user) %>
           </p>
           <p>
-            <%= f.label "Email user template" %>
-            <span class="required"> *</span>
-            <%= f.select(:question_template_name, @template_files) %>
+            <%= f.select(:question_template_name, @template_files, :required => true) %>
+          </p>
+        </fieldset>
+      </div>
+      <div class="splitcontentright">
+      <fieldset class="box tabular">
+        <legend>Options</legend>
+          <p>
+            <%= f.check_box(:reply_all_for_outgoing) %>
+            <em class="info">
+              If this is checked, all email addresses in the incoming email will be added to the reply email address fields, so that all recipients are replied to with ticket creation and any other redmine emails.
+            </em>
           </p>
           <p>
-            <%= f.label "Bcc all emails to" %>
             <%= f.text_field :bcc_email %>
             <em class="info">
               You can have all emails that are sent out by Support Helpdesk be blind carbon copied to this email address. Leave blank if you dont want this feature.
             </em>
+          </p>
+          <p>
+            <%= f.check_box :search_in_to %>
+            <%=h "To" %>
+            <%= f.check_box :search_in_cc %>
+            <%=h "Cc" %>
           </p>
         </fieldset>
       </div>
