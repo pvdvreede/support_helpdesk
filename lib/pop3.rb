@@ -34,22 +34,29 @@ module Support
 
       # get all the emails from server
       Support.log_info "Fetching emails from #{host}..."
-      emails = Mail.all
+      # emails = Mail.all
 
-      if emails.nil? || emails.count == 0
-        Support.log_info "No emails to fetch."
-        return
-      end
+      # if emails.nil? || emails.count == 0
+      #   Support.log_info "No emails to fetch."
+      #   return
+      # end
 
       handler = Support::Handler.new
-      emails.each do |email|
+
+      Mail.find_and_delete do |email|
         Support.log_info "Processing email #{email.message_id}..."
         status = handler.receive(email)
         if status
           # delete email from server
           Support.log_info "Processing #{email.message_id} successful and deleted from Mailbox."
+        else
+          # mark as not to delete and log
+          Support.log_error "Processing #{email.message_id} unsuccessful message NOT deleted."
+          email.skip_deletion
         end
       end
+
+      Support.log_info "Finished fetching emails."
 
     end
   end
