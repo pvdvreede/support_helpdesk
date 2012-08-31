@@ -67,7 +67,7 @@ module Support
         )
 
         # update the last processed time
-        update_last_processed(@context[:support])
+        update_last_processed(issue.support_helpdesk_setting)
 
         raise Support::PipelineProcessingSuccessful.new "Issue #{issue.id} updated with email from #{email.from[0].to_s}."
       end

@@ -18,6 +18,7 @@
 
 # add requires
 require "support/handler"
+require "support/hooks/journal_hook_listener"
 require "support/helpers/attachments"
 require "support/helpers/emails"
 require "support/helpers/misc"
@@ -33,11 +34,11 @@ require "support/pipelines/create_issue_pipeline"
 # create array of plugins to add
 Support::Handler.pipelines = [
   Support::Pipeline::IgnorePipeline.new("Ignore"),
+  Support::Pipeline::GetEmailBodyPipeline.new("Get email body"),
+  Support::Pipeline::UpdateIssuePipeline.new("Update issue"),
   Support::Pipeline::SupportPipeline.new("Support finder"),
   Support::Pipeline::IgnoreDomainPipeline.new("Ignore Domain"),
   Support::Pipeline::GetProjectPipeline.new("Get project"),
-  Support::Pipeline::GetEmailBodyPipeline.new("Get email body"),
-  Support::Pipeline::UpdateIssuePipeline.new("Update issue"),
   Support::Pipeline::CreateIssuePipeline.new("Create issue")
 ]
 
