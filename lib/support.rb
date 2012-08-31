@@ -19,6 +19,7 @@
 # add requires
 require "support/handler"
 require "support/hooks/journal_hook_listener"
+require "support/hooks/support_hook_listener"
 require "support/helpers/attachments"
 require "support/helpers/emails"
 require "support/helpers/misc"

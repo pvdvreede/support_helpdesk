@@ -16,8 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Support Helpdesk.  If not, see <http://www.gnu.org/licenses/>.
 
-require_dependency "pop3"
 require_dependency "support"
+require_dependency "pop3"
 require_dependency "support_issue_patch"
 
 Redmine::Plugin.register :support_helpdesk do

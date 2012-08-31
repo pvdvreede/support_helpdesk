@@ -82,9 +82,7 @@ module Support
       def reply_email
         setting = self.support_helpdesk_setting
         return nil if setting == nil
-        email = get_custom_support_value setting.reply_email_custom_field_id
-        return nil if email == nil
-        email.value
+        self.custom_field_value setting.reply_email_custom_field_id
       end
 
       def reply_email=(value)
@@ -101,9 +99,7 @@ module Support
       def support_type
         setting = self.support_helpdesk_setting
         return nil if setting == nil
-        type = get_custom_support_value setting.type_custom_field_id
-        return nil if type == nil
-        type.value
+        self.custom_field_value setting.type_custom_field_id
       end
 
       def support_type=(value)
