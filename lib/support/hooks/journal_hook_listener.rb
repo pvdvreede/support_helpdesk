@@ -19,6 +19,8 @@
 module Support
   module Hooks
     class JournalHookListener < Redmine::Hook::ViewListener
+      include Support::Helper::Emails
+      include Support::Helper::Attachments
 
       def view_issues_edit_notes_bottom(context={})
         # only show email to user if there is a support setup
@@ -49,158 +51,34 @@ module Support
 
           notes = context[:journal].notes
           return if notes == ""
-          begin
-            # if there are attachments, gather for adding to email
-            added_attachments = []
-            context[:params][:attachments].each do |a|
-              Support::log_debug "Attachments:\n#{a.inspect}"
-              if a[1][:file] != nil
-                added_attachments.push({ 
-                  :original_filename => a[1][:file].original_filename,
-                  :file => read_uploaded_file(a[1][:file].tempfile)
-                })
-              end
-            end
 
-            Support.log_info "Emailing note for #{issue.id} to #{issue.reply_email}."
-          
+          send_email(issue) do
             mail = SupportHelpdeskMailer.user_question(
-              issue, 
-              textilizable(notes), 
+              issue,
+              textilizable(notes),
               issue.reply_email,
               added_attachments
             ).deliver
-          rescue Exception => e
-            Support.log_error "Error in sending email for #{issue.id}: #{e}\n#{e.backtrace.join("\n")}"
-            email_status = "Error sending email, email was *NOT* sent because #{e}"
-          else
-            email_status = "Emailed to #{issue.reply_email} at #{Time.now.strftime("%d %b %Y %I:%M:%S %p")}:"
-
-            # save the email sent for our records
-            attachment_id = SupportMailHandler.attach_email(
-                issue,
-                mail.encoded,
-                "#{mail.from}_#{mail.to}.eml",
-                "Email sent to Customer from note.",
-                issue.support_helpdesk_setting.author_id
-              )
-
-            add_created_email_message_id(issue, mail, attachment_id)
           end
-
-          # add info to the note so we know it was emailed.
-          context[:journal].notes = <<-NOTE
-    #{email_status} 
-
-    #{notes}
-    NOTE
-
         end
 
         if context[:params][:resend_creation_email]
           return unless issue.can_send_item?
 
-          begin
+          send_email(issue) do
             mail = SupportHelpdeskMailer.ticket_created(issue, issue.reply_email).deliver
-          rescue Exception => e
-            Support.log_error "Error in sending email for #{issue.id}: #{e}\n#{e.backtrace.join("\n")}"
-            email_status = "Error sending email, email was *NOT* sent because #{e}"
-          else
-            email_status = "Emailed ticket creation to #{mail.to} at #{Time.now.strftime("%d %b %Y %I:%M:%S %p")}."
-
-            # save the email sent for our records
-            SupportMailHandler.attach_email(
-                issue,
-                mail.encoded,
-                "#{mail.from}_#{mail.to}.eml",
-                "Ticket created email resent to user.",
-                issue.support_helpdesk_setting.author_id
-              )
           end
-
         end
 
         if context[:params][:resend_closing_email]
           return unless issue.can_send_item?
 
-          begin
+          send_email(issue) do
             mail = SupportHelpdeskMailer.ticket_closed(issue, issue.reply_email).deliver
-          rescue Exception => e
-            Support.log_error "Error in sending email for #{issue.id}: #{e}\n#{e.backtrace.join("\n")}"
-            email_status = "Error sending email, email was *NOT* sent because #{e}."
-          else
-            email_status = "Closing email to #{mail.to} at #{Time.now.strftime("%d %b %Y %I:%M:%S %p")}."
-
-            # save the email sent for our records
-            SupportMailHandler.attach_email(
-                issue,
-                mail.encoded,
-                "#{mail.from}_#{mail.to}.eml",
-                "Closing email resent to user.",
-                issue.support_helpdesk_setting.author_id
-              )
           end
-
-          # add a note to the issue so we know the closing email was sent
-          journal = Journal.new
-          journal.notes = email_status
-          journal.user_id = issue.support_helpdesk_setting.author_id
-          issue.journals << journal
         end
       end
-
-      private
-      def read_uploaded_file(file)
-        if file.respond_to?(:path)
-          file_contents = File.read(file.path, "rb")
-        elsif file.respond_to?(:read)
-          file_contents = file.read    
-        else
-          Support.log_error "Bad file data: #{file.class.name}: #{file.inspect}"
-          raise "Bad file attachment to be emailed."
-        end
-        Support.log_debug "File has been assigned: #{file_contents.inspect}"
-        file_contents
-      end
-
-      def add_created_email_message_id(issue, email, attachment_id)
-        # add catch for nested set error
-        begin
-          current_message_id = IssuesSupportMessageId.create!(
-              :issue_id => issue.id,
-              :support_helpdesk_setting_id => issue.support_helpdesk_setting.id,
-              :message_id => email.message_id,
-              :attachment_id => attachment_id
-            )
-
-          # add to message id tree
-          messages = issue.issues_support_message_id
-
-          if messages.nil? || messages.count == 0
-            current_message_id.save
-            return current_message_id.id
-          end
-
-          begin
-            newest_descendant = messages.root.descendants.last
-          rescue NoMethodError => e
-            # try catch for when there are no descendant objects
-            newest_descendant = messages.root
-          end
-          if newest_descendant.nil? && !messages.root.nil?
-            newest_descendant = messages.root
-          end
-
-          unless newest_descendant.nil?     
-            current_message_id.move_to_child_of(newest_descendant)
-
-            current_message_id.save
-          end
-        rescue ActiveRecord::ActiveRecordError => e
-          Support.log_error "Had nested set Active Record error: #{e}.\n#{e.backtrace}"
-        end
-      end
-
+      
     end
   end
 end
