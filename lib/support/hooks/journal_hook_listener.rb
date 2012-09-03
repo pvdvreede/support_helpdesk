@@ -56,8 +56,7 @@ module Support
             mail = SupportHelpdeskMailer.user_question(
               issue,
               textilizable(notes),
-              issue.reply_email,
-              added_attachments
+              issue.reply_email
             ).deliver
           end
         end
