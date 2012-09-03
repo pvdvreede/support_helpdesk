@@ -93,6 +93,6 @@ class SupportHelpdeskMailer < ActionMailer::Base
   end
 
   def create_to_from_string(email_string)
-    email_string.split ";"
+    email_string.split(";").map { |e| e.strip }
   end
 end

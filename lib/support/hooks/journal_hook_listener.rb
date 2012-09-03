@@ -28,24 +28,41 @@ module Support
           support = context[:issue].support_helpdesk_setting
           return if support == nil
         rescue NoMethodError => e
-          Support.log_error "Support method not present on issue!"
+          Support.log_error "Support method not present on issue #{context[:issue].id}!"
           return
         end
 
         # only show email user if available on the issue
-        if context[:issue].reply_email != nil and context[:issue].reply_email != ''
-          context[:controller].send(:render_to_string, {
-            :partial => "issues/email_to_user_option",
-            :locals => context
-          })
+        return if context[:issue].reply_email.nil? or context[:issue].reply_email == ''
+
+        # get a list of emails and people to send to
+        emails = Array.new
+        # put blank option in
+        emails << ["Select a person to email to...", ""]
+        # get all emails on issue
+        reply_emails = context[:issue].reply_email.split "; "
+        # add special option if there is more than one reply email
+        if reply_emails.count > 1
+          emails << ["Email all involved", context[:issue].reply_email]
         end
+        emails = emails + reply_emails.map { |r| [r.downcase, r.downcase] }
+        
+
+        # add all users of Redmine
+        emails = emails + User.where("mail != ?", "").map { |u| [u.name, u.mail.downcase] }
+
+        context[:controller].send(:render_to_string, {
+          :partial => "issues/email_to_user_option",
+          :locals => { :context => context, :emails => emails }
+        })
+
       end
 
       def controller_issues_edit_before_save(context={})
         issue = context[:issue]
 
         # code for sending email to user
-        if context[:params][:email_to_user]
+        if context[:params][:email_to_user] && context[:params][:email_to_user_address]
           # double check that we can email the user
           return unless issue.can_send_item?
 
@@ -56,24 +73,30 @@ module Support
             mail = SupportHelpdeskMailer.user_question(
               issue,
               textilizable(notes),
-              issue.reply_email
+              context[:params][:email_to_user_address]
             ).deliver
           end
         end
 
-        if context[:params][:resend_creation_email]
+        if context[:params][:resend_creation_email] && context[:params][:resend_creation_email_address]
           return unless issue.can_send_item?
 
           send_email(issue) do
-            mail = SupportHelpdeskMailer.ticket_created(issue, issue.reply_email).deliver
+            mail = SupportHelpdeskMailer.ticket_created(
+              issue, 
+              context[:params][:resend_creation_email_address]
+            ).deliver
           end
         end
 
-        if context[:params][:resend_closing_email]
+        if context[:params][:resend_closing_email] && context[:params][:resend_closing_email_address]
           return unless issue.can_send_item?
 
           send_email(issue) do
-            mail = SupportHelpdeskMailer.ticket_closed(issue, issue.reply_email).deliver
+            mail = SupportHelpdeskMailer.ticket_closed(
+              issue, 
+              context[:params][:resend_closing_email_address]
+            ).deliver
           end
         end
       end
