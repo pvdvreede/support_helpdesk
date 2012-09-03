@@ -93,4 +93,16 @@ class SupportPipelineTest < ActiveSupport::TestCase
     assert_equal 1, return_context[:support].id, "Not correct support object."
   end
 
+  def test_email_quote_cleanse
+    mail = load_email "multipart_email.eml"
+    mail.cc = "nothin@nothing.com"
+    mail.to = "'test@support.com'"
+
+    pipe = Support::Pipeline::SupportPipeline.new("Support")
+    return_context = create_and_run_pipeline(pipe, mail)
+
+    assert_not_nil return_context[:support], "Support contect is nil"
+    assert_equal 1, return_context[:support].id, "Not correct support object."
+  end   
+
 end

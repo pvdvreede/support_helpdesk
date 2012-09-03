@@ -28,9 +28,13 @@ module Support
         where_string = ""
         where_array = []
         emails.each do |e|
+          # cleans the email field
+          e = e.to_s.downcase
+          e = e.gsub("'", "")
+
           where_string += "LOWER(to_email_address) LIKE ?"
           where_string += " OR " unless emails.last == e
-          where_array.push "%#{e.to_s.downcase}%"
+          where_array.push "%#{e}%"
         end
 
         # pop in the where clause over the top of the values for an escapable where array
