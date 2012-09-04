@@ -44,14 +44,11 @@ module Support
 
         begin
           unless issue.save
-            Support.log_error "Error saving issue because #{issue.errors.full_messages.join("\n")}"
             raise Support::PipelineProcessingError.new "Error saving issue: #{issue.errors.full_messages.join("\n")}"
           end
         rescue Support::PipelineProcessingError => e
           raise e
         rescue => e
-          Support.log_error "Exception occured while saving issue: #{e}"
-          Suuport.log_debug "Exception backtrace:\n#{e.backtrace}"
           raise Support::PipelineProcessingError.new "Exception while saving issue: #{e}"
         end
 
