@@ -170,8 +170,15 @@ class SupportMailHandler
     issue.reply_email = get_email_reply_string(support, email)
     issue.support_type = support.name
 
-    unless issue.save
-      Support.log_error "Error saving issue because #{issue.errors.full_messages.join("\n")}"
+    begin
+
+      unless issue.save
+        Support.log_error "Error saving issue because #{issue.errors.full_messages.join("\n")}"
+        raise ActiveRecord::Rollback
+      end
+
+    rescue Exception => e
+      Support.log_error "There was exception saving issue: #{e}"
       raise ActiveRecord::Rollback
     end
 
