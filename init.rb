@@ -24,7 +24,7 @@ Redmine::Plugin.register :support_helpdesk do
   name 'Support Helpdesk plugin'
   author 'Paul Van de Vreede'
   description 'Allow issues to be created from incoming emails.'
-  version '1.0.2'
+  version '1.0.3'
   url 'https://github.com/pvdvreede/support_helpdesk'
   author_url 'https://github.com/pvdvreede'
 
