@@ -49,6 +49,8 @@ module Support
 
     private
     def execute_pipelines(context)
+      status = true
+
       # wrap in a transaction
       ActiveRecord::Base.transaction do
         @@pipelines.each do |pipeline|
@@ -60,6 +62,7 @@ module Support
             rescue Support::PipelineProcessingError => e
               Support.log_error "There was an error in #{pipeline.name}: #{e}."
               Support.log_debug "Error backtrace:\n#{e.backtrace}"
+              status = false
               raise ActiveRecord::Rollback
             rescue Support::PipelineProcessingSuccessful => e
               Support.log_info "Pipeline #{pipeline.name} marked the email as successfully processed because: #{e}."
@@ -71,9 +74,8 @@ module Support
         end
       end
 
-      # return true to say the pipeline has been completed and the email can be deleted
-      Support.log_info "All pipelines successfully run."
-      true
+      Support.log_info "All pipelines successfully run." if status
+      status
     end
   end
 end

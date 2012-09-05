@@ -28,7 +28,7 @@ module Support
 
         # if the array is empty then there are no emails to search for, so skip the email
         if emails.empty?
-          raise Support::PipelineProcessingSuccessful.new "The email has no to or cc email addresses"
+          raise Support::PipelineProcessingError.new "The email has no to or cc email addresses"
         end
 
         where_string = ""
@@ -51,20 +51,20 @@ module Support
 
         # cancel processing if there is no support in our system
         if support.nil?
-          raise Support::PipelineProcessingSuccessful.new "No support setup exists for any of these email addresses: #{emails.join(", ")}"
+          raise Support::PipelineProcessingError.new "No support setup exists for any of these email addresses: #{emails.join(", ")}"
         end
 
         # cancel processing if the support email address is not in the field it is set to be in
         if !support.search_in_to || !support.search_in_cc
           if support.search_in_to
             unless email.to.to_a.include? support.to_email_address
-              raise Support::PipelineProcessingSuccessful.new "The support email address is not in the to part of the email."
+              raise Support::PipelineProcessingError.new "The support email address is not in the to part of the email."
             end
           end
 
           if support.search_in_cc
             unless email.cc.to_a.include? support.to_email_address
-              raise Support::PipelineProcessingSuccessful.new "The support email address is not in the cc part of the email."
+              raise Support::PipelineProcessingError.new "The support email address is not in the cc part of the email."
             end
           end
         end

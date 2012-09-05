@@ -28,7 +28,7 @@ class SupportPipelineTest < ActiveSupport::TestCase
 
     pipe = Support::Pipeline::SupportPipeline.new("Support")
 
-    assert_raise Support::PipelineProcessingSuccessful do
+    assert_raise Support::PipelineProcessingError do
       return_context = create_and_run_pipeline(pipe, mail)
     end
   end
@@ -40,7 +40,7 @@ class SupportPipelineTest < ActiveSupport::TestCase
 
     pipe = Support::Pipeline::SupportPipeline.new("Support")
 
-    assert_raise Support::PipelineProcessingSuccessful do
+    assert_raise Support::PipelineProcessingError do
       return_context = create_and_run_pipeline(pipe, mail)
     end
 
@@ -60,7 +60,7 @@ class SupportPipelineTest < ActiveSupport::TestCase
 
     pipe = Support::Pipeline::SupportPipeline.new("Support")
 
-    assert_raise Support::PipelineProcessingSuccessful do
+    assert_raise Support::PipelineProcessingError do
       return_context = create_and_run_pipeline(pipe, mail)
     end
 
@@ -112,7 +112,7 @@ class SupportPipelineTest < ActiveSupport::TestCase
 
     pipe = Support::Pipeline::SupportPipeline.new("Support")
 
-    assert_raise Support::PipelineProcessingSuccessful do
+    assert_raise Support::PipelineProcessingError do
       return_context = create_and_run_pipeline(pipe, mail)
     end
   end
