@@ -25,6 +25,12 @@ module Support
 
         # join all possible email addresses into one array for looping
         emails = email.to.to_a + email.cc.to_a
+
+        # if the array is empty then there are no emails to search for, so skip the email
+        if emails.empty?
+          raise Support::PipelineProcessingSuccessful.new "The email has no to or cc email addresses"
+        end
+
         where_string = ""
         where_array = []
         emails.each do |e|

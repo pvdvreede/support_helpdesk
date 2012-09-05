@@ -105,4 +105,16 @@ class SupportPipelineTest < ActiveSupport::TestCase
     assert_equal 1, return_context[:support].id, "Not correct support object."
   end   
 
+  def test_email_with_bcc_skipped
+    mail = load_email "multipart_email.eml"
+    mail.cc = ""
+    mail.to = ""
+
+    pipe = Support::Pipeline::SupportPipeline.new("Support")
+
+    assert_raise Support::PipelineProcessingSuccessful do
+      return_context = create_and_run_pipeline(pipe, mail)
+    end
+  end
+
 end
