@@ -50,9 +50,14 @@ module Support
           # delete email from server
           Support.log_info "Processing #{email.message_id} successful and deleted from Mailbox."
         else
-          # mark as not to delete and log
-          Support.log_error "Processing #{email.message_id} unsuccessful message NOT deleted."
-          email.skip_deletion
+          # check global setting to see whether to delete email
+          if Setting.plugin_support_helpdesk['support_delete_non_support_emails'] == '1'
+            # log
+            Support.log_error "Processing #{email.message_id} unsuccessful message deleted."
+          else
+            Support.log_error "Processing #{email.message_id} unsuccessful message NOT deleted."
+            email.skip_deletion
+          end
         end
       end
 

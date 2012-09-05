@@ -34,6 +34,11 @@ Redmine::Plugin.register :support_helpdesk do
   	   {:controller => :support_helpdesk_setting, :action => :index}, \
   	   :caption => "Support Helpdesk", \
        :html => { :class => "groups" }
+
+  # add settings page for global settings
+  settings :partial => 'support_global_settings', :default => {
+    'support_delete_non_support_emails' => false
+  }
 end
 
 # create a generic logger
