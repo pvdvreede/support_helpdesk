@@ -46,6 +46,10 @@ module Support
   def self.log_info(msg)
     Rails.logger.info "#{Time.now.to_s} support_helpdesk INFO - #{msg}"
   end
+  
+  def self.log_warn(msg)
+    Rails.logger.warn "#{Time.now.to_s} support_helpdesk WARNING - #{msg}"
+  end
 
   def self.log_error(msg)
     Rails.logger.error "#{Time.now.to_s} support_helpdesk ERROR - #{msg}"

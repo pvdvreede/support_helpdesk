@@ -21,6 +21,10 @@ module Support
   class PipelineProcessingSuccessful < Exception
   end
 
+  # add warning class for issues that should stop processing (unless coded to)
+  class PipelineProcessingWarn < Exception
+  end
+
   class PipelineProcessingError < Exception
   end
 
@@ -32,7 +36,11 @@ module Support
     def self.pipelines=(value)
       @@pipelines = value
     end
-
+    
+    # Send email to handler to process. The handler will return one of the following:
+    # 0 = Successful processing and email should be deleted
+    # 1 = Unsuccesful processing but email should be deleted if option is set
+    # 2 = Processing had error an error and the email should NOT be deleted
     def receive(email, options={})
       #create the context for the pipelines
       context = { :email => email, :options => options }
@@ -43,13 +51,14 @@ module Support
       rescue Exception => e
         Support.log_error "There was an error executing the pipelines: #{e}."
         Support.log_debug "Error backtrace:\n#{e.backtrace}"
-        return false
+        # There was a massive error and the email should NOT be deleted
+        return 2
       end
     end
 
     private
     def execute_pipelines(context)
-      status = true
+      status = 0
 
       # wrap in a transaction
       ActiveRecord::Base.transaction do
@@ -59,14 +68,17 @@ module Support
             begin
               Support.log_info "Running #{pipeline.name} pipeline..."
               context = pipeline.execute
+            rescue Support::PipelineProcessingWarn => e
+              Support.log_warn e
+              return 1
             rescue Support::PipelineProcessingError => e
               Support.log_error "There was an error in #{pipeline.name}: #{e}."
               Support.log_debug "Error backtrace:\n#{e.backtrace}"
-              status = false
               raise ActiveRecord::Rollback
+              return 2
             rescue Support::PipelineProcessingSuccessful => e
               Support.log_info "Pipeline #{pipeline.name} marked the email as successfully processed because: #{e}."
-              return true
+              return 0
             end
           else
             Support.log_info "Pipeline #{pipeline.name} is not being run."
@@ -74,7 +86,7 @@ module Support
         end
       end
 
-      Support.log_info "All pipelines successfully run." if status
+      Support.log_info "All pipelines successfully run." if status == 0
       status
     end
   end

@@ -33,22 +33,27 @@ module Support
           rescue ActiveRecord::RecordNotFound
             return false
           end
-          @context[:issue] = issue
-          return true
         end
 
         # check and see if we have logged messages in the References or In-Reply-To
         unless email.reply_to.nil?
           email_reply = IssuesSupportMessageId.find_by_message_id(email.reply_to)
           return false if email_reply.nil?
-          @context[:issue] = email_reply.issue
-          return true
+          issue = email_reply.issue
         end
         unless email.references.nil?
           email_reference = IssuesSupportMessageId.find_by_message_id(email.references)
           return false if email_reference.nil?
-          @context[:issue] = email_reference.issue
-          return true
+          issue = email_reference.issue
+        end
+        
+        # if we have an issue in the context we need to make sure its not closed
+        # before deciding to run or not.
+        unless issue.nil?
+          unless issue.status.is_closed
+            @context[:issue] = issue
+            return true
+          end
         end
 
         false
@@ -65,6 +70,9 @@ module Support
           "Email received from #{email.from[0].to_s}.",
           @context[:body]
         )
+        
+        # TODO update the issue updated time
+        
 
         # update the last processed time
         update_last_processed(issue.support_helpdesk_setting)

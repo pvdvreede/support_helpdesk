@@ -33,17 +33,17 @@ def create_issue(mail, tracker_id, support_id, assignee, project_id, created=tru
   result = handler.receive mail
 
   issue = Issue.where(:subject => mail.subject). \
-                  where(:tracker_id => tracker_id). \
-                  where(:project_id => project_id). \
-                  where(:assigned_to_id => assignee)[0]
+                where(:tracker_id => tracker_id). \
+                where(:project_id => project_id). \
+                where(:assigned_to_id => assignee)[0]
 
   if created
-    assert result, "Handler should have created issue and returned true"
+    assert_equal 0, result, "Handler should have created issue and returned true"
     assert_not_nil issue, "Issue not created when it should have"
   else
     #assert !result, "Handler should have returned false"
     # make sure no issue was created
-  
+
     assert_nil issue, "Issue was created when it should not have been."
     return
   end
@@ -64,7 +64,7 @@ def create_issue(mail, tracker_id, support_id, assignee, project_id, created=tru
 
     #assert_equal mail.to.count, email.to.count, "Incorrect amount of emails in reply"
     #assert_equal mail.from[0], email.to[0], "Email to sent out isnt correct"
-    assert (support.from_email_address.to_s.include?(email.from[0].to_s)), "Email from sent out isnt correct"      
+    assert (support.from_email_address.to_s.include?(email.from[0].to_s)), "Email from sent out isnt correct"
   end
 
   # make sure the processed and run time where updated
@@ -121,7 +121,7 @@ end
 def check_support_times_updated(support, start_time, end_time)
   start_time = start_time.advance :seconds => -1
   end_time = end_time.advance :seconds => 1
-  assert_not_nil support.last_processed, "Last processed not populated"    
+  assert_not_nil support.last_processed, "Last processed not populated"
   assert (start_time <= support.last_processed), "Last processed not updated"
   assert (end_time >= support.last_processed), "Last process not updated"
 end

@@ -17,11 +17,11 @@
 # along with Support Helpdesk.  If not, see <http://www.gnu.org/licenses/>.
 
 module Support
-	module POP 
+	module POP
 	  def self.check(pop_options={})
 	    host = pop_options[:host] || '127.0.0.1'
       port = pop_options[:port] || '110'
-      
+
       Mail.defaults do
         retriever_method(
           :pop3,
@@ -34,35 +34,32 @@ module Support
 
       # get all the emails from server
       Support.log_info "Fetching emails from #{host}..."
-      # emails = Mail.all
-
-      # if emails.nil? || emails.count == 0
-      #   Support.log_info "No emails to fetch."
-      #   return
-      # end
 
       handler = Support::Handler.new
 
       Mail.find_and_delete do |email|
         Support.log_info "Processing email #{email.message_id}..."
+
         status = handler.receive(email)
-        if status
+        if status == 0
           # delete email from server
           Support.log_info "Processing #{email.message_id} successful and deleted from Mailbox."
-        else
+        elsif status == 1
           # check global setting to see whether to delete email
           if Setting.plugin_support_helpdesk['support_delete_non_support_emails'] == '1'
             # log
-            Support.log_error "Processing #{email.message_id} unsuccessful message deleted."
+            Support.log_warn "Processing #{email.message_id} unsuccessful message deleted."
           else
-            Support.log_error "Processing #{email.message_id} unsuccessful message NOT deleted."
+            Support.log_warn "Processing #{email.message_id} unsuccessful message NOT deleted."
             email.skip_deletion
           end
+        elsif status == 2
+          Support.log_error "Processing #{email.message_id} unsuccessful message NOT deleted."
+          email.skip_deletion
         end
       end
 
       Support.log_info "Finished fetching emails."
-
     end
   end
 end

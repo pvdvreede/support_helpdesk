@@ -31,7 +31,7 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
     # pass to handler
     handler = Support::Handler.new
     result = handler.receive mail
-    assert result, "Should be true as the email is not part of support items"
+    assert_equal  1, result, "Should be 1 as the email is not part of support items"
 
     create_issue mail, 3, 1, 1, 2, false
   end
@@ -43,12 +43,12 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
     # pass to handler
     handler = Support::Handler.new
     result = handler.receive mail
-    assert result, "Should have return true for inactive support"
+    assert_equal 1, result, "Should have return 1 for inactive support"
 
     create_issue mail, 3, 1, 1, 2, false
   end
 
-  def test_creation_issue_01 
+  def test_creation_issue_01
     mail = load_email "multipart_email.eml"
     mail.from = ["test@david.com"]
     mail.to = ["test@support.com"]
@@ -63,7 +63,7 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
 
     create_issue mail, 3, 2, 2, 1
   end
-  
+
   def test_creation_issue_04
     mail = load_email "multipart_email.eml"
     mail.from = "test@none.org"
@@ -167,7 +167,7 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
     mail.to = ["to2@random.com", "test@david.com"]
     mail.cc = ["tEst5@suPpOrt.com", "cced@another.com"]
 
-    issue, email = create_issue mail, 3, 5, 2, 3   
+    issue, email = create_issue mail, 3, 5, 2, 3
   end
 
   def test_ignored_subject_lines
