@@ -199,6 +199,9 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
 
     issue, email = create_issue mail, 3, 1, 1, 2
 
+    # pause so there is diff in update time
+    sleep 2
+
     update_email = load_email "multipart_email.eml"
     update_email.subject = "Re: #{email.subject}"
 
@@ -216,6 +219,9 @@ class SupportHelpdeskMailerTest < ActionMailer::TestCase
     mail.to = "test@support.com"
 
     issue, email = create_issue mail, 3, 1, 1, 2
+
+    # pause so there is diff in update time
+    sleep 2
 
     update_mail = load_email "multipart_email_related.eml"
     update_mail.from = "test@hello.com"

@@ -46,7 +46,7 @@ module Support
           return false if email_reference.nil?
           issue = email_reference.issue
         end
-        
+
         # if we have an issue in the context we need to make sure its not closed
         # before deciding to run or not.
         unless issue.nil?
@@ -65,14 +65,15 @@ module Support
         issue = @context[:issue]
 
         attach_email(
-          email, 
-          issue, 
+          email,
+          issue,
           "Email received from #{email.from[0].to_s}.",
           @context[:body]
         )
-        
-        # TODO update the issue updated time
-        
+
+        # update the issue updated time
+        issue.updated_on = Time.now
+        issue.save!
 
         # update the last processed time
         update_last_processed(issue.support_helpdesk_setting)
