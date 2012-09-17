@@ -29,14 +29,15 @@ module Support
         email = @context[:email]
 
         issue = Issue.new(
-          :subject => email.subject.to_s,
-          :tracker_id => support.tracker_id,
-          :project_id => project.id,
-          :description => @context[:body],
-          :author_id => support.author_id,
-          :status_id => support.new_status_id,
+          :subject        => email.subject.to_s,
+          :tracker_id     => support.tracker_id,
+          :project_id     => project.id,
+          :description    => @context[:body],
+          :author_id      => support.author_id,
+          :status_id      => support.new_status_id,
           :assigned_to_id => support.assignee_group_id,
-          :start_date => Time.now.utc
+          :start_date     => Time.now.utc,
+          :priority_id    => support.priority_id
         )
         issue.support_helpdesk_setting = support
         issue.reply_email = get_email_reply_string(support, email)

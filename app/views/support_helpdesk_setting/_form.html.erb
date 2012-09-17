@@ -36,6 +36,13 @@
           <%= f.collection_select(:new_status_id, @statuses, :id, :name, :required => true) %>
         </p>
         <p>
+          <label for="priority_id">
+            Priority for created issue
+            <span class="required"> *</span>
+          </label>
+          <%= f.collection_select(:priority_id, @priorities, :id, :name, :required => true) %>
+        </p>
+        <p>
           <label for="project_id">
             Default Project
             <span class="required"> *</span>

@@ -17,6 +17,7 @@ support_001:
   send_created_email_to_user: 1
   send_closed_email_to_user: 1
   active: true
+  priority_id: 1
 support_002:
   id: 2
   name: supp02
@@ -36,6 +37,7 @@ support_002:
   send_created_email_to_user: 0
   send_closed_email_to_user: 0
   active: true
+  priority_id: 1
 support_003:
   id: 3
   name: supp03
@@ -55,6 +57,7 @@ support_003:
   send_created_email_to_user: 0
   send_closed_email_to_user: 0
   active: false
+  priority_id: 1
 support_004:
   id: 4
   name: supp04
@@ -73,6 +76,7 @@ support_004:
   send_created_email_to_user: 1
   send_closed_email_to_user: 0
   active: true
+  priority_id: 1
 support_005:
   id: 5
   name: supp05
@@ -93,6 +97,7 @@ support_005:
   reply_all_for_outgoing: true
   domains_to_ignore: ignore.com;anotherignore.com
   active: true
+  priority_id: 1
 support_006:
   id: 6
   name: supp06
@@ -115,6 +120,7 @@ support_006:
   active: true
   search_in_to: true
   search_in_cc: false
+  priority_id: 1
 support_007:
   id: 7
   name: supp07
@@ -137,3 +143,4 @@ support_007:
   active: true
   search_in_to: false
   search_in_cc: true
+  priority_id: 1

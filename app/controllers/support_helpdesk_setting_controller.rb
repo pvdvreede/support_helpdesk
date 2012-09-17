@@ -114,6 +114,7 @@ class SupportHelpdeskSettingController < ApplicationController
     @users = User.where("type != ?", "AnonymousUser")
     @groups_users = @users + @groups
     @statuses = IssueStatus.all
+    @priorities = IssuePriority.all
 
     # get list of templates to select for emails
     @template_files = []

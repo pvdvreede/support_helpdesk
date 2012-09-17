@@ -18,6 +18,7 @@
 
 class AddToCcSelectionToTable < ActiveRecord::Migration
   def change
+    add_column :support_helpdesk_settings, :priority_id, :integer
     add_column :support_helpdesk_settings, :search_in_to, :boolean, :default => true
     add_column :support_helpdesk_settings, :search_in_cc, :boolean, :default => true
   end

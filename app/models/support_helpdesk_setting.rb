@@ -22,6 +22,7 @@ class SupportHelpdeskSetting < ActiveRecord::Base
   belongs_to :project
   belongs_to :tracker
   belongs_to :issue_status
+  belongs_to :priority, :class_name => 'IssuePriority', :foreign_key => 'priority_id'
   has_many :issues_support_settings, :dependent => :destroy
   has_many :issues, :through => :issues_support_settings
 
@@ -38,10 +39,12 @@ class SupportHelpdeskSetting < ActiveRecord::Base
   validates :question_template_name, :presence => true
   validates :name, :presence => true
   validates :assignee_group_id, :presence => true
+  validates :priority_id, :presence => true
 
   validates_associated :project
   validates_associated :tracker
   validates_associated :issue_status
+  validates_associated :priority
 
   scope :active, where(:active => true)
 
