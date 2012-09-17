@@ -21,12 +21,16 @@ module Support
 		module Emails
 
       def get_email_reply_string(support, email)
-        return email.from[0].to_s if not support.reply_all_for_outgoing
+        return email.from[0].to_s.delete("'") if not support.reply_all_for_outgoing
 
-        #build semicolon string from all fields if not the support email
+        # build semicolon string from all fields if not the support email
         email_array = email.to.to_a + email.from.to_a + email.cc.to_a
 
-        email_array.find_all { |e| e.to_s.downcase unless e.to_s.downcase == support.to_email_address.downcase }.join("; ")
+        # get all emails that aren't the support email and remove any quotes from them before
+        # returning them as ; delimited string
+        email_array.find_all { |e| 
+          e.to_s.downcase unless e.to_s.downcase == support.to_email_address.downcase 
+        }.map { |e| e.delete("'") }.join("; ")
       end
 
       def send_email(issue, &block)
