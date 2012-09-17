@@ -43,11 +43,7 @@ module Support
         issue.support_type = support.name
 
         begin
-          unless issue.save
-            raise Support::PipelineProcessingError.new "Error saving issue: #{issue.errors.full_messages.join("\n")}"
-          end
-        rescue Support::PipelineProcessingError => e
-          raise e
+          issue.save!
         rescue => e
           raise Support::PipelineProcessingError.new "Exception while saving issue: #{e}"
         end
