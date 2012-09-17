@@ -18,15 +18,9 @@
 
 module Support
   # create Error classes
-  class PipelineProcessingSuccessful < Exception
-  end
-
-  # add warning class for issues that should stop processing (unless coded to)
-  class PipelineProcessingWarn < Exception
-  end
-
-  class PipelineProcessingError < Exception
-  end
+  PipelineProcessingSuccessful = Class.new(Exception)
+  PipelineProcessingWarn = Class.new(Exception)
+  PipelineProcessingError = Class.new(Exception)
 
   class Handler
     # class var for pipelines to run
@@ -40,7 +34,7 @@ module Support
     # Send email to handler to process. The handler will return one of the following:
     # 0 = Successful processing and email should be deleted
     # 1 = Unsuccesful processing but email should be deleted if option is set
-    # 2 = Processing had error an error and the email should NOT be deleted
+    # 2 = Processing had an error and the email should NOT be deleted
     def receive(email, options={})
       #create the context for the pipelines
       context = { :email => email, :options => options }
