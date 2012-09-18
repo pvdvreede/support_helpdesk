@@ -24,7 +24,7 @@ module Support
         email = @context[:email]
         support = @context[:support]
 
-        if email.from[0].to_s == support.to_email_address
+        if email.from[0].to_s.downcase == support.to_email_address.downcase
           raise Support::PipelineProcessingWarn.new "Email is from the very address it is meant to be routing: #{email.from[0].to_s}."
         end
 
