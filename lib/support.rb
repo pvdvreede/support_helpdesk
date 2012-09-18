@@ -25,6 +25,7 @@ require "support/hooks/journal_hook_listener"
 require "support/hooks/support_hook_listener"
 require "support/pipelines/pipeline_base"
 require "support/pipelines/ignore_pipeline"
+require "support/pipelines/ignore_own_email_pipeline"
 require "support/pipelines/ignore_domain_pipeline"
 require "support/pipelines/get_project_pipeline"
 require "support/pipelines/get_email_body_pipeline"
@@ -38,6 +39,7 @@ Support::Handler.pipelines = [
   Support::Pipeline::GetEmailBodyPipeline.new("Get email body"),
   Support::Pipeline::UpdateIssuePipeline.new("Update issue"),
   Support::Pipeline::SupportPipeline.new("Support finder"),
+  Support::Pipeline::IgnoreOwnEmailPipeline.new("Ignore own email"),
   Support::Pipeline::IgnoreDomainPipeline.new("Ignore Domain"),
   Support::Pipeline::GetProjectPipeline.new("Get project"),
   Support::Pipeline::CreateIssuePipeline.new("Create issue")
