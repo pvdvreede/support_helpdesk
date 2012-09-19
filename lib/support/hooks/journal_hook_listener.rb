@@ -24,13 +24,7 @@ module Support
 
       def view_issues_edit_notes_bottom(context={})
         # only show email to user if there is a support setup
-        begin
-          support = context[:issue].support_helpdesk_setting
-          return if support == nil
-        rescue NoMethodError => e
-          Support.log_error "Support method not present on issue #{context[:issue].id}!"
-          return
-        end
+        return unless context[:issue].respond_to?(:support_helpdesk_setting)
 
         # only show email user if available on the issue
         return if context[:issue].reply_email.nil? or context[:issue].reply_email == ''
