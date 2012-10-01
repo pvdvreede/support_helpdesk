@@ -20,6 +20,14 @@ module Support
   module Pipeline
     class SupportPipeline < Support::Pipeline::PipelineBase
       def execute
+        # if this is attached to an issue already, its easy!
+        if @context.has_key?(:issue) && @context[:issue].respond_to?(:support_helpdesk_setting)
+          @context[:support] = @context[:issue].support_helpdesk_setting
+          return @context
+        end
+
+        # otherwise we need to do it the hard way
+
         # get the email
         email = @context[:email]
 

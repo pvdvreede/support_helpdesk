@@ -23,6 +23,11 @@ module Support
       include Support::Helper::Emails
       include Support::Helper::Misc
 
+      def should_run?
+        # run if this email isnt an update
+        @context.has_key?(:update) == false
+      end
+
       def execute
         support = @context[:support]
         project = @context[:project]
@@ -49,21 +54,17 @@ module Support
           raise Support::PipelineProcessingError.new "Exception while saving issue: #{e}"
         end
 
-        attach_email(
-          email,
-          issue,
-          "Original email from client."
-        )
+        @context[:issue] = issue
 
         # send email back to ticket creator if it has been requested
         if support.send_created_email_to_user
-          send_email(issue) do
+          mail = send_email do
             SupportHelpdeskMailer.ticket_created(issue, issue.reply_email).deliver
           end
-        end
 
-        # update the last processed time
-        update_last_processed(@context[:support])
+          # attach the sent mail to the context to be added to the journal
+          @context[:sent_mail] = mail
+        end
 
         @context
       end

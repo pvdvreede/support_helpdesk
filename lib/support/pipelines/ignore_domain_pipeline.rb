@@ -20,6 +20,9 @@ module Support
   module Pipeline
     class IgnoreDomainPipeline < Support::Pipeline::PipelineBase
       def should_run?
+        # dont run if this is updating an issue
+        return false if @context.has_key?(:update)
+
         return false if @context[:support].domains_to_ignore.nil?
 
         true
@@ -31,13 +34,13 @@ module Support
 
         # make sure support is there
         support = @context[:support]
-        
+
         #otherwise split the domains and check
         domain_array = support.domains_to_ignore.downcase.split(";")
         if domain_array.include?(email.from[0].to_s.split('@')[1].downcase)
           raise Support::PipelineProcessingSuccessful.new "Email #{email.from[0].to_s} is on the ignored email domain list."
         end
-        
+
         @context
       end
 

@@ -22,7 +22,7 @@ module Support
       include Support::Helper::Attachments
       include Support::Helper::Misc
 
-      def should_run?
+      def execute
         # see if this is an update to an existing ticket based on subject
         email = @context[:email]
         subject = email.subject.to_s
@@ -31,19 +31,19 @@ module Support
           begin
             issue = Issue.find id
           rescue ActiveRecord::RecordNotFound
-            return false
+            return @context
           end
         end
 
         # check and see if we have logged messages in the References or In-Reply-To
         unless email.reply_to.nil?
           email_reply = IssuesSupportMessageId.find_by_message_id(email.reply_to)
-          return false if email_reply.nil?
+          return @context if email_reply.nil?
           issue = email_reply.issue
         end
         unless email.references.nil?
           email_reference = IssuesSupportMessageId.find_by_message_id(email.references)
-          return false if email_reference.nil?
+          return @context if email_reference.nil?
           issue = email_reference.issue
         end
 
@@ -52,33 +52,11 @@ module Support
         unless issue.nil?
           unless issue.status.is_closed
             @context[:issue] = issue
-            return true
+            @context[:update] = issue
           end
         end
 
-        false
-      end
-
-      def execute
-        # get the email and issue to work with
-        email = @context[:email]
-        issue = @context[:issue]
-
-        attach_email(
-          email,
-          issue,
-          "Email received from #{email.from[0].to_s}.",
-          @context[:body]
-        )
-
-        # update the issue updated time
-        issue.updated_on = Time.now
-        issue.save!
-
-        # update the last processed time
-        update_last_processed(issue.support_helpdesk_setting)
-
-        raise Support::PipelineProcessingSuccessful.new "Issue #{issue.id} updated with email from #{email.from[0].to_s}."
+        @context
       end
     end
   end

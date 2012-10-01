@@ -30,7 +30,7 @@ module Support
     def self.pipelines=(value)
       @@pipelines = value
     end
-    
+
     # Send email to handler to process. The handler will return one of the following:
     # 0 = Successful processing and email should be deleted
     # 1 = Unsuccesful processing but email should be deleted if option is set
@@ -74,9 +74,14 @@ module Support
               Support.log_info "Pipeline #{pipeline.name} marked the email as successfully processed because: #{e}."
               return 0
             end
+            
+            # log context for debugging
+            Support.log_debug "Context object: #{context.keys.join(', ')}"
           else
             Support.log_info "Pipeline #{pipeline.name} is not being run."
           end
+
+          
         end
       end
 

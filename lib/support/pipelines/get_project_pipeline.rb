@@ -19,6 +19,12 @@
 module Support
   module Pipeline
     class GetProjectPipeline < Support::Pipeline::PipelineBase
+
+      def should_run?
+        # run if this email isnt an update
+        @context.has_key?(:update) == false
+      end
+
       def execute
         support = @context[:support]
         email = @context[:email]
@@ -39,9 +45,9 @@ module Support
       end
 
       private
-      def get_email_domain(address)
-        address.downcase.split("@")[1]
-      end
+        def get_email_domain(address)
+          address.downcase.split("@")[1]
+        end
     end
   end
 end

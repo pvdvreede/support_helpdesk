@@ -69,10 +69,7 @@ module Support
 
         issue.journals << journal
 
-        unless journal.save!
-          Support.log_error "Could not save journal because:\n#{journal.errors.full_messages.join("\n")}"
-          raise ActiveRecord::Rollback
-        end
+        journal.save!
 
         detail = JournalDetail.new(
           :journal_id => journal.id,

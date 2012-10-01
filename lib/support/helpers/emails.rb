@@ -28,24 +28,19 @@ module Support
 
         # get all emails that aren't the support email and remove any quotes from them before
         # returning them as ; delimited string
-        email_array.find_all { |e| 
-          e.to_s.downcase unless e.to_s.downcase == support.to_email_address.downcase 
+        email_array.find_all { |e|
+          e.to_s.downcase unless e.to_s.downcase == support.to_email_address.downcase
         }.map { |e| e.delete("'") }.join("; ")
       end
 
-      def send_email(issue, &block)
+      def send_email(&block)
         begin
           mail = block.call
         rescue Exception => e
           Support.log_error "There was an error and the email was not sent because #{e}.\n#{e.backtrace}"
           notes = "There was an error and the email was not sent because #{e}"
-        else
-          attach_email(
-            mail,
-            issue,
-            "Email sent from Redmine to #{mail.to[0].to_s}"
-          )
         end
+        mail
     end
     end
   end

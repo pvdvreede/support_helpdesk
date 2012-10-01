@@ -32,6 +32,8 @@ require "support/pipelines/get_email_body_pipeline"
 require "support/pipelines/support_pipeline"
 require "support/pipelines/update_issue_pipeline"
 require "support/pipelines/create_issue_pipeline"
+require "support/pipelines/add_email_attachment_pipeline"
+require "support/pipelines/update_times_pipeline"
 
 # create array of plugins to add
 Support::Handler.pipelines = [
@@ -42,6 +44,8 @@ Support::Handler.pipelines = [
   Support::Pipeline::IgnoreOwnEmailPipeline.new("Ignore own email"),
   Support::Pipeline::IgnoreDomainPipeline.new("Ignore Domain"),
   Support::Pipeline::GetProjectPipeline.new("Get project"),
-  Support::Pipeline::CreateIssuePipeline.new("Create issue")
+  Support::Pipeline::CreateIssuePipeline.new("Create issue"),
+  Support::Pipeline::AddEmailAttachmentPipeline.new("Attach emails"),
+  Support::Pipeline::UpdateTimesPipeline.new("Update times")
 ]
 
