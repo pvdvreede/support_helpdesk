@@ -39,6 +39,40 @@ Redmine::Plugin.register :support_helpdesk do
   settings :partial => 'support_global_settings', :default => {
     'support_delete_non_support_emails' => false
   }
+  
+  # ruote setup
+  require 'ruote'
+  require 'ruote-sequel'
+  
+  db = HashWithIndifferentAccess.new
+  db.merge!(ActiveRecord::Base.configurations[Rails.env])
+  if db[:adapter] == 'sqlite3'
+    RUOTE_STORAGE = Sequel.connect("sqlite://#{db[:database]}")
+  else    
+    db.merge!(:user => db[:user_name] || "")
+    RUOTE_STORAGE = Sequel.connect(db)
+  end
+  
+  opts = { 'sequel_table_name' => 'support_ruote_docs' }
+  
+  Ruote::Sequel.create_table(RUOTE_STORAGE, false, opts['sequel_table_name'])
+  
+  RuoteKit.engine = Ruote::Engine.new(Ruote::Worker.new(Ruote::Sequel::Storage.new(RUOTE_STORAGE, opts)))
+  
+  unless $RAKE_TASK # don't register participants in rake tasks
+    RuoteKit.engine.register do
+      # register your own participants using the participant method
+      #
+      # Example: participant 'alice', Ruote::StorageParticipant see
+      # http://ruote.rubyforge.org/participants.html for more info
+  
+      # register the catchall storage participant named '.+'
+  
+      catchall
+    end
+  end
+  
+  RuoteKit.engine.context.logger.noisy = false
 end
 
 # create a generic logger

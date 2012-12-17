@@ -16,10 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Support Helpdesk.  If not, see <http://www.gnu.org/licenses/>.
 
-resources :support_helpdesk_settings, :controller => 'support_helpdesk_setting', :path => '/support/settings' do
-  post 'activate', :on => :member
-end
+source :rubygems
 
-# routes to RuoteKit
-match '/_ruote' => RuoteKit::Application
-match '/_ruote/*path' => RuoteKit::Application
+gem 'ruote'
+gem "ruote-kit", :git => "https://github.com/kennethkalmer/ruote-kit.git"
+gem 'ruote-sequel'
