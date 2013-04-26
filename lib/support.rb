@@ -16,6 +16,12 @@
 # You should have received a copy of the GNU General Public License
 # along with Support Helpdesk.  If not, see <http://www.gnu.org/licenses/>.
 
+# setup namespaces
+module Support
+  module Participants
+  end
+end
+
 # add requires
 require "support/handler"
 require "support/helpers/attachments"
@@ -34,6 +40,10 @@ require "support/pipelines/update_issue_pipeline"
 require "support/pipelines/create_issue_pipeline"
 require "support/pipelines/add_email_attachment_pipeline"
 require "support/pipelines/update_times_pipeline"
+
+require "support/participants/base_participant"
+require "support/participants/get_global_settings"
+require "support/participants/get_support_settings"
 
 # create array of plugins to add
 Support::Handler.pipelines = [

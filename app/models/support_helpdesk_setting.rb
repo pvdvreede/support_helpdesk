@@ -23,6 +23,12 @@ class SupportHelpdeskSetting < ActiveRecord::Base
   belongs_to :tracker
   belongs_to :issue_status
   belongs_to :priority, :class_name => 'IssuePriority', :foreign_key => 'priority_id'
+  belongs_to :author, :class_name => 'User', :foreign_key => 'author_id'
+  belongs_to :assignee_group, :class_name => 'Group', :foreign_key => 'assignee_group_id'
+  belongs_to :new_status, :class_name => 'IssueStatus', :foreign_key => 'new_status_id'
+  belongs_to :last_assigned_user, :class_name => 'User', :foreign_key => 'last_assigned_user_id'
+  belongs_to :reply_email_custom_field, :class_name => 'IssueCustomField', :foreign_key => 'reply_email_custom_field_id'
+  belongs_to :type_custom_field, :class_name => 'IssueCustomField', :foreign_key => 'type_custom_field_id'
   has_many :issues_support_settings, :dependent => :destroy
   has_many :issues, :through => :issues_support_settings
 
@@ -51,7 +57,7 @@ class SupportHelpdeskSetting < ActiveRecord::Base
   def is_ignored_email_domain(email)
     # if there are no domains to ignore return
     return false if self.domains_to_ignore.nil?
-    
+
     #other split the domains and check
     domain_array = self.domains_to_ignore.downcase.split(";")
     if domain_array.include?(email.from[0].split('@')[1].downcase)

@@ -16,13 +16,11 @@
 # You should have received a copy of the GNU General Public License
 # along with Support Helpdesk.  If not, see <http://www.gnu.org/licenses/>.
 
-source 'https://rubygems.org'
+class Support::Participants::GetGlobalSettings < Support::Participants::BaseParticipant
 
-gem 'ruote'
-gem "ruote-kit", :git => "https://github.com/kennethkalmer/ruote-kit.git"
-gem 'ruote-sequel'
+  def on_workitem
+    workitem.fields['global_settings'] = Setting.plugin_support_helpdesk
+    reply
+  end
 
-group :development, :test do
-  gem 'rspec-rails'
-  gem 'factory_girl_rails'
 end
