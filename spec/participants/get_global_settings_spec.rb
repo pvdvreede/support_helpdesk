@@ -17,6 +17,4 @@ describe Support::Participants::GetGlobalSettings do
     $reply.fields['global_settings'].should_not be_nil
     $reply.fields['global_settings'].should eq Setting.plugin_support_helpdesk
   end
-
-
 end

@@ -1,6 +1,6 @@
 require "#{File.dirname(__FILE__)}/../spec_helper"
 
-describe Support::Participants::GetGlobalSettings do
+describe Support::Participants::GetSupportSettings do
   let(:participant) { Support::Participants::GetSupportSettings.new }
   let(:email)       { Mail::Message.new }
   let(:workitem)    { create_workitem({ 'email' => email.to_yaml }) }

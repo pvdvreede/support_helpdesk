@@ -16,32 +16,27 @@
 # You should have received a copy of the GNU General Public License
 # along with Support Helpdesk.  If not, see <http://www.gnu.org/licenses/>.
 
-class Support::Participants::GetSupportSettings < Support::Participants::BaseParticipant
+class Support::Participants::CheckFromExclusions < Support::Participants::BaseParticipant
 
   def on_workitem
-    to_emails = (email.to.to_a + email.cc.to_a).map { |e| e.downcase }
+    # make sure there is a from address
+    if email.from.nil? || email.from.empty?
+      Support.log_warn("Email #{email.message_id} had no 'from' email address.")
+      cancel_workflow
+      return reply
+    end
 
-    setting = SupportHelpdeskSetting.active.where(:to_email_address => to_emails).first
+    if workitem.fields['support_settings']['domains_to_ignore'].nil?
+      return reply
+    end
 
-    if setting && applies?(setting)
-      workitem.fields['support_settings'] = setting.attributes
-    else
+    ignore_list = workitem.fields['support_settings']['domains_to_ignore'].split(",")
+    from = email.from.first.to_s
+    unless ignore_list.find_all { |i| Regexp.new(i) =~ from }.empty?
       cancel_workflow
     end
 
     reply
-  end
-
-  private
-
-  def applies?(setting)
-    return true if setting.search_in_to && setting.search_in_cc
-
-    if setting.search_in_to
-      email.to.to_a.include?(setting.to_email_address)
-    else
-      email.cc.to_a.include?(setting.to_email_address)
-    end
   end
 
 end

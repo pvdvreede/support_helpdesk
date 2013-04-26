@@ -20,5 +20,6 @@ FactoryGirl.define  do
     search_in_to true
     search_in_cc true
     active true
+    domains_to_ignore ""
   end
 end
