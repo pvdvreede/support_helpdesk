@@ -21,5 +21,6 @@ FactoryGirl.define  do
     search_in_cc true
     active true
     domains_to_ignore ""
+    subject_exclusion_list ""
   end
 end
