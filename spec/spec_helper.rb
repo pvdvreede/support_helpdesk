@@ -26,6 +26,10 @@ def file_root
   File.join("#{File.dirname(__FILE__)}", "..")
 end
 
+def email_dir
+  File.join(file_root, "spec", "fixtures", "email")
+end
+
 Dir["#{file_root}/spec/factories/**/*.rb"].each { |f| require f }
 
 require "#{file_root}/lib/support"
