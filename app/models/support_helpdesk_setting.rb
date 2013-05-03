@@ -22,6 +22,7 @@ class SupportHelpdeskSetting < ActiveRecord::Base
   belongs_to :project
   belongs_to :tracker
   belongs_to :issue_status
+  belongs_to :email_domain_custom_field, :class_name => 'ProjectCustomField', :foreign_key => 'email_domain_custom_field_id'
   belongs_to :priority, :class_name => 'IssuePriority', :foreign_key => 'priority_id'
   belongs_to :author, :class_name => 'User', :foreign_key => 'author_id'
   belongs_to :assignee_group, :class_name => 'Group', :foreign_key => 'assignee_group_id'
