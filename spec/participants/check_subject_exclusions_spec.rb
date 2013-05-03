@@ -4,7 +4,7 @@ describe Support::Participants::CheckSubjectExclusions do
   let(:participant) { Support::Participants::CheckSubjectExclusions.new }
   let(:workitem)    { create_workitem({
                         'email' => email.to_yaml,
-                        'support_settings' => support
+                        'support_settings' => support.attributes
                       }) }
 
   before do
@@ -14,10 +14,10 @@ describe Support::Participants::CheckSubjectExclusions do
   end
 
   context 'when there is no subject exclusion list' do
-    let(:support) { FactoryGirl.attributes_for(
+    let(:support) { FactoryGirl.build(
         :support_helpdesk_setting,
         :to_email_address => 'support@test.com'
-      ).stringify_keys }
+      ) }
     let(:email)   { Mail::Message.new(:to => 'support@test.com', :subject => 'a standard subject') }
 
     it 'should not cancel the workflow' do
@@ -27,10 +27,10 @@ describe Support::Participants::CheckSubjectExclusions do
   end
 
   context 'when there is no subject in the email' do
-    let(:support) { FactoryGirl.attributes_for(
+    let(:support) { FactoryGirl.build(
         :support_helpdesk_setting,
         :to_email_address => 'support@test.com'
-      ).stringify_keys }
+      ) }
     let(:email)   { Mail::Message.new(:to => 'support@test.com') }
 
     it 'should continue the workflow and set a subject' do
@@ -42,11 +42,11 @@ describe Support::Participants::CheckSubjectExclusions do
   end
 
   context 'when the email is part of excluded subject list' do
-    let(:support) { FactoryGirl.attributes_for(
+    let(:support) { FactoryGirl.build(
         :support_helpdesk_setting,
         :to_email_address => 'support@test.com',
         :subject_exclusion_list => '^banned,banned$'
-      ).stringify_keys }
+      ) }
     let(:email)   { Mail::Message.new(:to => 'support@test.com', :subject => 'banned is the first word here') }
 
     it 'should cancel the workflow' do
@@ -57,11 +57,11 @@ describe Support::Participants::CheckSubjectExclusions do
   end
 
   context 'when there is an exclusion list that subject is NOT apart of' do
-    let(:support) { FactoryGirl.attributes_for(
+    let(:support) { FactoryGirl.build(
         :support_helpdesk_setting,
         :to_email_address => 'support@test.com',
         :subject_exclusion_list => '^banned,banned$'
-      ).stringify_keys }
+      ) }
     let(:email)   { Mail::Message.new(:to => 'support@test.com', :subject => 'this is not banned for sure') }
 
     it 'should continue the workflow' do

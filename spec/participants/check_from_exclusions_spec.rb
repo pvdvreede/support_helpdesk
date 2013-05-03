@@ -5,7 +5,7 @@ describe Support::Participants::CheckFromExclusions do
   let(:email)       { Mail::Message.new(:to => 'support@test.com', :from => 'send@test.com') }
   let(:workitem)    { create_workitem({
                         'email' => email.to_yaml,
-                        'support_settings' => support
+                        'support_settings' => support.attributes
                       }) }
 
   before do
@@ -15,10 +15,10 @@ describe Support::Participants::CheckFromExclusions do
   end
 
   context 'when there is no exclusion list' do
-    let(:support) { FactoryGirl.attributes_for(
+    let(:support) { FactoryGirl.build(
         :support_helpdesk_setting,
         :to_email_address => 'support@test.com'
-      ).stringify_keys }
+      ) }
 
     it 'should not cancel the workflow' do
       participant.on_workitem
@@ -27,10 +27,10 @@ describe Support::Participants::CheckFromExclusions do
   end
 
   context 'when there is no from in the email' do
-    let(:support) { FactoryGirl.attributes_for(
+    let(:support) { FactoryGirl.build(
         :support_helpdesk_setting,
         :to_email_address => 'support@test.com'
-      ).stringify_keys }
+      ) }
     let(:email)   { Mail::Message.new(:to => 'support@test.com') }
 
     it 'should cancel the workflow' do
@@ -41,11 +41,11 @@ describe Support::Participants::CheckFromExclusions do
   end
 
   context 'when there is an exclusion list that from is apart of' do
-    let(:support) { FactoryGirl.attributes_for(
+    let(:support) { FactoryGirl.build(
         :support_helpdesk_setting,
         :to_email_address => 'support@test.com',
         :domains_to_ignore => 'test.com$,^hi@hello.com$'
-      ).stringify_keys }
+      ) }
 
     it 'should cancel the workflow' do
       participant.on_workitem
@@ -55,11 +55,11 @@ describe Support::Participants::CheckFromExclusions do
   end
 
   context 'when there is an exclusion list that from is NOT apart of' do
-    let(:support) { FactoryGirl.attributes_for(
+    let(:support) { FactoryGirl.build(
         :support_helpdesk_setting,
         :to_email_address => 'support@test.com',
         :domains_to_ignore => 'test123.com$,^hi@hello.com$'
-      ).stringify_keys }
+      ) }
 
     it 'should continue the workflow' do
       participant.on_workitem
