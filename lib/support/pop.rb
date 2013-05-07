@@ -25,36 +25,23 @@ module Support
       Mail.defaults do
         retriever_method(
           :pop3,
-          :address => host,
-          :port => port,
-          :user_name => pop_options[:username],
-          :password => pop_options[:password]
+          :address      => host,
+          :port         => port,
+          :user_name    => pop_options[:username],
+          :password     => pop_options[:password]
         )
       end
 
       # get all the emails from server
-      Support.log_info "Fetching emails from #{host}..."
-
-      handler = Support::Handler.new
-
+      Support.log_info "Fetching emails from #{host}:#{port} with POP3..."
+      handler = Support::Workflow.new(RuoteKit.engine)
       Mail.find_and_delete do |email|
-        Support.log_info "Processing email #{email.message_id}..."
+        Support.log_info "Processing email #{email.message_id} from #{email.from.first} with subject #{email.subject || "No subject"}..."
 
-        status = handler.receive(email)
-        if status == 0
-          # delete email from server
-          Support.log_info "Processing #{email.message_id} successful and deleted from Mailbox."
-        elsif status == 1
-          # check global setting to see whether to delete email
-          if Setting.plugin_support_helpdesk['support_delete_non_support_emails'] == '1'
-            # log
-            Support.log_warn "Processing #{email.message_id} unsuccessful message deleted."
-          else
-            Support.log_warn "Processing #{email.message_id} unsuccessful message NOT deleted."
-            email.skip_deletion
-          end
-        elsif status == 2
-          Support.log_error "Processing #{email.message_id} unsuccessful message NOT deleted."
+        wfid = handler.receive_email(email)
+
+        unless wfid == email.message_id
+          Support.log_error "Something went wrong putting #{email.message_id} in the workflow engine, not deleting."
           email.skip_deletion
         end
       end

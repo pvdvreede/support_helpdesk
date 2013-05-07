@@ -40,7 +40,7 @@ require "support/pipelines/create_issue_pipeline"
 require "support/pipelines/add_email_attachment_pipeline"
 require "support/pipelines/update_times_pipeline"
 
-
+require "support/pop"
 require "support/hooks/journal_hook_listener"
 require "support/hooks/support_hook_listener"
 

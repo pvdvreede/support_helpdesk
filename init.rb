@@ -18,7 +18,6 @@
 
 
 require_dependency "support"
-require_dependency "pop3"
 require_dependency "support_issue_patch"
 
 Redmine::Plugin.register :support_helpdesk do
@@ -46,15 +45,14 @@ Redmine::Plugin.register :support_helpdesk do
   require 'ruote'
   require 'ruote-redis'
 
-  RUOTE_STORAGE = Redis.new
-
   RuoteKit.engine = Ruote::Engine.new(
-    Ruote::Worker.new(
-      Ruote::Redis::Storage.new(
-        RUOTE_STORAGE
-      )
+    Ruote::Redis::Storage.new(
+      Redis.new(:db => 14, :thread_safe => true)
     )
   )
+
+  # enable to keep history of run workflows
+  # RuoteKit.engine.add_service 'history', 'ruote/log/storage_history', 'Ruote::StorageHistory'
 
   RuoteKit.engine.context.logger.noisy = false
 end
