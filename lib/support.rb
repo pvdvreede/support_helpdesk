@@ -20,26 +20,15 @@
 module Support
   module Participants
   end
+
+  module Hooks
+  end
+
+  module Patches
+  end
 end
 
 # add requires
-require "support/handler"
-require "support/helpers/attachments"
-require "support/helpers/emails"
-require "support/helpers/misc"
-
-require "support/pipelines/pipeline_base"
-require "support/pipelines/ignore_pipeline"
-require "support/pipelines/ignore_own_email_pipeline"
-require "support/pipelines/ignore_domain_pipeline"
-require "support/pipelines/get_project_pipeline"
-require "support/pipelines/get_email_body_pipeline"
-require "support/pipelines/support_pipeline"
-require "support/pipelines/update_issue_pipeline"
-require "support/pipelines/create_issue_pipeline"
-require "support/pipelines/add_email_attachment_pipeline"
-require "support/pipelines/update_times_pipeline"
-
 require "support/pop"
 require "support/hooks/journal_hook_listener"
 require "support/hooks/support_hook_listener"
@@ -55,20 +44,7 @@ require "support/participants/update_support_issue"
 require "support/participants/search_project"
 require "support/participants/search_current_issue"
 require "support/participants/add_email_attachment"
+require "support/participants/create_support_message_id"
 
 require "support/workflow"
-
-# create array of plugins to add
-Support::Handler.pipelines = [
-  Support::Pipeline::IgnorePipeline.new("Ignore"),
-  Support::Pipeline::GetEmailBodyPipeline.new("Get email body"),
-  Support::Pipeline::UpdateIssuePipeline.new("Update issue"),
-  Support::Pipeline::SupportPipeline.new("Support finder"),
-  Support::Pipeline::IgnoreOwnEmailPipeline.new("Ignore own email"),
-  Support::Pipeline::IgnoreDomainPipeline.new("Ignore Domain"),
-  Support::Pipeline::GetProjectPipeline.new("Get project"),
-  Support::Pipeline::CreateIssuePipeline.new("Create issue"),
-  Support::Pipeline::AddEmailAttachmentPipeline.new("Attach emails"),
-  Support::Pipeline::UpdateTimesPipeline.new("Update times")
-]
 

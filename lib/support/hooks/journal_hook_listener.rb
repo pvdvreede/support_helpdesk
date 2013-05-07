@@ -19,8 +19,6 @@
 module Support
   module Hooks
     class JournalHookListener < Redmine::Hook::ViewListener
-      include Support::Helper::Emails
-      include Support::Helper::Attachments
 
       def view_issues_edit_notes_bottom(context={})
         # only show email to user if there is a support setup
@@ -40,7 +38,7 @@ module Support
           emails << ["Email all involved", context[:issue].reply_email]
         end
         emails = emails + reply_emails.map { |r| [r.downcase, r.downcase] }
-        
+
 
         # add all users of Redmine
         emails = emails + User.where("mail != ?", "").map { |u| [u.name, u.mail.downcase] }
@@ -63,38 +61,38 @@ module Support
           notes = context[:journal].notes
           return if notes == ""
 
-          send_email(issue) do
-            mail = SupportHelpdeskMailer.user_question(
-              issue,
-              textilizable(notes),
-              context[:params][:email_to_user_address]
-            ).deliver
-          end
+          # send_email(issue) do
+          #   mail = SupportHelpdeskMailer.user_question(
+          #     issue,
+          #     textilizable(notes),
+          #     context[:params][:email_to_user_address]
+          #   ).deliver
+          # end
         end
 
         if context[:params][:resend_creation_email] && context[:params][:resend_creation_email_address]
           return unless issue.can_send_item?
 
-          send_email(issue) do
-            mail = SupportHelpdeskMailer.ticket_created(
-              issue, 
-              context[:params][:resend_creation_email_address]
-            ).deliver
-          end
+          # send_email(issue) do
+          #   mail = SupportHelpdeskMailer.ticket_created(
+          #     issue,
+          #     context[:params][:resend_creation_email_address]
+          #   ).deliver
+          # end
         end
 
         if context[:params][:resend_closing_email] && context[:params][:resend_closing_email_address]
           return unless issue.can_send_item?
 
-          send_email(issue) do
-            mail = SupportHelpdeskMailer.ticket_closed(
-              issue, 
-              context[:params][:resend_closing_email_address]
-            ).deliver
-          end
+          # send_email(issue) do
+          #   mail = SupportHelpdeskMailer.ticket_closed(
+          #     issue,
+          #     context[:params][:resend_closing_email_address]
+          #   ).deliver
+          # end
         end
       end
-      
+
     end
   end
 end
