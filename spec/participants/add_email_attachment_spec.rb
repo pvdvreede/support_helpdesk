@@ -3,7 +3,14 @@ require "#{File.dirname(__FILE__)}/../spec_helper"
 describe Support::Participants::AddEmailAttachment do
   let(:participant)  { Support::Participants::AddEmailAttachment.new }
   let(:email)        { Mail::Message.new(:to => 'support@test.com', :from => 'send@mycompany.com') }
-  let(:issue)        { FactoryGirl.create(:issue, :support_helpdesk_setting => support) }
+  let(:issue) do
+    FactoryGirl.create(
+      :issue,
+      :support_helpdesk_setting => support,
+      :tracker                  => support.tracker,
+      :project                  => support.project
+    )
+  end
   let(:support)      { FactoryGirl.create(:support_helpdesk_setting) }
   let(:workitem) do
     create_workitem({

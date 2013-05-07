@@ -2,7 +2,14 @@ require "#{File.dirname(__FILE__)}/../spec_helper"
 
 describe Support::Participants::SearchCurrentIssue do
   let(:participant) { Support::Participants::SearchCurrentIssue.new }
-  let(:issue) { FactoryGirl.create(:issue) }
+  let(:issue) do
+    FactoryGirl.create(
+      :issue,
+      :support_helpdesk_setting => support,
+      :tracker                  => support.tracker,
+      :project                  => support.project
+    )
+  end
   let(:support) do
     FactoryGirl.create(
       :support_helpdesk_setting
@@ -41,7 +48,14 @@ describe Support::Participants::SearchCurrentIssue do
     end
 
     context 'when the related issue is closed' do
-      let(:issue) { FactoryGirl.create(:closed_issue) }
+      let(:issue) do
+        FactoryGirl.create(
+          :closed_issue,
+          :support_helpdesk_setting => support,
+          :tracker                  => support.tracker,
+          :project                  => support.project
+        )
+      end
 
       it 'will have an empty related_issue field' do
         participant.on_workitem
@@ -62,7 +76,14 @@ describe Support::Participants::SearchCurrentIssue do
     end
 
     context 'when the related issue is closed' do
-      let(:issue) { FactoryGirl.create(:closed_issue) }
+      let(:issue) do
+        FactoryGirl.create(
+          :closed_issue,
+          :support_helpdesk_setting => support,
+          :tracker                  => support.tracker,
+          :project                  => support.project
+        )
+      end
 
       it 'will have an empty related_issue field' do
         participant.on_workitem

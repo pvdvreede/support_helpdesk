@@ -1,7 +1,7 @@
 FactoryGirl.define  do
   factory :support_helpdesk_setting do
     sequence(:name)                 { |n| "Support setup #{n}" }
-    project
+    project                         { FactoryGirl.create(:project, :trackers => [tracker])}
     author                          { FactoryGirl.create :user }
     sequence(:to_email_address)     { |n| "to#{n}@email.com"}
     sequence(:from_email_address)   { |n| "from#{n}@email.com"}

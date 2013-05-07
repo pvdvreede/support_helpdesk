@@ -5,5 +5,6 @@ FactoryGirl.define do
     parent_id nil
     sequence(:identifier) { |n| "ident#{n}"}
     status 1
+    trackers { [FactoryGirl.create(:tracker)] }
   end
 end
