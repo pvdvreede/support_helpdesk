@@ -92,4 +92,32 @@ describe Support::Participants::SearchCurrentIssue do
     end
   end
 
+  context 'when there is a related issue in the references' do
+    let(:issue_message_id) { FactoryGirl.create(:issues_support_message_id, :issue => issue, :message_id => "heyim@here", :support_helpdesk_setting => support) }
+    let(:email) { Mail::Message.new(:subject => "current issue but new subject", :message_id => "not@exist", :references => "heyim@here") }
+    let(:subject) { "current issue but new subject" }
+
+    it 'will set the related_issue field with the issue' do
+      issue_message_id
+      participant.on_workitem
+      $reply.fields['related_issue'].should eq issue.attributes
+    end
+
+    context 'when the related issue is closed' do
+      let(:issue) do
+        FactoryGirl.create(
+          :closed_issue,
+          :support_helpdesk_setting => support,
+          :tracker                  => support.tracker,
+          :project                  => support.project
+        )
+      end
+
+      it 'will have an empty related_issue field' do
+        participant.on_workitem
+        $reply.fields['related_issue'].should be_nil
+      end
+    end
+  end
+
 end

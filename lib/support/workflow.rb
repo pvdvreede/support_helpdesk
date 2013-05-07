@@ -11,7 +11,7 @@ class Support::Workflow
     end
   end
 
-  def send_closing_email(issue, to)
+  def send_created_email(issue, to)
     pdef = Ruote.define "support_helpdesk send closing email" do
       send_email :template => 'ticket_closed'
     end
@@ -63,6 +63,7 @@ class Support::Workflow
           end
         end
 
+        create_support_message_id
         add_email_attachment
 
       end

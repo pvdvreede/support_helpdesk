@@ -65,6 +65,11 @@ describe "Recieve email workflow", :wf => true do
           i.journals.first.notes.should be_nil
         end
 
+        it 'will create a message id' do
+          i = Issue.first
+          i.issues_support_message_ids.count.should eq 1
+        end
+
       end
 
     end
@@ -121,6 +126,10 @@ describe "Recieve email workflow", :wf => true do
 
         it 'will add an attachment' do
           current_issue.attachments.count.should eq 1
+        end
+
+        it 'will create a message id' do
+          current_issue.issues_support_message_ids.count.should eq 1
         end
 
       end
