@@ -20,9 +20,11 @@ source 'https://rubygems.org'
 
 gem 'ruote'
 gem "ruote-kit", :git => "https://github.com/kennethkalmer/ruote-kit.git"
-gem 'ruote-sequel'
+gem 'redis'
+gem 'ruote-redis'
 
 group :development, :test do
   gem 'rspec-rails'
   gem 'factory_girl_rails'
+  gem 'database_cleaner'
 end

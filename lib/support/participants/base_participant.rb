@@ -18,6 +18,10 @@
 
 class Support::Participants::BaseParticipant < Ruote::Participant
 
+  def on_cancel
+    Support.warn("on_cancel method called for #{participant_name} participant.")
+  end
+
   private
 
   def email

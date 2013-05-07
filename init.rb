@@ -42,36 +42,19 @@ Redmine::Plugin.register :support_helpdesk do
   }
 
   # ruote setup
+  require 'redis'
   require 'ruote'
-  require 'ruote-sequel'
+  require 'ruote-redis'
 
-  db = HashWithIndifferentAccess.new
-  db.merge!(ActiveRecord::Base.configurations[Rails.env])
-  if db[:adapter] == 'sqlite3'
-    RUOTE_STORAGE = Sequel.connect("sqlite://#{db[:database]}")
-  else
-    db.merge!(:user => db[:user_name] || "")
-    RUOTE_STORAGE = Sequel.connect(db)
-  end
+  RUOTE_STORAGE = Redis.new
 
-  opts = { 'sequel_table_name' => 'support_ruote_docs' }
-
-  Ruote::Sequel.create_table(RUOTE_STORAGE, false, opts['sequel_table_name'])
-
-  RuoteKit.engine = Ruote::Engine.new(Ruote::Worker.new(Ruote::Sequel::Storage.new(RUOTE_STORAGE, opts)))
-
-  unless $RAKE_TASK # don't register participants in rake tasks
-    RuoteKit.engine.register do
-      # register your own participants using the participant method
-      #
-      # Example: participant 'alice', Ruote::StorageParticipant see
-      # http://ruote.rubyforge.org/participants.html for more info
-
-      # register the catchall storage participant named '.+'
-
-      catchall
-    end
-  end
+  RuoteKit.engine = Ruote::Engine.new(
+    Ruote::Worker.new(
+      Ruote::Redis::Storage.new(
+        RUOTE_STORAGE
+      )
+    )
+  )
 
   RuoteKit.engine.context.logger.noisy = false
 end
@@ -79,18 +62,18 @@ end
 # create a generic logger
 module Support
   def self.log_info(msg)
-    Rails.logger.info "#{Time.now.to_s} support_helpdesk INFO    - #{msg}"
+    Rails.logger.info  "support_helpdesk INFO    - #{msg}"
   end
 
   def self.log_warn(msg)
-    Rails.logger.warn "#{Time.now.to_s} support_helpdesk WARNING - #{msg}"
+    Rails.logger.warn  "support_helpdesk WARNING - #{msg}"
   end
 
   def self.log_error(msg)
-    Rails.logger.error "#{Time.now.to_s} support_helpdesk ERROR  - #{msg}"
+    Rails.logger.error "support_helpdesk ERROR   - #{msg}"
   end
 
   def self.log_debug(msg)
-    Rails.logger.debug "#{Time.now.to_s} support_helpdesk DEBUG  - #{msg}"
+    Rails.logger.debug "support_helpdesk DEBUG   - #{msg}"
   end
 end
