@@ -16,12 +16,12 @@
 # You should have received a copy of the GNU General Public License
 # along with Support Helpdesk.  If not, see <http://www.gnu.org/licenses/>.
 
-module Support
+module Support::Patches
   module IssuePatch
     def self.included(base)
       base.extend(ClassMethods)
       base.send(:include, InstanceMethods)
-      base.class_eval do 
+      base.class_eval do
         unloadable
 
         # add filter checking the status on issue save
@@ -32,7 +32,7 @@ module Support
         has_one :support_helpdesk_setting, :through => :issues_support_setting
 
         # add link to email message ids
-        has_many :issues_support_message_id
+        has_many :issues_support_message_ids
       end
     end
 
@@ -135,4 +135,4 @@ module Support
   end
 end
 
-Issue.send(:include, Support::IssuePatch)
+Issue.send(:include, Support::Patches::IssuePatch)

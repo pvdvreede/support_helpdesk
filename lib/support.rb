@@ -32,6 +32,7 @@ end
 require "support/pop"
 require "support/hooks/journal_hook_listener"
 require "support/hooks/support_hook_listener"
+require "support/patches/issue_patch"
 
 require "support/participants/base_participant"
 require "support/participants/get_global_settings"
@@ -47,4 +48,3 @@ require "support/participants/add_email_attachment"
 require "support/participants/create_support_message_id"
 
 require "support/workflow"
-

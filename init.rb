@@ -18,7 +18,6 @@
 
 
 require_dependency "support"
-require_dependency "support_issue_patch"
 
 Redmine::Plugin.register :support_helpdesk do
   name 'Support Helpdesk plugin'
