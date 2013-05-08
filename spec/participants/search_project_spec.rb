@@ -60,4 +60,18 @@ describe Support::Participants::SearchProject do
     end
   end
 
+  context 'when the custom field is not set for the support object' do
+    let(:support)  do
+      FactoryGirl.build(
+        :support_helpdesk_setting,
+        :email_domain_custom_field => nil
+      )
+    end
+
+    it 'sets the default project in the support settings' do
+      participant.on_workitem
+      $reply.fields['related_project']['id'].should eq support.project_id
+    end
+  end
+
 end
