@@ -16,31 +16,35 @@
 # You should have received a copy of the GNU General Public License
 # along with Support Helpdesk.  If not, see <http://www.gnu.org/licenses/>.
 
-class Support::Participants::BaseParticipant < Ruote::Participant
+class Support::Participants::AddOutgoingEmailAttachment < Support::Participants::AddEmailAttachment
 
-  def on_cancel
-    Support.log_warn("on_cancel method called for #{participant_name} participant.")
+  private
+
+  def attach_to_work_item
+    self.wi_outgoing_email_attachment = @attachment.attributes
   end
 
-  protected
-
-  def email
-    @email ||= Mail::Message.from_yaml(wi_email)
+  def email_file
+    outgoing_email.encoded
   end
 
-  def cancel_workflow
-    Support.log_info("Email #{email.message_id} workflow is being cancelled from #{participant_name} participant.")
-    self.wi_cancel = true
+  def outgoing_email
+    @outgoing_email ||= Mail::Message.from_yaml(wi_outgoing_email)
   end
 
-  def method_missing(name, *args, &block)
-    if name.to_s =~ /^wi_([a-z0-9_]+)$/
-      workitem.fields[$1]
-    elsif name.to_s =~ /^wi_([a-z0-9_]+)=$/
-      workitem.fields[$1] = args[0]
-    else
-      super
-    end
+  def email_filename
+    "#{outgoing_email.from.first.downcase}_#{Time.now.strftime("%Y%m%d%H%M%S")}.eml"
+  end
+
+  def description
+    "Email sent by us to #{outgoing_email.to.to_s}."
+  end
+
+  def journal
+    @journal ||= Journal.create!(
+      :user_id      => user_id,
+      :journalized  => issue
+    )
   end
 
 end

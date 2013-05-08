@@ -56,6 +56,12 @@ describe "Recieve email workflow", :wf => true do
             email = ActionMailer::Base.deliveries.first
             email.text_part.body.should include("ticket created")
           end
+
+          it 'attaches the sent email to the issue with a journal item' do
+            i = Issue.first
+            i.attachments.count.should eq 2
+            i.journals.count.should eq 2
+          end
         end
 
         it 'should finish the process' do
@@ -82,12 +88,12 @@ describe "Recieve email workflow", :wf => true do
 
         it 'inserts an attachment for the issue' do
           i = Issue.first
-          i.attachments.should_not be_empty
+          i.attachments.count.should eq 1
         end
 
         it 'inserts a journal entry that has nil notes' do
           i = Issue.first
-          i.journals.first.should_not be_nil
+          i.journals.count.should eq 1
           i.journals.first.notes.should be_nil
         end
 

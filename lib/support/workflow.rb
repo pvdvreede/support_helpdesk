@@ -55,6 +55,7 @@ class Support::Workflow
         _if "${f:related_issue} is set" do
           sequence do
             update_support_issue
+            add_email_attachment
           end
         end
 
@@ -64,20 +65,19 @@ class Support::Workflow
             set_email_reply
             search_project
             create_support_issue
-
+            add_email_attachment
             # only send out an email to the user if its in the settings
             _if "${f:support_settings.send_created_email_to_user}" do
               sequence do
                 send_email :template => 'ticket_created',
                            :outgoing_email_to => "${f:email_reply_to}"
+                add_outgoing_email_attachment
               end
             end
           end
         end
 
         create_support_message_id
-        add_email_attachment
-
       end
     end
 

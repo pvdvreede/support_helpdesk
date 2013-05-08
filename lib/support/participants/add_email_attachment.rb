@@ -19,31 +19,39 @@
 class Support::Participants::AddEmailAttachment < Support::Participants::BaseParticipant
 
   def on_workitem
-    attachment = Attachment.create!(
+    @attachment = Attachment.create!(
       :filename         => email_filename,
       :content_type     => "message/rfc822",
       :author_id        => user_id,
       :container        => issue,
-      :file             => email.encoded,
+      :file             => email_file,
       :description      => description
     )
 
-    journal_detail = JournalDetail.create!(
+    @journal_detail = JournalDetail.create!(
       :journal_id       => journal.id,
       :property         => 'attachment',
-      :prop_key         => attachment.id,
+      :prop_key         => @attachment.id,
       :value            => email_filename
     )
 
-    self.wi_related_attachment = attachment.attributes
+    attach_to_work_item
 
     reply
   end
 
-  private
+  protected
+
+  def attach_to_work_item
+    self.wi_related_attachment = @attachment.attributes
+  end
 
   def issue
     @issue ||= Issue.find(wi_related_issue['id'].to_i)
+  end
+
+  def email_file
+    email.encoded
   end
 
   def email_filename
