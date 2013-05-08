@@ -44,7 +44,7 @@ describe Support::Participants::CheckFromExclusions do
     let(:support) { FactoryGirl.build(
         :support_helpdesk_setting,
         :to_email_address => 'support@test.com',
-        :domains_to_ignore => 'test.com$,^hi@hello.com$'
+        :domains_to_ignore => 'test.com$, ^hi@hello.com$'
       ) }
 
     it 'should cancel the workflow' do

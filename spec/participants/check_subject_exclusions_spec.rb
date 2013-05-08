@@ -45,7 +45,7 @@ describe Support::Participants::CheckSubjectExclusions do
     let(:support) { FactoryGirl.build(
         :support_helpdesk_setting,
         :to_email_address => 'support@test.com',
-        :subject_exclusion_list => '^banned,banned$'
+        :subject_exclusion_list => '^banned, banned$'
       ) }
     let(:email)   { Mail::Message.new(:to => 'support@test.com', :subject => 'banned is the first word here') }
 
