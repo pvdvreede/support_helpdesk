@@ -35,6 +35,24 @@ describe Support::Participants::SendEmail do
     ActionMailer::Base.deliveries.count.should eq 1
   end
 
+  context "with to address as param" do
+    let(:workitem) do
+      create_workitem({
+        'related_issue'     => issue.attributes,
+        'params'            => {
+          'outgoing_email_to' => 'paul@doesntreallyexist.com',
+          'template'          => template
+        }
+      })
+    end
+
+    it 'is to paul@doesntreallyexist.com' do
+      participant.on_workitem
+      email = ActionMailer::Base.deliveries.first
+      email.to.first.should eq "paul@doesntreallyexist.com"
+    end
+  end
+
   it 'is to paul@doesntreallyexist.com' do
     participant.on_workitem
     email = ActionMailer::Base.deliveries.first

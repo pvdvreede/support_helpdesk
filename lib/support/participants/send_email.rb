@@ -36,7 +36,7 @@ class Support::Participants::SendEmail < Support::Participants::BaseParticipant
   end
 
   def to
-    wi_outgoing_email_to
+    workitem.param_or_field('outgoing_email_to')
   end
 
   def opts
