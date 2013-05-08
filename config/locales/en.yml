@@ -30,3 +30,4 @@ en:
   field_bcc_email: "Email to BCC outgoing emails"
   field_search_in_to: "Email field to look in for support address"
   field_search_in_cc: ""
+  field_subject_exclusion_list: "Email subjects to ignore"

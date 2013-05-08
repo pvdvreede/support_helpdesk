@@ -1,6 +1,6 @@
 <%= labelled_form_for(@setting) do |f| %>
 <% if @setting.errors.any? %>
-  <div id="errorExplanation">    
+  <div id="errorExplanation">
     <ul>
     <% @setting.errors.full_messages.each do |msg| %>
       <li><%= msg %></li>
@@ -19,12 +19,7 @@
         <p>
           <%= f.text_field :to_email_address, :required => true %>
         </p>
-        <p>
-          <%= f.text_area :domains_to_ignore, :rows => 4, :cols => 29 %>
-          <em class="info">
-            You can specify a semi-colon separated list of email domains you receive mail from that you want to ignore and NOT create a ticket for. NOTE: Emails from these domains will be ignored and have the email deleted from the mailbox.
-          </em>
-        </p>
+
         <p>
           <%= f.text_field :from_email_address, :required => true %>
         </p>
@@ -126,6 +121,23 @@
           <p>
             <%= f.select(:question_template_name, @template_files, :required => true) %>
           </p>
+        </fieldset>
+      </div>
+      <div class="splitcontentright">
+      <fieldset class="box tabular">
+        <legend>Exclusions</legend>
+          <p>
+          <%= f.text_area :domains_to_ignore, :rows => 4, :cols => 29 %>
+          <em class="info">
+            You can specify a semi-colon separated list of regular expressions that will be checked against the emails from address. If any of the expressios match, the email will be ignored and deleted.
+          </em>
+        </p>
+        <p>
+          <%= f.text_area :subject_exclusion_list, :rows => 4, :cols => 29 %>
+          <em class="info">
+            You can specify a semi-colon separated list of regular expressions to be checked against the email's subject. If the subject matches the email will ignored and deleted.
+          </em>
+        </p>
         </fieldset>
       </div>
       <div class="splitcontentright">
