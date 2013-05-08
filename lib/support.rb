@@ -46,5 +46,6 @@ require "support/participants/search_project"
 require "support/participants/search_current_issue"
 require "support/participants/add_email_attachment"
 require "support/participants/create_support_message_id"
+require "support/participants/send_email"
 
 require "support/workflow"

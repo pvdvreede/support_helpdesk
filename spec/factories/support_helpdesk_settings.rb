@@ -9,9 +9,9 @@ FactoryGirl.define  do
     reply_email_custom_field        { FactoryGirl.create :issue_custom_field, :trackers => [tracker] }
     type_custom_field               { FactoryGirl.create :issue_custom_field, :trackers => [tracker] }
     assignee_group                  { FactoryGirl.create :group }
-    created_template_name "test"
-    closed_template_name "test"
-    question_template_name "test"
+    created_template_name "ticket_created"
+    closed_template_name "ticket_closed"
+    question_template_name "user_question"
     send_created_email_to_user false
     send_closed_email_to_user false
     last_assigned_user              { FactoryGirl.create :user }

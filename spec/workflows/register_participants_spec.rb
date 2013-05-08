@@ -4,7 +4,8 @@ describe "Participant registration" do
   let(:workflow) { Support::Workflow.new(RuoteKit.engine) }
 
   it 'will register all participants' do
-    workflow.participants.count.should eq 11
+    file_count = Dir[File.join(file_root, "lib", "support", "participants", "*.rb")].count - 1
+    workflow.participants.count.should eq file_count
   end
 
   it 'contain constants for the participant classes' do

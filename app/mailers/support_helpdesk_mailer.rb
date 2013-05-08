@@ -28,58 +28,55 @@ class SupportHelpdeskMailer < ActionMailer::Base
   # make sure we throw errors regardless of the users setting so we can catch them
   self.raise_delivery_errors = true
 
-  def ticket_created(issue, to)
+  def ticket_created(issue, to, opts={})
     @issue = issue
     @support = issue.support_helpdesk_setting
     Support.log_info "Sending ticket creation support email from #{@support.from_email_address}..."
-    add_email_headers(@issue)
+    add_email_headers
     mail(
-      :to => create_to_from_string(to), 
-      :from => @support.from_email_address,
-      :bcc => @support.bcc_email || nil,
-      :subject => "#{@support.name} Ticket ##{@issue.id}: #{issue.subject}", 
-      :template_name => @support.created_template_name
+      :to               => create_to_from_string(to),
+      :from             => @support.from_email_address,
+      :bcc              => @support.bcc_email || nil,
+      :subject          => "#{@support.name} Ticket ##{@issue.id}: #{issue.subject}",
+      :template_name    => @support.created_template_name
     )
   end
 
-  def ticket_closed(issue, to)
+  def ticket_closed(issue, to, opts={})
     @issue = issue
     @support = issue.support_helpdesk_setting
     Support.log_info "Sending closing support email from #{@support.from_email_address}..."
-    add_email_headers(@issue)
+    add_email_headers
     mail(
-      :to => create_to_from_string(to),
-      :from => @support.from_email_address,
-      :bcc => @support.bcc_email || nil,
-      :subject => "#{@support.name} Ticket ##{@issue.id}: #{issue.subject}", 
-      :template_name => @support.closed_template_name
+      :to               => create_to_from_string(to),
+      :from             => @support.from_email_address,
+      :bcc              => @support.bcc_email || nil,
+      :subject          => "#{@support.name} Ticket ##{@issue.id}: #{issue.subject}",
+      :template_name    => @support.closed_template_name
     )
   end
 
-  def user_question(issue, question, to, added_attachments=[])
-    @issue = issue
-    @support = issue.support_helpdesk_setting
-    @question = question
-    add_email_headers(@issue)
-    added_attachments.each do |a|
-      attachments[a[:original_filename]] = a[:file]
-    end
-    Support.log_debug "Attachments being sent:\n#{added_attachments.inspect}"
+  def user_question(issue, to, opts={})
+    @issue    = issue
+    @support  = issue.support_helpdesk_setting
+    @question = opts[:question]
+    add_email_headers
     Support.log_info "Sending user question email from #{@support.from_email_address}..."
     mail(
-      :to => create_to_from_string(to), 
-      :from => @support.from_email_address,
-      :bcc => @support.bcc_email || nil,
-      :subject => "#{@support.name} Ticket ##{@issue.id}: #{issue.subject}", 
-      :template_name => @support.question_template_name
+      :to               => create_to_from_string(to),
+      :from             => @support.from_email_address,
+      :bcc              => @support.bcc_email || nil,
+      :subject          => "#{@support.name} Ticket ##{@issue.id}: #{issue.subject}",
+      :template_name    => @support.question_template_name
     )
   end
 
   private
-  def add_email_headers(issue)
-    headers["X-MXCSupport-Id"] = issue.id.to_s
-    related_message = issue.issues_support_message_id.root
-    unless related_message.nil?
+
+  def add_email_headers
+    headers["X-MXCSupport-Id"] = @issue.id.to_s
+    unless @issue.issues_support_message_ids.empty?
+      related_message = @issue.issues_support_message_ids.root
       headers["References"] = "<#{related_message.message_id}>"
 
       # get the descendants to reply to the last email, if there are any

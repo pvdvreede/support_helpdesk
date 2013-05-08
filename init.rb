@@ -18,6 +18,7 @@
 
 
 require_dependency "support"
+require_relative "app/mailers/support_helpdesk_mailer"
 
 Redmine::Plugin.register :support_helpdesk do
   name 'Support Helpdesk plugin'
