@@ -37,7 +37,7 @@ class Support::Participants::AddOutgoingEmailAttachment < Support::Participants:
   end
 
   def description
-    "Email sent by us to #{outgoing_email.to.to_s}."
+    "Email sent by us to #{outgoing_email.to.join(", ")}."
   end
 
   def journal

@@ -37,9 +37,6 @@ class Support::Workflow
     pdef = Ruote.define(:name => "receive_email", :version => "2.0") do
       sequence do
 
-        check_header_exclusions
-        terminate :if => "${f:cancel} == true"
-
         get_global_settings
         get_support_settings
         terminate :if => "${f:cancel} == true"
