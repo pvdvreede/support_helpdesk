@@ -6,6 +6,7 @@ describe Support::Participants::SetEmailReply do
   let(:email) do
     Mail::Message.new(
       :to           => ['support@test.com', "another@email.com"],
+      :cc           => 'thecc@test.com',
       :from         => 'send@test.com',
       :message_id   => 'themessage@id.com'
     )
@@ -23,14 +24,36 @@ describe Support::Participants::SetEmailReply do
     participant.workitem = workitem
   end
 
-  it 'set the email_reply_to field in the work item' do
-    participant.on_workitem
-    $reply.fields['email_reply_to'].should_not be_nil
+  context 'when reply to all is true' do
+    let(:support) do
+      FactoryGirl.create(
+        :support_helpdesk_setting,
+        :to_email_address           => 'support@test.com',
+        :reply_all_for_outgoing     => true
+      )
+    end
+
+    it 'set the email_reply_to field in the work item with all email addresses' do
+      participant.on_workitem
+      $reply.fields['email_reply_to'].should eq "send@test.com; another@email.com; thecc@test.com"
+    end
   end
 
-  it 'sets the field with the from and to of the email without support email' do
-    participant.on_workitem
-    $reply.fields['email_reply_to'].should eq "send@test.com; another@email.com"
+
+  context 'when reply to all is false' do
+    let(:support) do
+      FactoryGirl.create(
+        :support_helpdesk_setting,
+        :to_email_address           => 'support@test.com',
+        :reply_all_for_outgoing     => false
+      )
+    end
+
+    it 'sets the email reply field with the from only' do
+      participant.on_workitem
+      $reply.fields['email_reply_to'].should eq "send@test.com"
+    end
+
   end
 
 end

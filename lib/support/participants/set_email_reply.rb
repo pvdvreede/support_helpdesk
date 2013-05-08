@@ -27,10 +27,16 @@ class Support::Participants::SetEmailReply < Support::Participants::BaseParticip
   private
 
   def reply_list
-    list = (email.from.to_a + email.to.to_a).map { |e| e.downcase }.reject do |e|
+    list = email_addresses.map { |e| e.downcase }.reject do |e|
       e == wi_support_settings['to_email_address'].downcase
     end
     list.join "; "
+  end
+
+  def email_addresses
+    list = email.from.to_a
+    list = list + email.to.to_a + email.cc.to_a if wi_support_settings['reply_all_for_outgoing']
+    list
   end
 
 end
