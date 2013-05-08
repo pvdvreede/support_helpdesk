@@ -21,17 +21,47 @@ class Support::Participants::CreateIssueBody < Support::Participants::BasePartic
   def on_workitem
     workitem.fields['email_body'] =
     if email.multipart? && !email.text_part.nil?
-      email.text_part.body.decoded
+      reply_stripped_body(email.text_part.body.decoded)
     elsif email.content_type.include? "text/html"
       raise TypeError.new("Email only contains html.")
     else
-      email.body.decoded
+      reply_stripped_body(email.body.decoded)
     end
   rescue => e
     Support.log_warn "Could not decode email body of #{email.message_id}: #{e.message}."
     workitem.fields['email_body'] = "Cannot add body, please open attached email file."
   ensure
     reply
+  end
+
+  private
+
+  def reply_stripped_body(body)
+    notes = body
+
+    stripping_rules.find do |r|
+      Support.log_debug "Running rule #{r.to_s}."
+      reply_match = body.match(r)
+      unless reply_match.nil?
+        Support.log_debug "Match found at #{reply_match.begin(0)}."
+        notes = body[0, reply_match.begin(0)]
+        Support.log_debug "Email reply body is now set to:\n#{notes}"
+        next true
+      end
+    end
+
+    notes
+  end
+
+  def stripping_rules
+    [
+      /^.*\s+<.*>\s*wrote:.*$/,
+      /^_+\nFrom:\s*.*\s*(<|\[).*(>|\])$/,
+      /^Date:.+\nSubject:.+\nFrom: .*$/,
+      /^----- Original Message -----$/,
+      /^\s*_+\s*\nFrom: .* (<|\[).*(>|\])$/,
+      /\nFrom:\s*.*\s*(<|\[).*(>|\])/
+    ]
   end
 
 end
