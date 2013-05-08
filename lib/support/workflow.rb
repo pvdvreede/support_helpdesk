@@ -58,8 +58,17 @@ class Support::Workflow
         # when this is a new issue
         _if "${f:related_issue} is not set" do
           sequence do
+            set_email_reply
             search_project
             create_support_issue
+
+            # only send out an email to the user if its in the settings
+            _if "${f:support_settings.send_created_email_to_user}" do
+              sequence do
+                send_email :template => 'ticket_created',
+                           :outgoing_email_to => "${f:email_reply_to}"
+              end
+            end
           end
         end
 

@@ -27,6 +27,7 @@ describe "Recieve email workflow", :wf => true do
 
         before do
           support
+          ActionMailer::Base.deliveries = []
           @workflow = Support::Workflow.new(engine)
           @wfid = @workflow.receive_email(email)
           engine.wait_for(@wfid)
@@ -34,6 +35,27 @@ describe "Recieve email workflow", :wf => true do
 
         after do
           engine.shutdown
+        end
+
+        context "with an email sent to the user" do
+          let(:support) do
+            FactoryGirl.create(
+              :support_helpdesk_setting,
+              :to_email_address           => email.to.first,
+              :active                     => true,
+              :send_created_email_to_user => true
+            )
+          end
+
+          it 'should finish the process' do
+            engine.process(@wfid).should be_false
+          end
+
+          it 'sends an email to the user' do
+            ActionMailer::Base.deliveries.count.should eq 1
+            email = ActionMailer::Base.deliveries.first
+            email.text_part.body.should include("ticket created")
+          end
         end
 
         it 'should finish the process' do
@@ -47,6 +69,10 @@ describe "Recieve email workflow", :wf => true do
         it 'inserts an issue' do
           i = Issue.first
           i.should_not be_nil
+        end
+
+        it 'does not send an email to the user' do
+          ActionMailer::Base.deliveries.should be_empty
         end
 
         it 'relates the issue to the correct support item' do
