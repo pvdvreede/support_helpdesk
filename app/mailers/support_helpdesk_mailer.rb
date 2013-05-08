@@ -37,7 +37,7 @@ class SupportHelpdeskMailer < ActionMailer::Base
       :to               => create_to_from_string(to),
       :from             => @support.from_email_address,
       :bcc              => @support.bcc_email || nil,
-      :subject          => "#{@support.name} Ticket ##{@issue.id}: #{issue.subject}",
+      :subject          => "#{@support.name} Ticket ##{@issue.id.to_s}: #{issue.subject}",
       :template_name    => @support.created_template_name
     )
   end
@@ -51,7 +51,7 @@ class SupportHelpdeskMailer < ActionMailer::Base
       :to               => create_to_from_string(to),
       :from             => @support.from_email_address,
       :bcc              => @support.bcc_email || nil,
-      :subject          => "#{@support.name} Ticket ##{@issue.id}: #{issue.subject}",
+      :subject          => "#{@support.name} Ticket ##{@issue.id.to_s}: #{issue.subject}",
       :template_name    => @support.closed_template_name
     )
   end
@@ -66,7 +66,7 @@ class SupportHelpdeskMailer < ActionMailer::Base
       :to               => create_to_from_string(to),
       :from             => @support.from_email_address,
       :bcc              => @support.bcc_email || nil,
-      :subject          => "#{@support.name} Ticket ##{@issue.id}: #{issue.subject}",
+      :subject          => "#{@support.name} Ticket ##{@issue.id.to_s}: #{issue.subject}",
       :template_name    => @support.question_template_name
     )
   end
@@ -74,7 +74,8 @@ class SupportHelpdeskMailer < ActionMailer::Base
   private
 
   def add_email_headers
-    headers["X-MXCSupport-Id"] = @issue.id.to_s
+    headers["X-SupportTicket-Id"] = @issue.id.to_s
+    headers["X-Auto-Response-Suppress"] = "OOF, DR, AutoReply"
     unless @issue.issues_support_message_ids.empty?
       related_message = @issue.issues_support_message_ids.root
       headers["References"] = "<#{related_message.message_id}>"

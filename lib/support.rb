@@ -48,5 +48,6 @@ require "support/participants/add_email_attachment"
 require "support/participants/create_support_message_id"
 require "support/participants/send_email"
 require "support/participants/set_email_reply"
+require "support/participants/check_header_exclusions"
 
 require "support/workflow"
