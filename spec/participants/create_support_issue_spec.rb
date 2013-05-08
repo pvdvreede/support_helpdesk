@@ -11,7 +11,8 @@ describe Support::Participants::CreateSupportIssue do
       'support_settings' => support.attributes,
       'email_subject'    => 'This is the subject',
       'email_body'       => 'This is the description',
-      'related_project'  => project.attributes
+      'related_project'  => project.attributes,
+      'email_reply_to'   => 'send@mycompany.com'
     })
   end
 
@@ -42,7 +43,7 @@ describe Support::Participants::CreateSupportIssue do
     participant.on_workitem
     issue = Issue.where(:subject => $reply.fields['email_subject']).first
     issue.should_not be_nil
-    issue.custom_value_for(support.reply_email_custom_field_id).value.should eq email.from.to_a.first
+    issue.custom_value_for(support.reply_email_custom_field_id).value.should eq 'send@mycompany.com'
   end
 
   it 'will set an issue_created in work item' do

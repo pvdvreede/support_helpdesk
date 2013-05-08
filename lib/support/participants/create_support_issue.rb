@@ -31,7 +31,7 @@ class Support::Participants::CreateSupportIssue < Support::Participants::BasePar
       :assigned_to_id            => wi_support_settings['assignee_group_id']
     )
     issue.custom_field_values = {
-      wi_support_settings['reply_email_custom_field_id'] => email.from.first,
+      wi_support_settings['reply_email_custom_field_id'] => wi_email_reply_to,
       wi_support_settings['type_custom_field_id']        => wi_support_settings['name']
     }
     issue.save!
