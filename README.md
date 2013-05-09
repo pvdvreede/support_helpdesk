@@ -17,7 +17,7 @@
 
 * Redmine 2.x.x
 * Ruby MRI 1.9, it has not yet been tested on 2.0 or other Ruby implementations.
-* Currently Redis is required for Ruote persistence and it is assumed this is on the same host (this will to be configurable in a later version).
+* **Currently Redis is required for Ruote persistence and it is assumed this is on the same host (this will to be configurable in a later version).**
 
 ## Installing
 
@@ -32,6 +32,10 @@ The plugin comes with two rake tasks, these are both daemons and something like 
 
 The first one should be configurable from a file and this will be added in the future.
 
+*If you are using **Unicorn** you will need to place the following in the `after_fork` method in your unicorn config for Ruote to use Redis across multiple processes:*
+
+    RuoteKit.engine.storage.redis.client.reconnect
+
 ## Upgrading
 
 ## Running
@@ -43,6 +47,8 @@ To check Ruote to see if there are any errored emails go to `/_ruote`. **WARNING
 ## Roadmap
 
 Consult the issues of this project to see what is on the Roadmap. Feel free to request any features you would like.
+
+## Testing
 
 ## License
 
