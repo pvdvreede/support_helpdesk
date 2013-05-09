@@ -87,6 +87,7 @@ class Support::Workflow
             search_project
             create_support_issue
             add_email_attachment
+
             # only send out an email to the user if its in the settings
             _if "${f:support_settings.send_created_email_to_user}" do
               sequence do
@@ -99,6 +100,7 @@ class Support::Workflow
         end
 
         create_support_message_id
+        update_process_time
       end
     end
 
@@ -107,6 +109,7 @@ class Support::Workflow
       :wfid     => email.message_id
     }
 
+    Support.log_debug "Launching receive_email workflow with fields: #{fields.inspect}"
     @engine.launch(pdef, fields)
   end
 

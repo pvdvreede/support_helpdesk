@@ -16,15 +16,14 @@
 # You should have received a copy of the GNU General Public License
 # along with Support Helpdesk.  If not, see <http://www.gnu.org/licenses/>.
 
-source 'https://rubygems.org'
+class Support::Participants::UpdateProcessTime < Support::Participants::BaseParticipant
 
-gem 'ruote'
-gem "ruote-kit", :git => "https://github.com/kennethkalmer/ruote-kit.git"
-gem 'redis', "~> 3.0.4"
-gem 'ruote-redis'
+  def on_workitem
+    support = SupportHelpdeskSetting.find(wi_support_settings['id'])
+    support.last_processed = Time.now
+    support.save!
 
-group :development, :test do
-  gem 'rspec-rails'
-  gem 'factory_girl_rails'
-  gem 'database_cleaner'
+    reply
+  end
+
 end

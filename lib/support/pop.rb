@@ -36,17 +36,25 @@ module Support
       Support.log_info "Fetching emails from #{host}:#{port} with POP3..."
       handler = Support::Workflow.new(RuoteKit.engine)
       Mail.find_and_delete do |email|
-        Support.log_info "Processing email #{email.message_id} from #{email.from.first} with subject #{email.subject || "No subject"}..."
+        begin
+          Support.log_info "Processing email #{email.message_id} from #{email.from.first} with subject #{email.subject || "No subject"}..."
 
-        wfid = handler.receive_email(email)
+          wfid = handler.receive_email(email)
 
-        unless wfid == email.message_id
-          Support.log_error "Something went wrong putting #{email.message_id} in the workflow engine, not deleting."
+          unless wfid == email.message_id
+            raise "WFID does not match the email message id"
+          end
+        rescue => e
           email.skip_deletion
+          Support.log_error "There was an error trying to push #{email.message_id} into Ruote: #{e.message}. #{e.backtrace.join(", ")}"
         end
       end
 
       Support.log_info "Finished fetching emails."
+      SupportHelpdeskSetting.update_all(
+        { :last_run   => Time.now },
+        { :active     => true }
+      )
     end
   end
 end

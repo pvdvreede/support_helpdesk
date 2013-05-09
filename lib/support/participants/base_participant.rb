@@ -19,7 +19,7 @@
 class Support::Participants::BaseParticipant < Ruote::Participant
 
   def on_cancel
-    Support.log_warn("on_cancel method called for #{participant_name} participant.")
+    Support.log_warn "on_cancel method called for #{participant_name} participant."
   end
 
   protected
@@ -34,6 +34,7 @@ class Support::Participants::BaseParticipant < Ruote::Participant
   end
 
   def method_missing(name, *args, &block)
+    Support.log_debug "method_missing called on #{participant_name} participant with values: #{name.to_s}, #{args.inspect}."
     if name.to_s =~ /^wi_([a-z0-9_]+)$/
       workitem.fields[$1]
     elsif name.to_s =~ /^wi_([a-z0-9_]+)=$/

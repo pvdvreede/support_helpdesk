@@ -33,8 +33,8 @@ END_DESC
         Support::POP.check(pop_options)
 
         Support.log_info "Sleeping for #{every.to_s} seconds..."
-      rescue => e
-        Support.log_error "There was an error running the support check: #{e.message}"
+      rescue Exception => e
+        Support.log_error "There was an error running the support check: #{e.message}. #{e.backtrace.join(", ")}"
       end
       sleep every
     end
