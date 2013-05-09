@@ -18,4 +18,16 @@
 
 # English strings go here for Rails i18n
 en:
-  my_label: "My label"
+  field_to_email_address: "Email address to route"
+  field_domains_to_ignore: "Email domains to ignore"
+  field_from_email_address: "Email address to send as"
+  field_reply_all_for_outgoing: "Reply all"
+  field_created_template_name: "Ticket created template"
+  field_send_created_email_to_user: "Send ticket created email"
+  field_closed_template_name: "Ticket closed template"
+  field_send_closed_email_to_user: "Send ticket closed email"
+  field_question_template_name: "User update template"
+  field_bcc_email: "Email to BCC outgoing emails"
+  field_search_in_to: "Email field to look in for support address"
+  field_search_in_cc: ""
+  field_subject_exclusion_list: "Email subjects to ignore"

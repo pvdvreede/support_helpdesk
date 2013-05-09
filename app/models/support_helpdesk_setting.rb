@@ -22,6 +22,14 @@ class SupportHelpdeskSetting < ActiveRecord::Base
   belongs_to :project
   belongs_to :tracker
   belongs_to :issue_status
+  belongs_to :email_domain_custom_field, :class_name => 'ProjectCustomField', :foreign_key => 'email_domain_custom_field_id'
+  belongs_to :priority, :class_name => 'IssuePriority', :foreign_key => 'priority_id'
+  belongs_to :author, :class_name => 'User', :foreign_key => 'author_id'
+  belongs_to :assignee_group, :class_name => 'Group', :foreign_key => 'assignee_group_id'
+  belongs_to :new_status, :class_name => 'IssueStatus', :foreign_key => 'new_status_id'
+  belongs_to :last_assigned_user, :class_name => 'User', :foreign_key => 'last_assigned_user_id'
+  belongs_to :reply_email_custom_field, :class_name => 'IssueCustomField', :foreign_key => 'reply_email_custom_field_id'
+  belongs_to :type_custom_field, :class_name => 'IssueCustomField', :foreign_key => 'type_custom_field_id'
   has_many :issues_support_settings, :dependent => :destroy
   has_many :issues, :through => :issues_support_settings
 
@@ -38,10 +46,34 @@ class SupportHelpdeskSetting < ActiveRecord::Base
   validates :question_template_name, :presence => true
   validates :name, :presence => true
   validates :assignee_group_id, :presence => true
+  validates :priority_id, :presence => true
 
   validates_associated :project
   validates_associated :tracker
   validates_associated :issue_status
+  validates_associated :priority
 
   scope :active, where(:active => true)
+
+  def is_ignored_email_domain(email)
+    # if there are no domains to ignore return
+    return false if self.domains_to_ignore.nil?
+
+    #other split the domains and check
+    domain_array = self.domains_to_ignore.downcase.split(";")
+    if domain_array.include?(email.from[0].split('@')[1].downcase)
+      return true
+    end
+
+    false
+  end
+
+  def get_email_reply_string(email)
+    return email.from[0] if not self.reply_all_for_outgoing
+
+    #build semicolon string from all fields if not the support email
+    email_array = email.to.to_a + email.from.to_a + email.cc.to_a
+
+    email_array.find_all { |e| e.downcase unless e.downcase == self.to_email_address.downcase }.join("; ")
+  end
 end

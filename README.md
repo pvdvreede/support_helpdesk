@@ -1,46 +1,51 @@
 # Support Helpdesk
 
-## Redmine plugin that generates issues from normal emails.
+### Redmine plugin to handle incoming emails as Redmine issues
 
-### Functionalities
+## Features
 
-Support Helpdesk provides the following functionalities:
+* Uses the excellent Ruote workflow engine with RuoteKit for bringing in emails. This gives you the ability to view and fix broken incoming emails.
+* Rake daemon task to poll a POP3 mailbox.
+* The ability to assign that issue to a project based on the domain name in the from email address.
+* Send an email back to the email sender on issue creation and issue close.
+* Automatically send an email to the email sender based on an issue note.
+* Create custom email templates using ERB.
+* Regular expessions to ignore emails from a certain address or with a certain subject.
+* Administration GUI to create multiple support settings based on the sender's email address.
 
-* Rake task to poll a POP3 mailbox, bring in emails addressed to user specified addresses and create issues of a specified tracker
-* The ability to assign that issue to a project based on the domain name in the from email address
-* Send an email back to the email sender on issue creation and issue close
-* Automatically send an email to the email sender based on an issue note
-* Administration GUI to create multiple support settings based on the sender's email address, including:
-  * Custom email templates (in erb format)
-  * Your sender email address
-  * Whether or not to send a creation or closing email
-  * Specify bcc email addresses for outgoing emails
-  * Add email domains to ignore
+## Requirements
 
-You can also get round robin assigning of issues from a group with the Round Robin plugin. See [Round Robin - Redmine Plugin](https://github.com/pvdvreede/round_robin).
+* Redmine 2.x.x
+* Ruby MRI 1.9, it has not yet been tested on 2.0 or other Ruby implementations.
+* Currently Redis is required for Ruote persistence and it is assumed this is on the same host (this will to be configurable in a later version).
 
-### Requirements
+## Installing
 
-Support Helpdesk requires Redmine 2.0.0 or later. It is not compatible with Redmine 1.x.
+To install from scratch, clone this repository into the plugins directory of Redmine. You will then need to run `bundle install` in the root Redmine directory to bring in all the dependencies.
 
-### Installation
+Then run `rake redmine:plugins:migrate` to add the required database tables.
 
-The plugin is a standard Redmine 2.x plugin and so will work with Redmine 2.0.0 and above. Simply download the code and put it in the redmine plugins directory. Then run:
+The plugin comes with two rake tasks, these are both daemons and something like upstart should be used to run them along with your web server setup of choice. The rake commands to use for these are:
 
-    rake redmine:plugins:migrate
+    rake support:fetch_pop_emails host=<email server host> port=<email server port> username=<email user> password=<email users password> every=<integer for how often in seconds the server should be checked>
+    rake support:run_email_engine
 
-to populate the database tables into the Redmine database.
+The first one should be configurable from a file and this will be added in the future.
 
-There will now be a rake task available:
+## Upgrading
 
-    rake support:fetch_pop_emails host=<host> port=<port> username=<login> password=<pop3 password>
-   
-Use this command to set a cron job for how often you would like the mailbox polled.
+## Running
 
-Once setup, a new option will appear in the administration menu called `Support Helpdesk`. From here you can setup support settings for which emails to bring in, what templates to use, and which tracker and projects to create the issues in.
+The administration GUI is built into Redmine in the Administration section.
 
-### License
+To check Ruote to see if there are any errored emails go to `/_ruote`. **WARNING: This is currently an unprotected site which will be secured to only allow Redmine admins in a later verion.**
 
-Support Helpdesk is licensed under the GNU GPLv3 license and is free to use and alter. 
+## Roadmap
+
+Consult the issues of this project to see what is on the Roadmap. Feel free to request any features you would like.
+
+## License
+
+Support Helpdesk is licensed under the GNU GPLv3 license and is free to use and alter.
 
 Pull requests are welcomed.

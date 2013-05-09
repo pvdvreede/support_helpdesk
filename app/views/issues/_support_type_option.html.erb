@@ -1,0 +1,6 @@
+<p>
+  <label for="support_type[support_type_id]">
+    Support Type
+  </label>
+  <%= collection_select(:support, :id, supports, :id, :name, :include_blank => "None...") %>
+</p>

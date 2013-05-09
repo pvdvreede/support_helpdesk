@@ -21,12 +21,35 @@ namespace :support do
 Pick up emails from POP3 server and process them into support tickets.
 END_DESC
   task :fetch_pop_emails => :environment do
-    options = {}
     pop_options = {}
     pop_options[:host] = ENV['host'] if ENV['host']
     pop_options[:port] = ENV['port'].to_i if ENV['port']
     pop_options[:username] = ENV['username'] if ENV['username']
     pop_options[:password] = ENV['password'] if ENV['password']
-    Support::POP3.check(SupportMailHandler.new, pop_options)
+    every = (ENV['every'] || 240).to_i
+
+    while true do
+      begin
+        Support::POP.check(pop_options)
+
+        Support.log_info "Sleeping for #{every.to_s} seconds..."
+      rescue => e
+        Support.log_error "There was an error running the support check: #{e.message}"
+      end
+      sleep every
+    end
   end
+
+  desc "Run the workflow engine to process email support tickes"
+  task :run_email_engine => :environment do
+    RuoteKit.run_worker(
+      Ruote::Redis::Storage.new(
+        Redis.new(:db => 14, :thread_safe => true)
+      )
+    )
+  end
+
 end
+
+
+

@@ -17,6 +17,8 @@
 # along with Support Helpdesk.  If not, see <http://www.gnu.org/licenses/>.
 
 class SupportHelpdeskSettingController < ApplicationController
+  include SupportHelpdeskSettingHelper
+
   unloadable
   layout 'admin'
 
@@ -45,7 +47,7 @@ class SupportHelpdeskSettingController < ApplicationController
     respond_to do |format|
       if @setting.save
         format.html { redirect_to(support_helpdesk_settings_url, :notice => "Support setting successfully created.")}
-      else 
+      else
         get_for_new_edit
         format.html {render :action => "new"}
       end
@@ -112,14 +114,14 @@ class SupportHelpdeskSettingController < ApplicationController
     @users = User.where("type != ?", "AnonymousUser")
     @groups_users = @users + @groups
     @statuses = IssueStatus.all
+    @priorities = IssuePriority.all
 
     # get list of templates to select for emails
-    @template_files = []
-    Dir.foreach("#{File.expand_path(File.dirname(__FILE__))}/../views/support_helpdesk_mailer") do |f|
-      if not f == '.' and not f == '..'
-        name = f.split(".")[0]
-        @template_files << [name, name]
-      end
+    @template_files = Dir["#{File.expand_path(File.dirname(__FILE__))}/../views/support_helpdesk_mailer/*.html.erb"].reject do |f|
+      f == '.' || f == '..'
+    end.map do |f|
+      name = f.split("/").last.split(".").first
+      [name, name]
     end
   end
 end

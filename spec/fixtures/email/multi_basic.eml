@@ -1,0 +1,27 @@
+
+MIME-Version: 1.0
+Received: by 10.217.104.131 with HTTP; Sun, 28 Apr 2013 17:34:31 -0700 (PDT)
+Date: Mon, 29 Apr 2013 10:34:31 +1000
+Delivered-To: paul@vdvreede.net
+Message-ID: <CAOFQjh9wxN_oXepCcoXBz-phaJoZE2O5csLv773wTu8diOvUzA@mail.gmail.com>
+Subject: Test multi part email
+From: Paul Van de Vreede <paul@vdvreede.net>
+To: test1@test.com
+Content-Type: multipart/alternative; boundary=e0cb4e7000975701c204db750c7a
+
+--e0cb4e7000975701c204db750c7a
+Content-Type: text/plain; charset=ISO-8859-1
+
+This is a test *multi part* email.
+
+Regards,
+
+Paul.
+
+--e0cb4e7000975701c204db750c7a
+Content-Type: text/html; charset=ISO-8859-1
+
+<div dir="ltr"><div class="gmail_default" style="font-size:small">This is a test <b>multi part</b> email.</div><div><div><br></div>Regards,<div><br></div><div>Paul.</div></div>
+</div>
+
+--e0cb4e7000975701c204db750c7a--
