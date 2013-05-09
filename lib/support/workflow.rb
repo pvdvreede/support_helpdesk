@@ -13,22 +13,46 @@ class Support::Workflow
 
   def send_created_email(issue, to)
     pdef = Ruote.define "support_helpdesk send closing email" do
-      send_email :template => 'ticket_closed'
+      sequence do
+        send_email :template => 'ticket_created'
+        add_outgoing_email_attachment
+      end
     end
     fields = {
-      'related_issue' => issue.attributes,
-      'email_to'      => to
+      'related_issue'          => issue.attributes,
+      'outgoing_email_to'      => to,
+      'support_settings'       => issue.support_helpdesk_setting.attributes
     }
     @engine.launch(pdef, fields)
   end
 
   def send_closing_email(issue, to)
     pdef = Ruote.define "support_helpdesk send creating email" do
-      send_email :template => 'ticket_created'
+      sequence do
+        send_email :template => 'ticket_closed'
+        add_outgoing_email_attachment
+      end
     end
     fields = {
-      'related_issue' => issue.attributes,
-      'email_to'      => to
+      'related_issue'          => issue.attributes,
+      'outgoing_email_to'      => to,
+      'support_settings'       => issue.support_helpdesk_setting.attributes
+    }
+    @engine.launch(pdef, fields)
+  end
+
+  def send_question_email(issue, to, question)
+    pdef = Ruote.define "support_helpdesk send creating email" do
+      sequence do
+        send_email :template => 'user_question'
+        add_outgoing_email_attachment
+      end
+    end
+    fields = {
+      'related_issue'          => issue.attributes,
+      'outgoing_email_to'      => to,
+      'support_settings'       => issue.support_helpdesk_setting.attributes,
+      'outgoing_email_opts'    => { :question => question }
     }
     @engine.launch(pdef, fields)
   end

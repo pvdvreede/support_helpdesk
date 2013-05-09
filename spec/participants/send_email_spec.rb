@@ -84,7 +84,7 @@ describe Support::Participants::SendEmail do
     end
   end
 
-  context "sending a user question email without opts" do
+  context "sending a user question email with opts" do
     let(:template)    { "user_question" }
     let(:workitem) do
       create_workitem({

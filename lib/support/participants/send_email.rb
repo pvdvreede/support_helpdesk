@@ -41,7 +41,7 @@ class Support::Participants::SendEmail < Support::Participants::BaseParticipant
 
   def opts
     if workitem.fields.has_key?('outgoing_email_opts')
-      workitem.fields['outgoing_email_opts']
+      workitem.fields['outgoing_email_opts'].symbolize_keys
     else
       {}
     end

@@ -20,6 +20,10 @@ module Support
   module Hooks
     class JournalHookListener < Redmine::Hook::ViewListener
 
+      def initialize
+        @handler = Support::Workflow.new(RuoteKit.engine)
+      end
+
       def view_issues_edit_notes_bottom(context={})
         # only show email to user if there is a support setup
         return unless context[:issue].respond_to?(:support_helpdesk_setting)
@@ -32,7 +36,7 @@ module Support
         # put blank option in
         emails << ["Select a person to email to...", ""]
         # get all emails on issue
-        reply_emails = context[:issue].reply_email.split "; "
+        reply_emails = context[:issue].reply_email.split(";").map { |e| e.strip }
         # add special option if there is more than one reply email
         if reply_emails.count > 1
           emails << ["Email all involved", context[:issue].reply_email]
@@ -52,44 +56,26 @@ module Support
 
       def controller_issues_edit_before_save(context={})
         issue = context[:issue]
-
+        return unless issue.can_send_item?
         # code for sending email to user
         if context[:params][:email_to_user] && context[:params][:email_to_user_address]
           # double check that we can email the user
-          return unless issue.can_send_item?
-
           notes = context[:journal].notes
           return if notes == ""
 
-          # send_email(issue) do
-          #   mail = SupportHelpdeskMailer.user_question(
-          #     issue,
-          #     textilizable(notes),
-          #     context[:params][:email_to_user_address]
-          #   ).deliver
-          # end
+          @handler.send_question_email(
+            issue,
+            context[:params][:email_to_user_address],
+            textilizable(notes)
+          )
         end
 
         if context[:params][:resend_creation_email] && context[:params][:resend_creation_email_address]
-          return unless issue.can_send_item?
-
-          # send_email(issue) do
-          #   mail = SupportHelpdeskMailer.ticket_created(
-          #     issue,
-          #     context[:params][:resend_creation_email_address]
-          #   ).deliver
-          # end
+          @handler.send_created_email(issue, context[:params][:resend_creation_email_address])
         end
 
         if context[:params][:resend_closing_email] && context[:params][:resend_closing_email_address]
-          return unless issue.can_send_item?
-
-          # send_email(issue) do
-          #   mail = SupportHelpdeskMailer.ticket_closed(
-          #     issue,
-          #     context[:params][:resend_closing_email_address]
-          #   ).deliver
-          # end
+          @handler.send_closing_email(issue, context[:params][:resend_closing_email_address])
         end
       end
 
