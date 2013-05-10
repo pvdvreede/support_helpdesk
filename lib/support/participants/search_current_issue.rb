@@ -20,7 +20,7 @@ class Support::Participants::SearchCurrentIssue < Support::Participants::BasePar
 
   def on_workitem
     workitem.fields['related_issue'] =
-    if workitem.fields['email_subject'] =~ /Ticket #([0-9]+):/
+    if workitem.fields['email_subject'] =~ /Ticket #([0-9]+)/
       Issue.joins(:status).where(:issue_statuses => {:is_closed => false}, :id => $1).first.attributes
     elsif has_references?
       IssuesSupportMessageId.joins(:issue => :status).where(
