@@ -69,7 +69,7 @@ describe "Recieve email workflow", :wf => true do
         end
 
         it 'provides the correct wf id' do
-          @wfid.should eq email.message_id
+          @wfid.should eq email.message_id.gsub(".", "-")
         end
 
         it 'inserts an issue' do
