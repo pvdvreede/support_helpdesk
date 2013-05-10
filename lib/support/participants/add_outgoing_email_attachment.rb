@@ -43,7 +43,8 @@ class Support::Participants::AddOutgoingEmailAttachment < Support::Participants:
   def journal
     @journal ||= Journal.create!(
       :user_id      => user_id,
-      :journalized  => issue
+      :journalized  => issue,
+      :notes        => description
     )
   end
 

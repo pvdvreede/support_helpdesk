@@ -37,6 +37,11 @@ describe Support::Participants::AddOutgoingEmailAttachment do
     issue.attachments.first.description.should include("Email sent by us to")
   end
 
+  it 'will put the description in the journal note' do
+    participant.on_workitem
+    issue.journals.first.notes.should include("Email sent by us to")
+  end
+
   it 'will set the filename with from email and current time' do
     participant.on_workitem
     issue.attachments.first.filename.should =~ /^#{email.from.first.downcase}_[0-9]+\.eml$/
