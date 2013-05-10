@@ -40,10 +40,6 @@ module Support
           Support.log_info "Processing email #{email.message_id} from #{email.from.first} with subject #{email.subject || "No subject"}..."
 
           wfid = handler.receive_email(email)
-
-          unless wfid == email.message_id
-            raise "WFID does not match the email message id"
-          end
         rescue => e
           email.skip_deletion
           Support.log_error "There was an error trying to push #{email.message_id} into Ruote: #{e.message}. #{e.backtrace.join(", ")}"
