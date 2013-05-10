@@ -23,7 +23,7 @@ class Support::Workflow
       'outgoing_email_to'      => to,
       'support_settings'       => issue.support_helpdesk_setting.attributes
     }
-    @engine.launch(pdef, fields)
+    @engine.launch(pdef, fields, {}, {})
   end
 
   def send_closing_email(issue, to)
@@ -38,7 +38,7 @@ class Support::Workflow
       'outgoing_email_to'      => to,
       'support_settings'       => issue.support_helpdesk_setting.attributes
     }
-    @engine.launch(pdef, fields)
+    @engine.launch(pdef, fields, {}, {})
   end
 
   def send_question_email(issue, to, question)
@@ -54,7 +54,7 @@ class Support::Workflow
       'support_settings'       => issue.support_helpdesk_setting.attributes,
       'outgoing_email_opts'    => { :question => question }
     }
-    @engine.launch(pdef, fields)
+    @engine.launch(pdef, fields, {}, {})
   end
 
   def receive_email(email)
@@ -110,7 +110,7 @@ class Support::Workflow
     }
 
     Support.log_debug "Launching receive_email workflow with fields: #{fields.inspect}"
-    @engine.launch(pdef, fields)
+    @engine.launch(pdef, fields, {}, {}) # fix root_stash default nil erroring issue
   end
 
   def participants
