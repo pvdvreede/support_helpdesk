@@ -90,7 +90,7 @@ describe Support::Participants::SendEmail do
       create_workitem({
         'related_issue'       => issue.attributes,
         'outgoing_email_to'   => 'paul@doesntreallyexist.com',
-        'outgoing_email_opts' => { :question => "Howdy doody" },
+        'outgoing_email_opts' => { :question => "Howdy doody.\n\nNew paragraph with *bold*." },
         'params'              => {
             'template'        => template
           }
@@ -107,6 +107,21 @@ describe Support::Participants::SendEmail do
       participant.on_workitem
       email = ActionMailer::Base.deliveries.first
       email.text_part.body.should include("Howdy doody")
+    end
+
+
+    # TODO these two tests really belong in a mailer test and should be moved
+    it 'uses plain text for note in the plain text part' do
+      participant.on_workitem
+      email = ActionMailer::Base.deliveries.first
+      email.text_part.body.should_not include("<p>")
+      email.text_part.body.should include("*bold*")
+    end
+
+    it 'uses html for the note in html email part' do
+      participant.on_workitem
+      email = ActionMailer::Base.deliveries.first
+      email.html_part.body.should_not include("*bold*")
     end
   end
 

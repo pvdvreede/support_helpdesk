@@ -19,6 +19,7 @@
 class SupportHelpdeskMailer < ActionMailer::Base
   # include time format helper
   add_template_helper(Redmine::I18n)
+  add_template_helper(ApplicationHelper)
 
   default :parts_order => ["text/html", "text/plain"]
 

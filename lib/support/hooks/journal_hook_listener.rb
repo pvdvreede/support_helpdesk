@@ -66,7 +66,7 @@ module Support
           @handler.send_question_email(
             issue,
             context[:params][:email_to_user_address],
-            textilizable(notes)
+            notes
           )
         end
 
