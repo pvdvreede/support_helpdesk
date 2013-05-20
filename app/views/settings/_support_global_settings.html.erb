@@ -1,5 +1,5 @@
 
 <p>
-  <label for="support_delete_non_support_emails">Delete unsuccessfully processed emails</label>
-  <%= check_box_tag 'settings[support_delete_non_support_emails]', 1, @settings['support_delete_non_support_emails'] %>
+  <label for="support_template_path">Full path to email templates</label>
+  <%= text_field_tag 'settings[support_template_path]', @settings['support_template_path'], :style => 'width: 75%' %>
 </p>

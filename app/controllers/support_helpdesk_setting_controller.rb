@@ -117,7 +117,7 @@ class SupportHelpdeskSettingController < ApplicationController
     @priorities = IssuePriority.all
 
     # get list of templates to select for emails
-    @template_files = Dir["#{File.expand_path(File.dirname(__FILE__))}/../views/support_helpdesk_mailer/*.html.erb"].reject do |f|
+    @template_files = Dir[File.join(Setting.plugin_support_helpdesk['support_template_path'], "*.text.erb")].reject do |f|
       f == '.' || f == '..'
     end.map do |f|
       name = f.split("/").last.split(".").first

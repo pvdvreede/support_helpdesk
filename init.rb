@@ -16,9 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Support Helpdesk.  If not, see <http://www.gnu.org/licenses/>.
 
-
 require_dependency "support"
-require_relative "app/mailers/support_helpdesk_mailer"
+require_relative   "./app/mailers/support_helpdesk_mailer"
 
 Redmine::Plugin.register :support_helpdesk do
   name 'Support Helpdesk plugin'
@@ -37,7 +36,7 @@ Redmine::Plugin.register :support_helpdesk do
 
   # add settings page for global settings
   settings :partial => 'support_global_settings', :default => {
-    'support_delete_non_support_emails' => false
+    'support_template_path' => File.join(File.expand_path('../', __FILE__), 'app', 'email_templates')
   }
 
   # ruote setup

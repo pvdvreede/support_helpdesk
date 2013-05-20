@@ -23,37 +23,38 @@ class SupportHelpdeskMailer < ActionMailer::Base
 
   default :parts_order => ["text/html", "text/plain"]
 
-  # add current plugins views folder as a place to look for views
-  append_view_path("#{File.expand_path(File.dirname(__FILE__))}/../views")
-
   # make sure we throw errors regardless of the users setting so we can catch them
   self.raise_delivery_errors = true
 
   def ticket_created(issue, to, opts={})
     @issue = issue
     @support = issue.support_helpdesk_setting
-    Support.log_info "Sending ticket creation support email from #{@support.from_email_address}..."
     add_email_headers
+    prepend_view_path(Setting.plugin_support_helpdesk['support_template_path'])
+    Support.log_info "Sending ticket creation support email from #{@support.from_email_address}..."
     mail(
       :to               => create_to_from_string(to),
       :from             => @support.from_email_address,
       :bcc              => @support.bcc_email || nil,
-      :subject          => "#{@support.name} Ticket ##{@issue.id.to_s}: #{issue.subject}",
-      :template_name    => @support.created_template_name
+      :subject          => subject,
+      :template_name    => @support.created_template_name,
+      :template_path    => '.'
     )
   end
 
   def ticket_closed(issue, to, opts={})
     @issue = issue
     @support = issue.support_helpdesk_setting
-    Support.log_info "Sending closing support email from #{@support.from_email_address}..."
     add_email_headers
+    prepend_view_path(Setting.plugin_support_helpdesk['support_template_path'])
+    Support.log_info "Sending closing support email from #{@support.from_email_address}..."
     mail(
       :to               => create_to_from_string(to),
       :from             => @support.from_email_address,
       :bcc              => @support.bcc_email || nil,
-      :subject          => "#{@support.name} Ticket ##{@issue.id.to_s}: #{issue.subject}",
-      :template_name    => @support.closed_template_name
+      :subject          => subject,
+      :template_name    => @support.closed_template_name,
+      :template_path    => '.'
     )
   end
 
@@ -62,17 +63,23 @@ class SupportHelpdeskMailer < ActionMailer::Base
     @support  = issue.support_helpdesk_setting
     @question = opts[:question]
     add_email_headers
+    prepend_view_path(Setting.plugin_support_helpdesk['support_template_path'])
     Support.log_info "Sending user question email from #{@support.from_email_address}..."
     mail(
       :to               => create_to_from_string(to),
       :from             => @support.from_email_address,
       :bcc              => @support.bcc_email || nil,
-      :subject          => "#{@support.name} Ticket ##{@issue.id.to_s}: #{issue.subject}",
-      :template_name    => @support.question_template_name
+      :subject          => subject,
+      :template_name    => @support.question_template_name,
+      :template_path    => '.'
     )
   end
 
   private
+
+  def subject
+    "#{@support.name} Ticket ##{@issue.id.to_s}: #{@issue.subject}"
+  end
 
   def add_email_headers
     headers["X-SupportTicket-Id"] = @issue.id.to_s

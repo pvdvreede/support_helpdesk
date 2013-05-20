@@ -16,6 +16,10 @@
 # You should have received a copy of the GNU General Public License
 # along with Support Helpdesk.  If not, see <http://www.gnu.org/licenses/>.
 
+# terrible hack to make sure that the plugin settings are loaded when this class
+# is loaded so that it can use the settings for the view path class var.
+require_relative "../mailers/support_helpdesk_mailer"
+
 class SupportHelpdeskSetting < ActiveRecord::Base
   unloadable
 
