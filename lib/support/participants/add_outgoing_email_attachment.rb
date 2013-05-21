@@ -18,7 +18,7 @@
 
 class Support::Participants::AddOutgoingEmailAttachment < Support::Participants::AddEmailAttachment
 
-  private
+  protected
 
   def attach_to_work_item
     self.wi_outgoing_email_attachment = @attachment.attributes
@@ -33,7 +33,11 @@ class Support::Participants::AddOutgoingEmailAttachment < Support::Participants:
   end
 
   def email_filename
-    "#{outgoing_email.from.first.downcase}_#{Time.now.strftime("%Y%m%d%H%M%S")}.eml"
+    "#{outgoing_email.from.first.downcase}_#{Time.now.strftime("%Y%m%d%H%M%S")}_#{filename_hash[0..5]}.eml"
+  end
+
+  def filename_hash
+    Digest::SHA1.hexdigest(outgoing_email.message_id)
   end
 
   def description

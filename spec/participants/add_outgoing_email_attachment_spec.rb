@@ -2,7 +2,7 @@ require "#{File.dirname(__FILE__)}/../spec_helper"
 
 describe Support::Participants::AddOutgoingEmailAttachment do
   let(:participant)  { Support::Participants::AddOutgoingEmailAttachment.new }
-  let(:email)        { Mail::Message.new(:to => 'support@test.com', :from => 'send@mycompany.com') }
+  let(:email)        { Mail::Message.new(:to => 'support@test.com', :from => 'send@mycompany.com', :message_id => 'testingtesting') }
   let(:issue) do
     FactoryGirl.create(
       :issue,
@@ -44,7 +44,7 @@ describe Support::Participants::AddOutgoingEmailAttachment do
 
   it 'will set the filename with from email and current time' do
     participant.on_workitem
-    issue.attachments.first.filename.should =~ /^#{email.from.first.downcase}_[0-9]+\.eml$/
+    issue.attachments.first.filename.should =~ /^#{email.from.first.downcase}_[0-9]{14}_[a-z0-9]{6}\.eml$/
   end
 
   it 'will add the attachment details to the context' do

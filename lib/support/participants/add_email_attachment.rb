@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Support Helpdesk.  If not, see <http://www.gnu.org/licenses/>.
 
+require 'digest/sha1'
+
 class Support::Participants::AddEmailAttachment < Support::Participants::BaseParticipant
 
   def on_workitem
@@ -54,8 +56,12 @@ class Support::Participants::AddEmailAttachment < Support::Participants::BasePar
     email.encoded
   end
 
+  def filename_hash
+    Digest::SHA1.hexdigest(email.message_id)
+  end
+
   def email_filename
-    "#{email.from.first.downcase}_#{Time.now.strftime("%Y%m%d%H%M%S")}.eml"
+    "#{email.from.first.downcase}_#{Time.now.strftime("%Y%m%d%H%M%S")}_#{filename_hash[0..5]}.eml"
   end
 
   def description
