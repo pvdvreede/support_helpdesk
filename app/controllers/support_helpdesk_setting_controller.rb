@@ -118,7 +118,7 @@ class SupportHelpdeskSettingController < ApplicationController
 
     # get list of templates to select for emails
     @template_files = Dir[File.join(Setting.plugin_support_helpdesk['support_template_path'], "*.text.erb")].reject do |f|
-      f == '.' || f == '..'
+      f == '.' || f == '..' || f.split("/").last[0] == "_"
     end.map do |f|
       name = f.split("/").last.split(".").first
       [name, name]
