@@ -23,6 +23,8 @@ class SupportHelpdeskSettingController < ApplicationController
   layout 'admin'
 
   before_filter :require_admin
+  before_filter :get_setting,      :only => [:edit, :update, :activate, :destroy]
+  before_filter :get_for_new_edit, :only => [:new, :edit]
 
   def index
   	@settings = SupportHelpdeskSetting.includes(:project, :tracker)
@@ -34,7 +36,6 @@ class SupportHelpdeskSettingController < ApplicationController
 
   def new
   	@setting = SupportHelpdeskSetting.new
-    get_for_new_edit
 
   	respond_to do |format|
   		format.html
@@ -46,57 +47,43 @@ class SupportHelpdeskSettingController < ApplicationController
 
     respond_to do |format|
       if @setting.save
-        format.html { redirect_to(support_helpdesk_settings_url, :notice => "Support setting successfully created.")}
+        format.html { redirect_to(support_helpdesk_settings_url, :notice => "Support setting successfully created.") }
       else
         get_for_new_edit
-        format.html {render :action => "new"}
+        format.html { render :action => "new" }
       end
     end
   end
 
   def edit
-    @setting = SupportHelpdeskSetting.find params[:id]
-    get_for_new_edit
-
     respond_to do |format|
       format.html
     end
   end
 
   def update
-    @setting = SupportHelpdeskSetting.find params[:id]
-
     respond_to do |format|
       if @setting.update_attributes(params[:support_helpdesk_setting])
-        format.html { redirect_to(support_helpdesk_settings_url, :notice => "Support setting successfully updated.")}
+        format.html { redirect_to(support_helpdesk_settings_url, :notice => "Support setting successfully updated.") }
       else
         get_for_new_edit
-        format.html {render :action => "edit"}
+        format.html { render :action => "edit" }
       end
     end
   end
 
   def activate
-    @setting = SupportHelpdeskSetting.find params[:id]
+    @setting.active = !@setting.active
+    logger.debug(@setting.inspect)
 
-    if @setting.active == true
-      @setting.active = false
+    if @setting.save
+      redirect_to(support_helpdesk_settings_url, :notice => "Setting updated successfully.")
     else
-      @setting.active = true
-    end
-
-    respond_to do |format|
-      if @setting.save
-        format.html {redirect_to(support_helpdesk_settings_url, :notice => "Setting updated successfully.")}
-      else
-        format.html {redirect_to(support_helpdesk_settings_url, :error => "Could not update setting.")}
-      end
+      redirect_to(support_helpdesk_settings_url, :error => "Could not update setting.")
     end
   end
 
   def destroy
-    @setting = SupportHelpdeskSetting.find params[:id]
-
     @setting.destroy
 
     respond_to do |format|
@@ -105,6 +92,10 @@ class SupportHelpdeskSettingController < ApplicationController
   end
 
   private
+  def get_setting
+    @setting = SupportHelpdeskSetting.find(params[:id])
+  end
+
   def get_for_new_edit
     @projects = Project.order("name")
     @trackers = Tracker.all
