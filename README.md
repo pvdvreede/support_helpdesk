@@ -25,9 +25,16 @@ To install from scratch, clone this repository into the plugins directory of Red
 
 Then run `rake redmine:plugins:migrate` to add the required database tables.
 
+Before running the email fetcher the following environment variables must be defined so that the rake task can access the email server:
+
+* SH_EMAIL_HOST
+* SH_EMAIL_PORT
+* SH_EMAIL_USER
+* SH_EMAIL_PASS
+
 The plugin comes with two rake tasks, these are both daemons and something like upstart should be used to run them along with your web server setup of choice. The rake commands to use for these are:
 
-    rake support:fetch_pop_emails host=<email server host> port=<email server port> username=<email user> password=<email users password> every=<integer for how often in seconds the server should be checked>
+    rake support:fetch_pop_emails
     rake support:run_email_engine
 
 The first one should be configurable from a file and this will be added in the future.

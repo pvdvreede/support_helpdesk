@@ -22,10 +22,10 @@ Pick up emails from POP3 server and process them into support tickets.
 END_DESC
   task :fetch_pop_emails => :environment do
     pop_options = {}
-    pop_options[:host] = ENV['host'] if ENV['host']
-    pop_options[:port] = ENV['port'].to_i if ENV['port']
-    pop_options[:username] = ENV['username'] if ENV['username']
-    pop_options[:password] = ENV['password'] if ENV['password']
+    pop_options[:host] = ENV['SH_EMAIL_HOST'] if ENV['SH_EMAIL_HOST']
+    pop_options[:port] = ENV['SH_EMAIL_PORT'].to_i if ENV['SH_EMAIL_PORT']
+    pop_options[:username] = ENV['SH_EMAIL_USER'] if ENV['SH_EMAIL_USER']
+    pop_options[:password] = ENV['SH_EMAIL_PASS'] if ENV['SH_EMAIL_PASS']
     every = (ENV['every'] || 240).to_i
 
     while true do
