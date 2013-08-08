@@ -124,7 +124,7 @@ class Support::Workflow
 
     fields = {
       'email'   => email.to_yaml,
-      :wfid     => email.message_id.gsub(".", "-") # swap periods so rails doesnt think its a mime type
+      :wfid     => workflow_id(email.message_id)
     }
 
     Support.log_debug "Launching receive_email workflow with fields: #{fields.inspect}"
@@ -137,6 +137,10 @@ class Support::Workflow
       pc.is_a?(Class) &&
         pc.ancestors[1..3].include?(Support::Participants::BaseParticipant)
     end.map { |p| Support::Participants.const_get(p) }
+  end
+
+  def workflow_id(message_id)
+    CGI::escape(message_id).gsub('.', '-')
   end
 
 end

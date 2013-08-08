@@ -68,8 +68,11 @@ describe "Recieve email workflow", :wf => true do
           engine.process(@wfid).should be_false
         end
 
-        it 'provides the correct wf id' do
-          @wfid.should eq email.message_id.gsub(".", "-")
+        it 'the workflow id is url encoded without any periods' do
+          @wfid.include?('.').should be_false
+          @wfid.include?('=').should be_false
+          @wfid.include?('?').should be_false
+          @wfid.include?('/').should be_false
         end
 
         it 'inserts an issue' do
