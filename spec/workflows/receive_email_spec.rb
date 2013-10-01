@@ -252,6 +252,44 @@ describe "Recieve email workflow", :wf => true do
   end
 
   context "when the email has a suppression header" do
+    eml = File.join(email_dir, "multi_basic.eml")
+
+    %w[ OOF AutoReply ].each do |header|
+
+      describe "For the #{header} suppression header" do
+
+        before :all do
+          @engine = Ruote::Dashboard.new(Ruote::Worker.new(Ruote::HashStorage.new))
+          ActionMailer::Base.deliveries.clear
+          @email = Mail::Message.new(
+            File.read(eml)
+          )
+          @support = FactoryGirl.create(
+            :support_helpdesk_setting,
+            :to_email_address       => @email.to.first,
+            :active                 => false
+          )
+          @email.headers['X-Auto-Response-Suppress'] = header
+          run_workflow(@engine, @email)
+        end
+
+        after :all do
+          @engine.shutdown
+        end
+
+        it 'should finish the process' do
+          @engine.process(@wfid).should be_false
+        end
+
+        it 'will not insert any issues' do
+          Issue.all.should be_empty
+        end
+
+        it 'will not send any emails' do
+          ActionMailer::Base.deliveries.should be_empty
+        end
+      end
+    end
   end
 
   context "when there is no active supports" do
