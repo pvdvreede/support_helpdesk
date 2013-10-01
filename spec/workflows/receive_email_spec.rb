@@ -187,7 +187,68 @@ describe "Recieve email workflow", :wf => true do
     end
   end
 
-  context "when there is a related issue via reply header" do
+  context "when there is a related issue via in-reply-to header" do
+    emails = Dir[File.join(email_dir, "**", "*.eml")]
+
+    emails.each do |eml|
+
+      describe "a updated issue with #{eml}" do
+
+        before :all do
+          DatabaseCleaner.start
+          ActionMailer::Base.deliveries.clear
+          @engine = Ruote::Dashboard.new(Ruote::Worker.new(Ruote::HashStorage.new))
+          @email  = Mail::Message.new(
+            File.read(eml)
+          )
+          @support = FactoryGirl.create(
+            :support_helpdesk_setting,
+            :to_email_address       => @email.to.first,
+            :active                 => true
+          )
+          @current_issue = FactoryGirl.create(
+            :issue,
+            :support_helpdesk_setting => @support,
+            :tracker                  => @support.tracker,
+            :project                  => @support.project
+          )
+          @message_id = FactoryGirl.create(
+            :issues_support_message_id,
+            :issue                    => @current_issue,
+            :support_helpdesk_setting => @support,
+            :message_id               => 'thisisthefirstemailid@test.com'
+          )
+          @email.subject = "A random subject that has changed"
+          @email.in_reply_to = '<thisisthefirstemailid@test.com>'
+          @wfid = run_workflow(@engine, @email)
+        end
+
+        after :all do
+          @engine.shutdown
+          DatabaseCleaner.clean_with :truncation
+        end
+
+        it 'should finish the process' do
+          @engine.process(@wfid).should be_false
+        end
+
+        it 'will not create a new issue' do
+          Issue.count.should eq 1
+        end
+
+        it 'will add a journal note' do
+          @current_issue.journals.count.should eq 1
+        end
+
+        it 'will add an attachment' do
+          @current_issue.attachments.count.should eq 1
+        end
+
+        it 'will create a message id' do
+          @current_issue.issues_support_message_ids.count.should eq 2
+        end
+      end
+    end
   end
 
   context "when the email has a suppression header" do

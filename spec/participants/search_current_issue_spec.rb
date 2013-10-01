@@ -66,7 +66,7 @@ describe Support::Participants::SearchCurrentIssue do
 
   context 'when there is a related issue in the reply_to' do
     let(:issue_message_id) { FactoryGirl.create(:issues_support_message_id, :issue => issue, :message_id => "heyim@here", :support_helpdesk_setting => support) }
-    let(:email) { Mail::Message.new(:subject => "current issue but new subject", :message_id => "not@exist", :reply_to => "heyim@here") }
+    let(:email) { Mail::Message.new(:subject => "current issue but new subject", :message_id => "not@exist", :in_reply_to => "heyim@here") }
     let(:subject) { "current issue but new subject" }
 
     it 'will set the related_issue field with the issue' do

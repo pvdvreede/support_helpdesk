@@ -20,14 +20,14 @@ class Support::Participants::SearchCurrentIssue < Support::Participants::BasePar
 
   def on_workitem
     workitem.fields['related_issue'] =
-    if workitem.fields['email_subject'] =~ /Ticket #([0-9]+)/
-      Issue.joins(:status).where(:issue_statuses => {:is_closed => false}, :id => $1).first.attributes
-    elsif has_references?
-      IssuesSupportMessageId.joins(:issue => :status).where(
-        :message_id => searchable_ids,
-        :issue_statuses => {:is_closed => false}
-      ).first.issue.attributes
-    end
+      if workitem.fields['email_subject'] =~ /Ticket #([0-9]+)/
+        Issue.joins(:status).where(:issue_statuses => {:is_closed => false}, :id => $1).first.attributes
+      elsif has_references?
+        IssuesSupportMessageId.joins(:issue => :status).where(
+          :message_id     => searchable_ids,
+          :issue_statuses => {:is_closed => false}
+        ).first.issue.attributes
+      end
   rescue ActiveRecord::RecordNotFound, NoMethodError => e
     Support.log_warn("Could not locate a referred issue for #{email.message_id}: #{e.message}")
   ensure
@@ -37,11 +37,11 @@ class Support::Participants::SearchCurrentIssue < Support::Participants::BasePar
   private
 
   def has_references?
-    email.reply_to || email.references
+    email.in_reply_to || email.references
   end
 
   def searchable_ids
-    email.reply_to.to_a + email.references.to_a
+    email.in_reply_to.to_a + email.references.to_a
   end
 
 end
